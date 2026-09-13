@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+:root {
+  /* Neutrals — avorio, carta, nero morbido */
+  --color-paper: #fbf8f2;
+  --color-ivory: #f3ecdd;
+  --color-sand: #e6dcc4;
+  --color-stone: #c9bd9e;
+  --color-bark: #5a5142;
+  --color-ink: #211d17;
+
+  /* Verde oliva — colore identitario */
+  --color-olive-50: #f2f4e8;
+  --color-olive-100: #dfe4c4;
+  --color-olive-200: #c3cd94;
+  --color-olive-300: #a3b366;
+  --color-olive-400: #83954a;
+  --color-olive-500: #667a35;
+  --color-olive-600: #4f5f28;
+  --color-olive-700: #3c4a20;
+  --color-olive-800: #2b3618;
+  --color-olive-900: #1c2410;
+
+  /* Verde scuro / bosco, per superfici forti */
+  --color-forest-700: #22301c;
+  --color-forest-800: #182212;
+  --color-forest-900: #0f160b;
+
+  /* Terracotta — accento territorio */
+  --color-clay-400: #c17a45;
+  --color-clay-500: #a8632f;
+  --color-clay-600: #8a4f26;
+
+  /* Oro — accento prodotto premium */
+  --color-gold-400: #cdab5f;
+  --color-gold-500: #b08d3e;
+  --color-gold-600: #8f7130;
+
+  --color-danger: #a3402f;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-ivory: var(--color-ivory);
+  --color-sand: var(--color-sand);
+  --color-stone: var(--color-stone);
+  --color-bark: var(--color-bark);
+  --color-ink: var(--color-ink);
+
+  --color-olive-50: var(--color-olive-50);
+  --color-olive-100: var(--color-olive-100);
+  --color-olive-200: var(--color-olive-200);
+  --color-olive-300: var(--color-olive-300);
+  --color-olive-400: var(--color-olive-400);
+  --color-olive-500: var(--color-olive-500);
+  --color-olive-600: var(--color-olive-600);
+  --color-olive-700: var(--color-olive-700);
+  --color-olive-800: var(--color-olive-800);
+  --color-olive-900: var(--color-olive-900);
+
+  --color-forest-700: var(--color-forest-700);
+  --color-forest-800: var(--color-forest-800);
+  --color-forest-900: var(--color-forest-900);
+
+  --color-clay-400: var(--color-clay-400);
+  --color-clay-500: var(--color-clay-500);
+  --color-clay-600: var(--color-clay-600);
+
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-600: var(--color-gold-600);
+
+  --color-danger: var(--color-danger);
+
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
+
+  --container-content: 1280px;
+}
+
+* {
+  border-color: var(--color-sand);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-olive-700);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-clay-500);
+  outline-offset: 3px;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Editorial reveal-on-scroll: progressively enhanced, safe with no-JS/reduced-motion */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s var(--ease-editorial),
+    transform 0.5s var(--ease-editorial);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.no-js .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.container-editorial {
+  max-width: var(--container-content);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .container-editorial {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-editorial {
+    padding-inline: 3rem;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Custom scrollbar for horizontal editorial rails */
+.rail::-webkit-scrollbar {
+  height: 3px;
+}
+.rail::-webkit-scrollbar-thumb {
+  background: var(--color-olive-300);
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 0.75rem 1.25rem;
+  transition: top 0.2s var(--ease-editorial);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.bg-grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.5;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.bg-grain > * {
+  position: relative;
+  z-index: 1;
+}
