@@ -65,7 +65,7 @@ export default function ProdottiPage() {
           </p>
           <Link
             href="/trova-il-tuo-olio"
-            className="mt-6 inline-flex bg-ink px-6 py-3 text-sm tracking-wide text-paper hover:bg-olive-800"
+            className="mt-6 inline-flex rounded-full bg-ink px-6 py-3 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800"
           >
             Trova il tuo olio Pantaleo
           </Link>

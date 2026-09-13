@@ -224,3 +224,15 @@ a {
   position: relative;
   z-index: 1;
 }
+
+.shadow-soft {
+  box-shadow:
+    0 24px 48px -24px rgba(34, 48, 28, 0.22),
+    0 8px 20px -12px rgba(34, 48, 28, 0.14);
+}
+
+.shadow-soft-lg {
+  box-shadow:
+    0 32px 64px -20px rgba(34, 48, 28, 0.28),
+    0 14px 30px -14px rgba(34, 48, 28, 0.2);
+}

@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { GroveHorizon } from "@/components/illustrations/GroveHorizon";
 import { OliveBranch } from "@/components/illustrations/OliveBranch";
 import { PugliaMap } from "@/components/illustrations/PugliaMap";
+import { SectionCurve } from "@/components/illustrations/SectionCurve";
 import { getProductBySlug } from "@/lib/data/products";
 import { timeline } from "@/lib/data/timeline";
 import { recipes } from "@/lib/data/recipes";
@@ -31,6 +32,14 @@ export default function HomePage() {
               "radial-gradient(120% 90% at 15% -10%, rgba(176,141,62,0.35), transparent 60%), radial-gradient(90% 70% at 90% 110%, rgba(102,122,53,0.55), transparent 60%)",
           }}
         />
+        <div
+          className="pointer-events-none absolute -left-24 top-24 h-96 w-96 rounded-full bg-gold-500/20 blur-[110px]"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-16 bottom-24 h-[26rem] w-[26rem] rounded-full bg-clay-500/25 blur-[130px]"
+          aria-hidden="true"
+        />
         <div className="container-editorial relative flex flex-1 flex-col justify-center pt-28 pb-16 sm:pt-32">
           <p className="text-xs uppercase tracking-[0.3em] text-olive-200">
             Fasano, Puglia — dal 1890
@@ -47,13 +56,13 @@ export default function HomePage() {
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href="/storia"
-              className="border border-paper px-7 py-3.5 text-sm tracking-wide transition-colors hover:bg-paper hover:text-forest-900"
+              className="rounded-full border border-paper/70 px-7 py-3.5 text-sm tracking-wide backdrop-blur-sm transition-all hover:border-paper hover:bg-paper hover:text-forest-900"
             >
               SCOPRI PANTALEO
             </Link>
             <Link
               href="/prodotti"
-              className="bg-clay-500 px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-clay-600"
+              className="rounded-full bg-clay-500 px-7 py-3.5 text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 hover:shadow-soft-lg"
             >
               SCOPRI I NOSTRI OLI
             </Link>
@@ -63,14 +72,17 @@ export default function HomePage() {
       </section>
 
       {/* CIFRE ISTITUZIONALI */}
-      <section className="border-b border-sand bg-ivory">
-        <div className="container-editorial grid grid-cols-1 divide-y divide-sand sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <section className="bg-ivory">
+        <div className="container-editorial grid grid-cols-1 gap-4 py-14 sm:grid-cols-3">
           {[
             { cifra: "Oltre 130 anni", testo: "di storia della famiglia Pantaleo a Fasano" },
             { cifra: "4 generazioni", testo: "che si sono succedute nello stesso frantoio" },
             { cifra: "1 territorio", testo: "la Valle d'Itria, in Puglia, mai abbandonata" },
           ].map((item) => (
-            <div key={item.cifra} className="py-10 text-center sm:px-8">
+            <div
+              key={item.cifra}
+              className="rounded-3xl bg-paper px-8 py-10 text-center shadow-soft transition-transform hover:-translate-y-1"
+            >
               <p className="font-serif text-2xl text-olive-800">{item.cifra}</p>
               <p className="mt-2 text-sm text-bark">{item.testo}</p>
             </div>
@@ -99,9 +111,12 @@ export default function HomePage() {
             </Link>
           </Reveal>
           <Reveal delay={120}>
-            <div className="space-y-6 border-l border-olive-300 pl-8">
-              {timeline.map((event) => (
-                <div key={event.year}>
+            <div className="space-y-5 rounded-3xl bg-ivory p-8 shadow-soft">
+              {timeline.map((event, i) => (
+                <div
+                  key={event.year}
+                  className={i > 0 ? "border-t border-sand pt-5" : ""}
+                >
                   <p className="font-serif text-2xl text-olive-800">{event.year}</p>
                   <p className="text-sm text-bark">{event.title}</p>
                 </div>
@@ -112,10 +127,13 @@ export default function HomePage() {
       </section>
 
       {/* LA PUGLIA TEASER */}
-      <section className="bg-olive-900 py-24 text-paper">
+      <section className="relative bg-olive-900 py-28 text-paper">
+        <div className="absolute inset-x-0 top-0 -translate-y-[calc(100%-1px)] text-olive-900">
+          <SectionCurve className="h-16 w-full sm:h-24" />
+        </div>
         <div className="container-editorial grid gap-12 lg:grid-cols-2 lg:items-center">
           <Reveal>
-            <div className="mx-auto max-w-xs text-olive-100">
+            <div className="mx-auto max-w-xs text-olive-100 drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]">
               <PugliaMap className="w-full" />
             </div>
           </Reveal>
@@ -138,10 +156,13 @@ export default function HomePage() {
             </Link>
           </Reveal>
         </div>
+        <div className="absolute inset-x-0 bottom-0 translate-y-[calc(100%-1px)] text-paper">
+          <SectionCurve className="h-16 w-full sm:h-24" flip />
+        </div>
       </section>
 
       {/* PRODOTTI */}
-      <section className="container-editorial py-24">
+      <section className="container-editorial py-28">
         <Reveal>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -152,7 +173,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/trova-il-tuo-olio"
-              className="whitespace-nowrap border border-ink px-6 py-3 text-sm tracking-wide text-ink hover:bg-ink hover:text-paper"
+              className="whitespace-nowrap rounded-full border border-ink px-6 py-3 text-sm tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper"
             >
               Trova il tuo olio Pantaleo
             </Link>
@@ -172,7 +193,7 @@ export default function HomePage() {
               <Link
                 key={label}
                 href={`/prodotti?uso=${encodeURIComponent(label)}`}
-                className="whitespace-nowrap border border-stone px-4 py-2 text-sm text-ink hover:border-ink"
+                className="whitespace-nowrap rounded-full border border-stone px-4 py-2 text-sm text-ink transition-colors hover:border-ink hover:bg-ivory"
               >
                 {label.toUpperCase()}
               </Link>
@@ -188,10 +209,10 @@ export default function HomePage() {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-14 text-center">
           <Link
             href="/prodotti"
-            className="inline-flex border border-ink px-7 py-3.5 text-sm tracking-wide text-ink hover:bg-ink hover:text-paper"
+            className="inline-flex rounded-full border border-ink px-7 py-3.5 text-sm tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper"
           >
             Vedi tutti i prodotti
           </Link>
@@ -199,7 +220,7 @@ export default function HomePage() {
       </section>
 
       {/* CUCINA */}
-      <section className="bg-ivory py-24">
+      <section className="bg-ivory py-28">
         <div className="container-editorial">
           <Reveal>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -211,7 +232,7 @@ export default function HomePage() {
               </div>
               <Link
                 href="/cucina"
-                className="whitespace-nowrap text-sm tracking-wide text-ink underline underline-offset-4 hover:text-olive-700"
+                className="whitespace-nowrap text-sm tracking-wide text-ink underline underline-offset-4 hover:text-clay-600"
               >
                 Vai al magazine di cucina →
               </Link>
@@ -222,7 +243,7 @@ export default function HomePage() {
             {ricetteInEvidenza.map((recipe, i) => (
               <Reveal key={recipe.slug} delay={i * 80}>
                 <Link href={`/cucina/${recipe.slug}`} className="group block">
-                  <div className="flex aspect-[4/3] items-center justify-center bg-olive-100 p-6">
+                  <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl bg-olive-100 p-6 shadow-soft transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-soft-lg">
                     <OliveBranch className="h-16 w-32 text-olive-700 transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <p className="mt-4 text-xs uppercase tracking-wide text-bark">
@@ -237,7 +258,7 @@ export default function HomePage() {
       </section>
 
       {/* MAGAZINE */}
-      <section className="container-editorial py-24">
+      <section className="container-editorial py-28">
         <Reveal>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -248,17 +269,20 @@ export default function HomePage() {
             </div>
             <Link
               href="/magazine"
-              className="whitespace-nowrap text-sm tracking-wide text-ink underline underline-offset-4 hover:text-olive-700"
+              className="whitespace-nowrap text-sm tracking-wide text-ink underline underline-offset-4 hover:text-clay-600"
             >
               Tutti gli articoli →
             </Link>
           </div>
         </Reveal>
 
-        <div className="mt-12 grid gap-10 sm:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {articoliInEvidenza.map((article, i) => (
             <Reveal key={article.slug} delay={i * 80}>
-              <Link href={`/magazine/${article.slug}`} className="group block">
+              <Link
+                href={`/magazine/${article.slug}`}
+                className="group block rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-ivory hover:shadow-soft"
+              >
                 <p className="text-xs uppercase tracking-wide text-clay-600">{article.categoria}</p>
                 <h3 className="mt-2 font-serif text-2xl leading-snug text-ink group-hover:text-olive-700">
                   {article.titolo}
@@ -272,7 +296,10 @@ export default function HomePage() {
       </section>
 
       {/* B2B */}
-      <section className="bg-ink py-20 text-paper">
+      <section className="relative bg-ink py-24 text-paper">
+        <div className="absolute inset-x-0 top-0 -translate-y-[calc(100%-1px)] text-ink">
+          <SectionCurve className="h-14 w-full sm:h-20" />
+        </div>
         <div className="container-editorial flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-gold-400">Per le aziende</p>
@@ -282,7 +309,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/aziende"
-            className="whitespace-nowrap border border-paper px-7 py-3.5 text-sm tracking-wide hover:bg-paper hover:text-ink"
+            className="whitespace-nowrap rounded-full border border-paper/70 px-7 py-3.5 text-sm tracking-wide backdrop-blur-sm transition-all hover:border-paper hover:bg-paper hover:text-ink"
           >
             PARLA CON PANTALEO
           </Link>

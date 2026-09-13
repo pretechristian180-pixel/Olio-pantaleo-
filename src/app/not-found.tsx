@@ -10,10 +10,10 @@ export default function NotFound() {
         Forse il ramo che stavi cercando è stato potato. Torna alla home o scopri i nostri oli.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-4">
-        <Link href="/" className="border border-ink px-7 py-3.5 text-sm tracking-wide hover:bg-ink hover:text-paper">
+        <Link href="/" className="rounded-full border border-ink px-7 py-3.5 text-sm tracking-wide transition-colors hover:bg-ink hover:text-paper">
           Torna alla home
         </Link>
-        <Link href="/prodotti" className="bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800">
+        <Link href="/prodotti" className="rounded-full bg-ink px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800">
           Scopri i prodotti
         </Link>
       </div>

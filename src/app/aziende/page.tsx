@@ -64,9 +64,11 @@ export default function AziendePage() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           {capacita.map((c, i) => (
             <Reveal key={c.titolo} delay={i * 60}>
-              <OliveBranch className="h-6 w-14 text-clay-500" />
-              <h2 className="mt-3 font-serif text-xl text-ink">{c.titolo}</h2>
-              <p className="mt-2 text-sm text-bark">{c.testo}</p>
+              <div className="h-full rounded-3xl bg-ivory p-7 shadow-soft transition-transform hover:-translate-y-1">
+                <OliveBranch className="h-6 w-14 text-clay-500" />
+                <h2 className="mt-3 font-serif text-xl text-ink">{c.titolo}</h2>
+                <p className="mt-2 text-sm text-bark">{c.testo}</p>
+              </div>
             </Reveal>
           ))}
         </div>

@@ -40,7 +40,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
               type="button"
               onClick={() => setVariantId(f.id)}
               aria-pressed={variantId === f.id}
-              className={`border px-4 py-2 text-sm transition-colors ${
+              className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                 variantId === f.id
                   ? "border-ink bg-ink text-paper"
                   : "border-stone text-ink hover:border-ink"
@@ -58,11 +58,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <p className="font-serif text-3xl text-ink">{formatEUR(variant.prezzo)}</p>
         </div>
 
-        <div className="flex items-center border border-stone">
+        <div className="flex items-center rounded-full border border-stone">
           <button
             type="button"
             onClick={() => setQuantita((q) => Math.max(1, q - 1))}
-            className="px-3 py-2 text-lg"
+            className="px-3.5 py-2 text-lg"
             aria-label="Diminuisci quantità"
           >
             −
@@ -73,7 +73,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <button
             type="button"
             onClick={() => setQuantita((q) => Math.min(20, q + 1))}
-            className="px-3 py-2 text-lg"
+            className="px-3.5 py-2 text-lg"
             aria-label="Aumenta quantità"
           >
             +
@@ -85,14 +85,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         type="button"
         onClick={handleAdd}
         disabled={!variant.disponibile}
-        className="w-full bg-clay-500 py-4 text-sm tracking-wide text-paper transition-colors hover:bg-clay-600 disabled:cursor-not-allowed disabled:bg-stone"
+        className="w-full rounded-full bg-clay-500 py-4 text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 hover:shadow-soft-lg disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-stone disabled:shadow-none"
       >
         {variant.disponibile ? "Aggiungi al carrello" : "Non disponibile"}
       </button>
 
       <div aria-live="polite">
         {feedback && (
-          <p className="border border-olive-300 bg-olive-50 px-4 py-3 text-sm text-olive-800">
+          <p className="rounded-2xl border border-olive-300 bg-olive-50 px-4 py-3 text-sm text-olive-800">
             Aggiunto al carrello.{" "}
             <Link href="/carrello" className="underline">
               Vai al carrello

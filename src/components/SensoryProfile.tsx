@@ -17,7 +17,7 @@ export function SensoryProfile({ profile }: { profile: SensoryProfileType }) {
             {[1, 2, 3, 4, 5].map((step) => (
               <span
                 key={step}
-                className={`h-2 flex-1 rounded-sm ${
+                className={`h-2.5 flex-1 rounded-full transition-colors ${
                   step <= profile[row.key] ? "bg-olive-600" : "bg-sand"
                 }`}
               />

@@ -63,7 +63,7 @@ export default async function RicettaPage({
       </nav>
 
       <section className="container-editorial grid gap-14 pb-16 lg:grid-cols-2">
-        <div className="flex aspect-[4/3] items-center justify-center bg-olive-100 p-10">
+        <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl bg-olive-100 p-10 shadow-soft">
           <OliveBranch className="h-24 w-48 text-olive-700" />
         </div>
         <div>

@@ -41,7 +41,7 @@ export function MagazineFilter() {
           type="button"
           onClick={() => setCategoria(null)}
           aria-pressed={!attiva}
-          className={`border px-4 py-2 text-sm transition-colors ${
+          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
             !attiva ? "border-ink bg-ink text-paper" : "border-stone text-ink hover:border-ink"
           }`}
         >
@@ -53,7 +53,7 @@ export function MagazineFilter() {
             type="button"
             onClick={() => setCategoria(attiva === cat ? null : cat)}
             aria-pressed={attiva === cat}
-            className={`border px-4 py-2 text-sm transition-colors ${
+            className={`rounded-full border px-4 py-2 text-sm transition-colors ${
               attiva === cat ? "border-ink bg-ink text-paper" : "border-stone text-ink hover:border-ink"
             }`}
           >
@@ -64,7 +64,7 @@ export function MagazineFilter() {
 
       <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {filtrati.map((article) => (
-          <Link key={article.slug} href={`/magazine/${article.slug}`} className="group block">
+          <Link key={article.slug} href={`/magazine/${article.slug}`} className="group block rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-ivory hover:shadow-soft">
             <p className="text-xs uppercase tracking-wide text-clay-600">{article.categoria}</p>
             <h3 className="mt-2 font-serif text-2xl leading-snug text-ink group-hover:text-olive-700">
               {article.titolo}

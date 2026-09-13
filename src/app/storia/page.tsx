@@ -3,6 +3,7 @@ import Link from "next/link";
 import { StoryTimeline } from "@/components/StoryTimeline";
 import { Reveal } from "@/components/Reveal";
 import { GroveHorizon } from "@/components/illustrations/GroveHorizon";
+import { SectionCurve } from "@/components/illustrations/SectionCurve";
 import { timeline } from "@/lib/data/timeline";
 import { JsonLd } from "@/components/JsonLd";
 
@@ -44,7 +45,10 @@ export default function StoriaPage() {
         <StoryTimeline events={timeline} />
       </section>
 
-      <section className="bg-olive-900 py-20 text-paper">
+      <section className="relative bg-olive-900 py-24 text-paper">
+        <div className="absolute inset-x-0 top-0 -translate-y-[calc(100%-1px)] text-olive-900">
+          <SectionCurve className="h-14 w-full sm:h-20" />
+        </div>
         <div className="container-editorial grid gap-10 sm:grid-cols-4">
           {["Terra", "Famiglia", "Esperienza", "Innovazione"].map((word, i) => (
             <Reveal key={word} delay={i * 90}>
@@ -62,6 +66,9 @@ export default function StoriaPage() {
             </Reveal>
           ))}
         </div>
+        <div className="absolute inset-x-0 bottom-0 translate-y-[calc(100%-1px)] text-paper">
+          <SectionCurve className="h-14 w-full sm:h-20" flip />
+        </div>
       </section>
 
       <section className="container-editorial py-24 text-center">
@@ -70,10 +77,10 @@ export default function StoriaPage() {
             Una storia che continua ogni giorno, in ogni bottiglia.
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/la-puglia" className="border border-ink px-7 py-3.5 text-sm tracking-wide hover:bg-ink hover:text-paper">
+            <Link href="/la-puglia" className="rounded-full border border-ink px-7 py-3.5 text-sm tracking-wide transition-colors hover:bg-ink hover:text-paper">
               Scopri il territorio
             </Link>
-            <Link href="/prodotti" className="bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800">
+            <Link href="/prodotti" className="rounded-full bg-ink px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800">
               Scopri i nostri oli
             </Link>
           </div>

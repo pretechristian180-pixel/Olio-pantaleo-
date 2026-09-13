@@ -42,11 +42,11 @@ export function Newsletter({ origine }: { origine: string }) {
               setStatus("idle");
             }}
             placeholder="La tua email"
-            className="w-full border border-stone bg-paper px-4 py-3 text-sm text-ink placeholder:text-bark/60 focus:border-olive-600"
+            className="w-full rounded-full border border-stone bg-paper px-5 py-3 text-sm text-ink placeholder:text-bark/60 focus:border-olive-600"
           />
           <button
             type="submit"
-            className="whitespace-nowrap bg-ink px-5 py-3 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800"
+            className="whitespace-nowrap rounded-full bg-ink px-5 py-3 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800"
           >
             Iscriviti
           </button>

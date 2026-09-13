@@ -15,7 +15,7 @@ export function B2BContactForm() {
 
   if (sent) {
     return (
-      <div className="border border-olive-300 bg-olive-50 p-8 text-center">
+      <div className="rounded-3xl border border-olive-300 bg-olive-50 p-8 text-center shadow-soft">
         <p className="font-serif text-xl text-olive-800">Richiesta ricevuta.</p>
         <p className="mt-2 text-sm text-bark">
           Il team Pantaleo dedicato alle aziende ti risponderà al più presto per approfondire la
@@ -35,7 +35,7 @@ export function B2BContactForm() {
           id="b2b-nome"
           required
           type="text"
-          className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+          className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
         />
       </div>
       <div className="sm:col-span-1">
@@ -48,7 +48,7 @@ export function B2BContactForm() {
           type="text"
           value={azienda}
           onChange={(e) => setAzienda(e.target.value)}
-          className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+          className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
         />
       </div>
       <div className="sm:col-span-1">
@@ -59,7 +59,7 @@ export function B2BContactForm() {
           id="b2b-email"
           required
           type="email"
-          className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+          className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
         />
       </div>
       <div className="sm:col-span-1">
@@ -69,7 +69,7 @@ export function B2BContactForm() {
         <select
           id="b2b-ruolo"
           required
-          className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+          className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
         >
           <option value="">Seleziona</option>
           <option>Buyer / distributore</option>
@@ -85,13 +85,13 @@ export function B2BContactForm() {
         <textarea
           id="b2b-messaggio"
           rows={4}
-          className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+          className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
         />
       </div>
       <div className="sm:col-span-2">
         <button
           type="submit"
-          className="bg-clay-500 px-8 py-3.5 text-sm tracking-wide text-paper hover:bg-clay-600"
+          className="rounded-full bg-clay-500 px-8 py-3.5 text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 hover:shadow-soft-lg"
         >
           PARLA CON PANTALEO
         </button>

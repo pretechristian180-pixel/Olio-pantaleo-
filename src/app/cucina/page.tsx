@@ -33,7 +33,7 @@ export default function CucinaPage() {
         <div className="mt-8 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {recipes.map((recipe) => (
             <Link key={recipe.slug} href={`/cucina/${recipe.slug}`} className="group block">
-              <div className="flex aspect-[4/3] items-center justify-center bg-olive-100 p-8">
+              <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl bg-olive-100 p-8 shadow-soft transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-soft-lg">
                 <OliveBranch className="h-16 w-32 text-olive-700 transition-transform duration-500 group-hover:scale-105" />
               </div>
               <p className="mt-4 text-xs uppercase tracking-wide text-bark">

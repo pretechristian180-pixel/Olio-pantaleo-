@@ -69,7 +69,7 @@ export function ProductCatalog() {
                 type="button"
                 onClick={() => updateParam("uso", usoAttivo === uso ? null : uso)}
                 aria-pressed={usoAttivo === uso}
-                className={`border px-4 py-2 text-sm transition-colors ${
+                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                   usoAttivo === uso
                     ? "border-ink bg-ink text-paper"
                     : "border-stone text-ink hover:border-ink"
@@ -89,7 +89,7 @@ export function ProductCatalog() {
                 type="button"
                 onClick={() => updateParam("categoria", null)}
                 aria-pressed={!categoriaAttiva}
-                className={`border px-4 py-2 text-sm transition-colors ${
+                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                   !categoriaAttiva
                     ? "border-ink bg-ink text-paper"
                     : "border-stone text-ink hover:border-ink"
@@ -103,7 +103,7 @@ export function ProductCatalog() {
                   type="button"
                   onClick={() => updateParam("categoria", categoriaAttiva === cat ? null : cat)}
                   aria-pressed={categoriaAttiva === cat}
-                  className={`border px-4 py-2 text-sm transition-colors ${
+                  className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                     categoriaAttiva === cat
                       ? "border-ink bg-ink text-paper"
                       : "border-stone text-ink hover:border-ink"
@@ -125,7 +125,7 @@ export function ProductCatalog() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Es. intenso, limone, regalo…"
-              className="w-full border border-stone bg-paper px-4 py-2.5 text-sm focus:border-olive-600"
+              className="w-full rounded-xl border border-stone bg-paper px-4 py-2.5 text-sm focus:border-olive-600"
             />
           </div>
         </div>
@@ -142,7 +142,7 @@ export function ProductCatalog() {
           ))}
         </div>
       ) : (
-        <div className="border border-dashed border-stone py-16 text-center">
+        <div className="rounded-3xl border border-dashed border-stone py-16 text-center">
           <p className="text-ink">Nessun olio corrisponde ai filtri selezionati.</p>
           <button
             type="button"

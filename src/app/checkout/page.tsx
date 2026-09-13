@@ -33,7 +33,7 @@ export default function CheckoutPage() {
         <h1 className="font-serif text-3xl text-ink">Non hai prodotti nel carrello</h1>
         <Link
           href="/prodotti"
-          className="mt-8 inline-flex bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800"
+          className="mt-8 inline-flex rounded-full bg-ink px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800"
         >
           Vai ai prodotti
         </Link>
@@ -80,7 +80,7 @@ export default function CheckoutPage() {
                   required
                   value={form.nome}
                   onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                  className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+                  className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -93,7 +93,7 @@ export default function CheckoutPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+                  className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -105,7 +105,7 @@ export default function CheckoutPage() {
                   required
                   value={form.indirizzo}
                   onChange={(e) => setForm({ ...form, indirizzo: e.target.value })}
-                  className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+                  className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
                 />
               </div>
               <div>
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
                   required
                   value={form.citta}
                   onChange={(e) => setForm({ ...form, citta: e.target.value })}
-                  className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+                  className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
                 />
               </div>
               <div>
@@ -129,7 +129,7 @@ export default function CheckoutPage() {
                   required
                   value={form.cap}
                   onChange={(e) => setForm({ ...form, cap: e.target.value })}
-                  className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+                  className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
                 />
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
               ].map((opt) => (
                 <label
                   key={opt.id}
-                  className="flex items-center gap-3 border border-stone px-4 py-3 text-sm has-[:checked]:border-ink"
+                  className="flex items-center gap-3 rounded-2xl border border-stone px-4 py-3 text-sm transition-colors has-[:checked]:border-ink has-[:checked]:bg-ivory"
                 >
                   <input
                     type="radio"
@@ -162,13 +162,13 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
-            className="w-full bg-clay-500 py-4 text-sm tracking-wide text-paper hover:bg-clay-600"
+            className="w-full rounded-full bg-clay-500 py-4 text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 hover:shadow-soft-lg"
           >
             Conferma e paga {formatEUR(totale)}
           </button>
         </form>
 
-        <aside className="h-fit border border-sand p-6">
+        <aside className="h-fit rounded-3xl border border-sand p-6 shadow-soft">
           <h2 className="font-serif text-xl text-ink">Il tuo ordine</h2>
           <ul className="mt-4 space-y-3 text-sm">
             {items.map((item) => (

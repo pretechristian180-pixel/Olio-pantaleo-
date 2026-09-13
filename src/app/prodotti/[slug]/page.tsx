@@ -94,7 +94,7 @@ export default async function ProdottoPage({
       </nav>
 
       <section className="container-editorial grid gap-14 pb-20 lg:grid-cols-2">
-        <div className={`flex aspect-square items-center justify-center ${accentBg[product.accent]}`}>
+        <div className={`flex aspect-square items-center justify-center rounded-3xl shadow-soft ${accentBg[product.accent]}`}>
           <BottleGlyph accent={product.accent} className="h-4/5 w-auto" />
         </div>
 
@@ -105,7 +105,7 @@ export default async function ProdottoPage({
 
           <div className="mt-6 flex flex-wrap gap-2">
             {product.idealePer.map((tag) => (
-              <span key={tag} className="border border-stone px-3 py-1 text-xs text-bark">
+              <span key={tag} className="rounded-full border border-stone px-3 py-1 text-xs text-bark">
                 {tag}
               </span>
             ))}
@@ -153,7 +153,7 @@ export default async function ProdottoPage({
               <h2 className="font-serif text-2xl text-ink">Gusto</h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 {product.gusto.map((g) => (
-                  <span key={g} className="border border-olive-300 bg-paper px-3 py-1.5 text-sm text-olive-800">
+                  <span key={g} className="rounded-full border border-olive-300 bg-paper px-3 py-1.5 text-sm text-olive-800">
                     {g}
                   </span>
                 ))}
@@ -184,7 +184,7 @@ export default async function ProdottoPage({
             <div className="mt-8 grid gap-8 sm:grid-cols-3">
               {relatedRecipes.map((recipe) => (
                 <Link key={recipe.slug} href={`/cucina/${recipe.slug}`} className="group block">
-                  <div className="flex aspect-[4/3] items-center justify-center bg-olive-100 p-6">
+                  <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl bg-olive-100 p-6 shadow-soft transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-soft-lg">
                     <OliveBranch className="h-14 w-28 text-olive-700 transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <p className="mt-3 text-xs uppercase tracking-wide text-bark">

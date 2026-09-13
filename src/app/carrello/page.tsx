@@ -20,7 +20,7 @@ export default function CarrelloPage() {
         <p className="mt-3 text-bark">Scopri la gamma Pantaleo e trova l&apos;olio giusto per te.</p>
         <Link
           href="/prodotti"
-          className="mt-8 inline-flex bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800"
+          className="mt-8 inline-flex rounded-full bg-ink px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800"
         >
           Continua lo shopping
         </Link>
@@ -33,10 +33,10 @@ export default function CarrelloPage() {
       <h1 className="font-serif text-3xl text-ink sm:text-4xl">Il tuo carrello</h1>
 
       <div className="mt-10 grid gap-14 lg:grid-cols-[1fr_360px]">
-        <ul className="divide-y divide-sand border-y border-sand">
+        <ul className="divide-y divide-sand rounded-3xl border border-sand px-4 shadow-soft sm:px-6">
           {items.map((item) => (
             <li key={item.variantId} className="flex gap-5 py-6">
-              <div className={`flex h-24 w-24 shrink-0 items-center justify-center ${accentBg[item.accent]}`}>
+              <div className={`flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl ${accentBg[item.accent]}`}>
                 <BottleGlyph accent={item.accent} className="h-4/5" />
               </div>
               <div className="flex flex-1 flex-col justify-between">
@@ -50,11 +50,11 @@ export default function CarrelloPage() {
                   <p className="text-sm text-ink">{formatEUR(item.prezzo * item.quantita)}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center border border-stone">
+                  <div className="flex items-center rounded-full border border-stone">
                     <button
                       type="button"
                       onClick={() => aggiornaQuantita(item.variantId, item.quantita - 1)}
-                      className="px-3 py-1.5 text-lg"
+                      className="px-3.5 py-1.5 text-lg"
                       aria-label={`Diminuisci quantità di ${item.nome}`}
                     >
                       −
@@ -63,7 +63,7 @@ export default function CarrelloPage() {
                     <button
                       type="button"
                       onClick={() => aggiornaQuantita(item.variantId, item.quantita + 1)}
-                      className="px-3 py-1.5 text-lg"
+                      className="px-3.5 py-1.5 text-lg"
                       aria-label={`Aumenta quantità di ${item.nome}`}
                     >
                       +
@@ -82,7 +82,7 @@ export default function CarrelloPage() {
           ))}
         </ul>
 
-        <aside className="h-fit border border-sand p-6">
+        <aside className="h-fit rounded-3xl border border-sand p-6 shadow-soft">
           <h2 className="font-serif text-xl text-ink">Riepilogo</h2>
           <div className="mt-4 flex justify-between text-sm">
             <span className="text-bark">Subtotale</span>
@@ -98,13 +98,13 @@ export default function CarrelloPage() {
           </div>
           <Link
             href="/checkout"
-            className="mt-6 block w-full bg-clay-500 py-3.5 text-center text-sm tracking-wide text-paper hover:bg-clay-600"
+            className="mt-6 block w-full rounded-full bg-clay-500 py-3.5 text-center text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 hover:shadow-soft-lg"
           >
             Procedi al checkout
           </Link>
           <Link
             href="/prodotti"
-            className="mt-3 block w-full border border-stone py-3.5 text-center text-sm text-ink hover:border-ink"
+            className="mt-3 block w-full rounded-full border border-stone py-3.5 text-center text-sm text-ink transition-colors hover:border-ink"
           >
             Continua lo shopping
           </Link>

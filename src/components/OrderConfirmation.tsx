@@ -45,7 +45,7 @@ export function OrderConfirmation() {
         aggiornamento all&apos;indirizzo {order.spedizione.email}.
       </p>
 
-      <div className="mt-10 w-full max-w-md border border-sand p-6 text-left">
+      <div className="mt-10 w-full max-w-md rounded-3xl border border-sand p-6 text-left shadow-soft">
         <ul className="space-y-3 text-sm">
           {order.items.map((item) => (
             <li key={item.variantId} className="flex justify-between gap-2">
@@ -63,10 +63,10 @@ export function OrderConfirmation() {
       </div>
 
       <div className="mt-10 flex flex-wrap justify-center gap-4">
-        <Link href="/prodotti" className="bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800">
+        <Link href="/prodotti" className="rounded-full bg-ink px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800">
           Continua lo shopping
         </Link>
-        <Link href="/account" className="border border-ink px-7 py-3.5 text-sm tracking-wide text-ink hover:bg-ink hover:text-paper">
+        <Link href="/account" className="rounded-full border border-ink px-7 py-3.5 text-sm tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper">
           Vai al tuo account
         </Link>
       </div>

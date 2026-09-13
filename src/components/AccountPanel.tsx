@@ -51,7 +51,7 @@ export function AccountPanel() {
               required
               value={form.nome}
               onChange={(e) => setForm({ ...form, nome: e.target.value })}
-              className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+              className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
             />
           </div>
           <div>
@@ -64,10 +64,10 @@ export function AccountPanel() {
               required
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
+              className="w-full rounded-xl border border-stone bg-paper px-4 py-3 text-sm focus:border-olive-600"
             />
           </div>
-          <button type="submit" className="w-full bg-ink py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800">
+          <button type="submit" className="w-full rounded-full bg-ink py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800">
             Accedi
           </button>
         </form>
@@ -93,7 +93,7 @@ export function AccountPanel() {
           Non hai ancora ordini. <Link href="/prodotti" className="underline">Scopri i nostri oli</Link>.
         </p>
       ) : (
-        <ul className="mt-4 divide-y divide-sand border-y border-sand">
+        <ul className="mt-4 divide-y divide-sand rounded-3xl border border-sand px-5 shadow-soft">
           {orders.map((order) => (
             <li key={order.id} className="flex items-center justify-between py-4 text-sm">
               <div>

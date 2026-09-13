@@ -96,9 +96,11 @@ export default function LaPugliaPage() {
               { step: "04", titolo: "Imbottigliamento", testo: "Conservazione al riparo da luce e calore, fino all'imbottigliamento delle singole referenze." },
             ].map((s, i) => (
               <Reveal key={s.step} delay={i * 80}>
+                <div className="rounded-3xl bg-paper p-6 shadow-soft transition-transform hover:-translate-y-1">
                 <p className="font-serif text-3xl text-olive-300">{s.step}</p>
                 <h3 className="mt-2 font-serif text-xl text-ink">{s.titolo}</h3>
                 <p className="mt-2 text-sm text-bark">{s.testo}</p>
+                </div>
               </Reveal>
             ))}
           </div>
@@ -111,10 +113,10 @@ export default function LaPugliaPage() {
             Scopri come questo territorio diventa il gusto di ogni bottiglia.
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/storia" className="border border-ink px-7 py-3.5 text-sm tracking-wide hover:bg-ink hover:text-paper">
+            <Link href="/storia" className="rounded-full border border-ink px-7 py-3.5 text-sm tracking-wide transition-colors hover:bg-ink hover:text-paper">
               La nostra storia
             </Link>
-            <Link href="/prodotti" className="bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800">
+            <Link href="/prodotti" className="rounded-full bg-ink px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800">
               Scopri i nostri oli
             </Link>
           </div>

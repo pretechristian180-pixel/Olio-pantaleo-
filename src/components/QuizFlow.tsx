@@ -54,7 +54,7 @@ export function QuizFlow() {
         <button
           type="button"
           onClick={() => setStarted(true)}
-          className="mt-8 bg-ink px-8 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800"
+          className="mt-8 rounded-full bg-ink px-8 py-3.5 text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-olive-800 hover:shadow-soft-lg"
         >
           Inizia il quiz
         </button>
@@ -75,7 +75,7 @@ export function QuizFlow() {
         <p className="mt-4 text-bark">{product.tagline}</p>
 
         <div
-          className={`mx-auto mt-10 flex aspect-[4/3] max-w-sm items-center justify-center ${accentBg[product.accent]}`}
+          className={`mx-auto mt-10 flex aspect-[4/3] max-w-sm items-center justify-center rounded-3xl shadow-soft ${accentBg[product.accent]}`}
         >
           <BottleGlyph accent={product.accent} className="h-3/4 w-auto" />
         </div>
@@ -85,14 +85,14 @@ export function QuizFlow() {
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link
             href={`/prodotti/${product.slug}`}
-            className="bg-clay-500 px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-clay-600"
+            className="rounded-full bg-clay-500 px-7 py-3.5 text-sm tracking-wide text-paper shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 hover:shadow-soft-lg"
           >
             SCOPRI IL PRODOTTO
           </Link>
           <button
             type="button"
             onClick={reset}
-            className="border border-ink px-7 py-3.5 text-sm tracking-wide text-ink hover:bg-ink hover:text-paper"
+            className="rounded-full border border-ink px-7 py-3.5 text-sm tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper"
           >
             Rifai il quiz
           </button>
@@ -123,7 +123,7 @@ export function QuizFlow() {
             key={opzione.id}
             type="button"
             onClick={() => handleAnswer(opzione.tags)}
-            className="block w-full border border-stone px-5 py-4 text-left text-ink transition-colors hover:border-ink hover:bg-ivory"
+            className="block w-full rounded-2xl border border-stone px-5 py-4 text-left text-ink transition-all hover:border-ink hover:bg-ivory hover:shadow-soft"
           >
             {opzione.label}
           </button>
