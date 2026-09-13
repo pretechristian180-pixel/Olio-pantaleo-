@@ -53,7 +53,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/prodotti"
-              className="bg-gold-500 px-7 py-3.5 text-sm tracking-wide text-forest-900 transition-colors hover:bg-gold-400"
+              className="bg-clay-500 px-7 py-3.5 text-sm tracking-wide text-paper transition-colors hover:bg-clay-600"
             >
               SCOPRI I NOSTRI OLI
             </Link>

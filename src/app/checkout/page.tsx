@@ -162,7 +162,7 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
-            className="w-full bg-ink py-4 text-sm tracking-wide text-paper hover:bg-olive-800"
+            className="w-full bg-clay-500 py-4 text-sm tracking-wide text-paper hover:bg-clay-600"
           >
             Conferma e paga {formatEUR(totale)}
           </button>

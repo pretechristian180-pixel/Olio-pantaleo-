@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -51,12 +52,15 @@ export function Header() {
         }`}
       >
         <div className="container-editorial flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="font-serif text-xl tracking-[0.18em] text-ink sm:text-2xl"
-            aria-label="Pantaleo, home page"
-          >
-            PANTALEO
+          <Link href="/" className="shrink-0" aria-label="Pantaleo, home page">
+            <Image
+              src="/pantaleo-logo.png"
+              alt="Pantaleo, dal 1890"
+              width={640}
+              height={323}
+              priority
+              className={`w-auto transition-[height] duration-300 ${scrolled ? "h-10" : "h-12"}`}
+            />
           </Link>
 
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Navigazione principale">
@@ -120,7 +124,7 @@ export function Header() {
           aria-label="Menu di navigazione"
         >
           <div className="container-editorial flex items-center justify-between py-4">
-            <span className="font-serif text-xl tracking-[0.18em]">PANTALEO</span>
+            <Image src="/pantaleo-logo.png" alt="Pantaleo, dal 1890" width={640} height={323} className="h-11 w-auto" />
             <button
               type="button"
               onClick={() => setMenuOpen(false)}

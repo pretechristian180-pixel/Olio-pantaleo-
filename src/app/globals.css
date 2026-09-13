@@ -26,17 +26,19 @@
   --color-forest-800: #182212;
   --color-forest-900: #0f160b;
 
-  /* Terracotta — accento territorio */
-  --color-clay-400: #c17a45;
-  --color-clay-500: #a8632f;
-  --color-clay-600: #8a4f26;
+  /* Rosso Pantaleo — dal marchio storico del 1890 */
+  --color-clay-300: #e8969c;
+  --color-clay-400: #dd4550;
+  --color-clay-500: #c90512;
+  --color-clay-600: #a3040e;
+  --color-clay-700: #7c0309;
 
   /* Oro — accento prodotto premium */
   --color-gold-400: #cdab5f;
   --color-gold-500: #b08d3e;
   --color-gold-600: #8f7130;
 
-  --color-danger: #a3402f;
+  --color-danger: #a3040e;
 
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -67,9 +69,11 @@
   --color-forest-800: var(--color-forest-800);
   --color-forest-900: var(--color-forest-900);
 
+  --color-clay-300: var(--color-clay-300);
   --color-clay-400: var(--color-clay-400);
   --color-clay-500: var(--color-clay-500);
   --color-clay-600: var(--color-clay-600);
+  --color-clay-700: var(--color-clay-700);
 
   --color-gold-400: var(--color-gold-400);
   --color-gold-500: var(--color-gold-500);

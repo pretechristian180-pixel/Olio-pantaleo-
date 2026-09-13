@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Newsletter } from "@/components/Newsletter";
-import { OliveBranch } from "@/components/illustrations/OliveBranch";
 
 const columns = [
   {
@@ -40,11 +40,8 @@ export function Footer() {
       <div className="container-editorial py-16">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-3 text-olive-700">
-              <OliveBranch className="h-8 w-16" />
-            </div>
-            <p className="mt-4 font-serif text-2xl">PANTALEO</p>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-bark">
+            <Image src="/pantaleo-logo.png" alt="Pantaleo, dal 1890" width={640} height={323} className="h-14 w-auto" />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-bark">
               Dal 1890, quattro generazioni della famiglia Pantaleo lavorano gli uliveti della
               Valle d&apos;Itria, a Fasano, in provincia di Brindisi.
             </p>

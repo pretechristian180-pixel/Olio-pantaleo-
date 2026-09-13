@@ -85,7 +85,7 @@ export function QuizFlow() {
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link
             href={`/prodotti/${product.slug}`}
-            className="bg-ink px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800"
+            className="bg-clay-500 px-7 py-3.5 text-sm tracking-wide text-paper hover:bg-clay-600"
           >
             SCOPRI IL PRODOTTO
           </Link>

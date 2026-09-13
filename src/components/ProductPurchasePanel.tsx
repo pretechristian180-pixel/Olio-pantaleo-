@@ -85,7 +85,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         type="button"
         onClick={handleAdd}
         disabled={!variant.disponibile}
-        className="w-full bg-ink py-4 text-sm tracking-wide text-paper transition-colors hover:bg-olive-800 disabled:cursor-not-allowed disabled:bg-stone"
+        className="w-full bg-clay-500 py-4 text-sm tracking-wide text-paper transition-colors hover:bg-clay-600 disabled:cursor-not-allowed disabled:bg-stone"
       >
         {variant.disponibile ? "Aggiungi al carrello" : "Non disponibile"}
       </button>

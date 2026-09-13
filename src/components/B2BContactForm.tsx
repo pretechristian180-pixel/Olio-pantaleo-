@@ -91,7 +91,7 @@ export function B2BContactForm() {
       <div className="sm:col-span-2">
         <button
           type="submit"
-          className="bg-ink px-8 py-3.5 text-sm tracking-wide text-paper hover:bg-olive-800"
+          className="bg-clay-500 px-8 py-3.5 text-sm tracking-wide text-paper hover:bg-clay-600"
         >
           PARLA CON PANTALEO
         </button>

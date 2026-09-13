@@ -98,7 +98,7 @@ export default function CarrelloPage() {
           </div>
           <Link
             href="/checkout"
-            className="mt-6 block w-full bg-ink py-3.5 text-center text-sm tracking-wide text-paper hover:bg-olive-800"
+            className="mt-6 block w-full bg-clay-500 py-3.5 text-center text-sm tracking-wide text-paper hover:bg-clay-600"
           >
             Procedi al checkout
           </Link>
