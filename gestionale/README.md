@@ -14,6 +14,8 @@ npm run dev        # http://localhost:5173
 npm run build      # controllo dei tipi + build di produzione
 ```
 
+Per creare l'anteprima in un unico file (`dist-anteprima/casalista.html`) usa `npm run anteprima`.
+
 Aggiungi `?vuoto` all'indirizzo per vedere gli **stati vuoti** (e `?pieno` per tornare ai dati di esempio).
 
 ## Stack

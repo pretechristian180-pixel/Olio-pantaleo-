@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, createMemoryRouter } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { AgendaPage } from "@/features/agenda/AgendaPage";
 import { ContactDetailPage } from "@/features/contacts/ContactDetailPage";
@@ -15,7 +15,7 @@ import { NotFoundPage } from "./NotFoundPage";
  * Tutte le rotte dell'app. Quando arriverà l'autenticazione Supabase,
  * AppShell verrà avvolto da una rotta protetta (es. <RequireAuth>) e si aggiungerà /accedi.
  */
-export const router = createBrowserRouter([
+const routes = [
   {
     element: <AppShell />,
     children: [
@@ -31,4 +31,8 @@ export const router = createBrowserRouter([
       { path: "*", element: <NotFoundPage /> },
     ],
   },
-]);
+];
+
+// Nell'anteprima condivisa l'indirizzo non si può cambiare: lì la navigazione resta in memoria.
+export const router =
+  import.meta.env.MODE === "anteprima" ? createMemoryRouter(routes) : createBrowserRouter(routes);
