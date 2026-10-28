@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+/*
+ * Design token (stile shadcn/ui). Un solo colore principale: blu #2563EB.
+ * Verde = esito positivo, arancione = avviso, rosso = solo errori.
+ */
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --muted: #f6f7f9;
+  --muted-foreground: #5f6670;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --border: #e8eaee;
+  --input: #d9dce2;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --primary-soft: #eef3fe;
+  --success: #15803d;
+  --success-soft: #ecfdf3;
+  --warning: #c2570c;
+  --warning-soft: #fff4e8;
+  --destructive: #dc2626;
+  --destructive-soft: #fef2f2;
+  --ring: #2563eb;
+  --radius: 12px;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-ring: var(--ring);
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: var(--radius);
+  --radius-xl: 16px;
+
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.03);
+  --shadow-raised: 0 4px 16px rgb(16 24 40 / 0.08);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
