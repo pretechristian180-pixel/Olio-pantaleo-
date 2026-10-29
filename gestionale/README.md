@@ -22,8 +22,9 @@ npm run build      # controllo dei tipi + build di produzione
   RLS attiva su tutte le tabelle, con la funzione `get_my_agency_id()` in ogni policy.
   Le chiavi esterne composte `(id, agency_id)` impediscono di collegare dati di agenzie diverse.
 - **Permessi**: il titolare vede e modifica tutto della sua agenzia, gestisce utenti e dati
-  dell'agenzia. L'agente vede immobili, contatti, trattative e agenda dell'agenzia, ma modifica solo
-  ciò che ha assegnato (`agente_id`); vede solo le proprie "cose da fare".
+  dell'agenzia. L'agente vede tutti gli immobili, le trattative e gli appuntamenti dell'agenzia, ma
+  **solo i propri contatti** (con la loro ricerca e cronologia) e le proprie "cose da fare";
+  modifica solo ciò che ha assegnato (`agente_id`).
 - **Registrazione**: chi si registra crea l'agenzia e ne diventa titolare (trigger `handle_new_user`).
 - **Inviti**: Impostazioni → Utenti → "Invita un agente" chiama la Edge Function
   `supabase/functions/invita-agente`, che invia l'email; l'agente sceglie la password ed entra già

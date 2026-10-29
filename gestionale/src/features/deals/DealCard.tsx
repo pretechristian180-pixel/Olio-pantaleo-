@@ -40,7 +40,7 @@ export const DealCard = forwardRef<HTMLDivElement, Props>(function DealCard(
               {fullName(d.contact)}
             </Link>
           ) : (
-            <p className="font-semibold">Cliente</p>
+            <p className="text-[17px] font-semibold">Cliente di un collega</p>
           )}
           <p className="text-sm text-muted-foreground">Aggiornata {formatRelative(d.updatedAt)}</p>
         </div>

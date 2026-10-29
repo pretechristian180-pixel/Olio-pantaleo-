@@ -151,7 +151,7 @@ export function PropertyDetailPage() {
             </CardContent>
           </Card>
 
-          {owner && (
+          {owner ? (
             <Card>
               <CardHeader>
                 <CardTitle>Proprietario</CardTitle>
@@ -167,6 +167,18 @@ export function PropertyDetailPage() {
                 <ContactActions contact={owner} compact className="mt-4" />
               </CardContent>
             </Card>
+          ) : (
+            p.ownerId && (
+              // Il proprietario è un contatto seguito da un collega: gli agenti vedono solo i propri contatti
+              <Card>
+                <CardHeader>
+                  <CardTitle>Proprietario</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Lo segue un tuo collega.</p>
+                </CardContent>
+              </Card>
+            )
           )}
 
           <Card>
