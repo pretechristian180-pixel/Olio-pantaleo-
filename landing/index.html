@@ -967,6 +967,8 @@ p { margin: 0; }
   var SUPABASE_KEY = "sb_publishable_3QxjhWJWm0FxQfNPFTkTyA_jAn1Qnkk";
   // Sconto per il pagamento annuale: es. 0.15 per il 15%. Finché è null la pagina mostra il segnaposto.
   var SCONTO_ANNUALE = null;
+  // Nell'anteprima pubblicata (scripts/anteprima.mjs) il form non può raggiungere Supabase: mostra solo la conferma
+  var ANTEPRIMA = false;
 
   // ===== Icone lucide =====
   document.querySelectorAll("[data-icona]").forEach(function (el) {
@@ -1101,6 +1103,11 @@ p { margin: 0; }
     if (form.elements.sito.value) { confermato(null); return; } // bot: fingiamo che sia andato tutto bene
     var dati = valida();
     if (!dati) return;
+    if (ANTEPRIMA) {
+      confermato(dati);
+      document.getElementById("conferma-testo").textContent += " (Anteprima: la richiesta non è stata inviata.)";
+      return;
+    }
     invia.disabled = true;
     invia.firstChild.textContent = "Invio in corso…";
     fetch(SUPABASE_URL + "/rest/v1/demo_requests", {

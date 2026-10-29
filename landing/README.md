@@ -10,6 +10,9 @@ Pagina di vendita di Mattonio. Un solo obiettivo: far prenotare una demo gratuit
 Per pubblicarla basta caricare la cartella su qualsiasi hosting statico (Netlify, Vercel, Cloudflare Pages…).
 Per provarla in locale: `npx serve landing` dalla radice del repository.
 
+`node scripts/anteprima.mjs` crea `dist/anteprima.html`, la versione in un file unico usata per
+l'anteprima condivisibile: lì il form mostra la conferma senza inviare nulla.
+
 ## Form "Prenota la demo"
 
 Le richieste finiscono nella tabella `demo_requests` del progetto Supabase (migrazione
