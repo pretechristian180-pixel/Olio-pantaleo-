@@ -3,8 +3,8 @@
 
 /*
  * Design token Sorpasso AI (stile shadcn/ui).
- * Blu notte = colore primario (menu, pulsanti principali, titoli).
- * Blu elettrico = accento (evidenze, AI, elementi attivi).
+ * Colori del logo: blu notte #0B1530 = primario (menu, pulsanti principali, titoli),
+ * blu elettrico #3D6BFF = accento (evidenze, AI, elementi attivi).
  * Verde = fatto/ok, giallo = attenzione, rosso = urgente/errore.
  */
 :root {
@@ -16,13 +16,13 @@
   --card-foreground: #0d1526;
   --border: #e5e9f0;
   --input: #d5dbe5;
-  --primary: #0f2147;
+  --primary: #0b1530;
   --primary-foreground: #ffffff;
   --primary-soft: #eef2fa;
-  --accent: #2f6bff;
+  --accent: #3d6bff;
   --accent-foreground: #ffffff;
   --accent-soft: #ebf1ff;
-  --sidebar: #0b1630;
+  --sidebar: #0b1530;
   --sidebar-foreground: #c9d3e6;
   --success: #15803d;
   --success-soft: #ecfdf3;
@@ -30,7 +30,7 @@
   --warning-soft: #fff7e6;
   --destructive: #dc2626;
   --destructive-soft: #fef2f2;
-  --ring: #2f6bff;
+  --ring: #3d6bff;
   --radius: 12px;
 }
 

@@ -27,7 +27,7 @@ import { Semaforo } from "./Semaforo";
  * Colori del grafico (validati con lo script dataviz: CVD e contrasto ok su bianco).
  * Margine positivo = blu elettrico, negativo = arancio; il segno è anche nella posizione rispetto allo zero.
  */
-const C = { positivo: "#2f6bff", negativo: "#eb6834", griglia: "#e5e9f0", asse: "#5b6578", zero: "#5b6578" };
+const C = { positivo: "#3d6bff", negativo: "#eb6834", griglia: "#e5e9f0", asse: "#5b6578", zero: "#5b6578" };
 
 type Periodo = "mese" | "mese_scorso" | "3_mesi" | "anno" | "personalizzato";
 const PERIODI: { value: Periodo; label: string }[] = [

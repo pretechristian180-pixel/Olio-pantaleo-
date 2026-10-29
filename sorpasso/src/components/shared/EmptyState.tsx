@@ -29,8 +29,8 @@ export function EmptyState({
   );
 }
 
-const A = "#2F6BFF";
-const N = "#0F2147";
+const A = "#3D6BFF";
+const N = "#0B1530";
 const S = "#EBF1FF";
 
 function Illustration({ art, small }: { art: Art; small?: boolean }) {

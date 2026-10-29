@@ -1,15 +1,23 @@
 import { cn } from "@/lib/utils";
 
-export function Logo({ className, invert }: { className?: string; invert?: boolean }) {
+/**
+ * Logo ufficiale Sorpasso AI.
+ * `invert` = versione chiara (testo bianco) per fondi scuri come il menu laterale;
+ * senza `invert` la versione originale blu notte per fondi chiari.
+ */
+export function Logo({ className, invert, altezza = 28 }: { className?: string; invert?: boolean; altezza?: number }) {
+  // Contenitore inline: in una colonna flex l'immagine non viene stirata in larghezza.
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <svg viewBox="0 0 32 32" className="size-8" aria-hidden>
-        <rect width="32" height="32" rx="8" fill={invert ? "#ffffff" : "#0b1630"} />
-        <path d="M8 21l7-10h4l-4 6h7l-7 10h-4l4-6z" fill="#3d7bff" />
-      </svg>
-      <span className={cn("text-[19px] font-bold tracking-tight", invert ? "text-white" : "text-primary")}>
-        Sorpasso<span className="text-accent"> AI</span>
-      </span>
+    <span className={cn("inline-flex shrink-0", className)}>
+      <img
+        src={invert ? "/logo-chiaro.png" : "/logo-scuro.png"}
+        alt="Sorpasso AI"
+        width={Math.round(altezza * 5.3)}
+        height={altezza}
+        style={{ height: altezza, width: "auto" }}
+        className="block max-w-none object-contain"
+        decoding="async"
+      />
     </span>
   );
 }
