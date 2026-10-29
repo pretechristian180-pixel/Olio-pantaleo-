@@ -38,6 +38,16 @@ esempio in memoria (`src/demo/`): serve per mostrare l'app dove Supabase non è 
 - **Automatismi** (trigger nel database): cronologia per nuovo contatto, nuovo immobile, nuova trattativa,
   cambio fase e nuovo appuntamento; promemoria automatici "Chiama…" per i nuovi acquirenti e
   "Richiama…, ha visto l'immobile" dopo la fase Visita. Chiamate e WhatsApp sono registrati dall'app.
+- **Matching** (migrazione `20261029130000_matching.sql`):
+  - le zone si scelgono da una lista unica dell'agenzia (`zones`, gestita in Impostazioni → Agenzia);
+  - `match_eval` calcola un punteggio 0-100 con i motivi: contratto, budget (+10% di margine), metri quadri
+    (−10%) e zona sono obbligatori; budget, metri quadri, locali e tipo aggiungono o tolgono punti;
+  - i match finiscono in `matches` con uno stato (da proporre, proposto, interessato, scartato) e si
+    ricalcolano da soli quando cambia un immobile o una ricerca; chi ha scartato un immobile non se lo
+    vede riproporre;
+  - ogni agente riceve una "cosa da fare" quando compaiono match per i suoi clienti (anche se l'immobile
+    l'ha inserito un collega), senza vedere i clienti degli altri;
+  - "Proponi su WhatsApp" apre WhatsApp con il messaggio già scritto e segna il match come proposto.
 - **Foto**: bucket privato `property-photos`, percorso `{agency_id}/{property_id}/…`; le foto sono
   ridotte a 1600px e compresse in JPEG prima del caricamento. I loghi stanno nel bucket `agency-logos`.
 

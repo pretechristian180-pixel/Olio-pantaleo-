@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Check, ImagePlus, LogOut, Mail, UserPlus } from "lucide-react";
+import { Check, ImagePlus, LogOut, Mail, Plus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +19,10 @@ import { friendlyError } from "@/lib/errors";
 import { formatShortDate, fullName } from "@/lib/format";
 import { supabase } from "@/lib/supabase";
 import {
+  addZone,
   cancelInvitation,
+  deleteZone,
+  listZoneItems,
   inviteAgent,
   listTeam,
   logoUrl,
@@ -218,58 +221,145 @@ function AgencySection() {
   const disabled = !isOwner;
 
   return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Dati dell'agenzia</CardTitle>
+          <Badge tone="navy" dot={false}>
+            Piano {planLabel[agency.plan]}
+          </Badge>
+        </CardHeader>
+        <CardContent>
+          {!isOwner && (
+            <p className="mb-5 rounded-lg bg-muted px-4 py-3 text-[15px] text-muted-foreground">
+              Solo il titolare può modificare questi dati.
+            </p>
+          )}
+          <div className="mb-6 flex items-center gap-4">
+            <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+              {logo ? (
+                <img src={logo} alt="Logo dell'agenzia" className="h-full w-full object-contain" />
+              ) : (
+                <span className="px-2 text-center text-sm text-muted-foreground">Nessun logo</span>
+              )}
+            </span>
+            {isOwner && (
+              <label className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-lg border border-input px-4 font-semibold hover:bg-muted">
+                <ImagePlus className="size-5" aria-hidden />
+                {logoBusy ? "Caricamento…" : logo ? "Cambia logo" : "Carica il logo"}
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={(e) => onLogo(e.target.files)} disabled={logoBusy} />
+              </label>
+            )}
+          </div>
+          <form onSubmit={save} className="space-y-5" noValidate>
+            <Field label="Nome dell'agenzia" htmlFor="ag-name">
+              <Input id="ag-name" value={name} onChange={(e) => setName(e.target.value)} disabled={disabled} />
+            </Field>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Telefono" htmlFor="ag-phone">
+                <Input id="ag-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={disabled} />
+              </Field>
+              <Field label="Email" htmlFor="ag-email">
+                <Input id="ag-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={disabled} />
+              </Field>
+            </div>
+            <Field label="Indirizzo" htmlFor="ag-address">
+              <Input id="ag-address" value={address} onChange={(e) => setAddress(e.target.value)} disabled={disabled} placeholder="Es. Via Sparano 10, Bari" />
+            </Field>
+            <FormError message={error} />
+            {isOwner && (
+              <Button type="submit" className="w-full sm:w-auto" disabled={busy}>
+                <Check aria-hidden />
+                {busy ? "Salvataggio…" : "Salva"}
+              </Button>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+      <ZonesCard />
+    </div>
+  );
+}
+
+/* ---------- Zone dell'agenzia ---------- */
+
+/** Lista delle zone usata da immobili e ricerche: il matching confronta questi nomi. */
+function ZonesCard() {
+  const { isOwner } = useAuth();
+  const { data, loading, error, reload } = useQuery(listZoneItems);
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (name.trim().length < 2) return;
+    setBusy(true);
+    try {
+      await addZone(name);
+      setName("");
+      toast.success("Zona aggiunta");
+    } catch (err) {
+      toast.error("Zona non aggiunta", { description: friendlyError(err) });
+    }
+    setBusy(false);
+  }
+
+  async function remove(id: string, zone: string) {
+    try {
+      await deleteZone(id);
+      toast.success(`Zona “${zone}” tolta dalla lista`);
+    } catch (err) {
+      toast.error("Zona non tolta", { description: friendlyError(err) });
+    }
+  }
+
+  return (
     <Card>
       <CardHeader>
-        <CardTitle>Dati dell'agenzia</CardTitle>
-        <Badge tone="navy" dot={false}>
-          Piano {planLabel[agency.plan]}
-        </Badge>
+        <CardTitle>Zone</CardTitle>
+        {data && <span className="text-muted-foreground">{data.length}</span>}
       </CardHeader>
       <CardContent>
-        {!isOwner && (
-          <p className="mb-5 rounded-lg bg-muted px-4 py-3 text-[15px] text-muted-foreground">
-            Solo il titolare può modificare questi dati.
+        <p className="text-muted-foreground">
+          Le zone in cui lavorate. Si scelgono da questa lista sia sugli immobili sia sulle ricerche dei clienti, così il matching non
+          perde nessuno per una parola scritta diversa.
+        </p>
+        {error ? (
+          <ErrorState message={error} onRetry={reload} className="mt-4" />
+        ) : loading || !data ? (
+          <Skeleton className="mt-4 h-11" />
+        ) : (
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {data.length === 0 && <li className="text-muted-foreground">Nessuna zona ancora.</li>}
+            {data.map((z) => (
+              <li key={z.id} className="inline-flex h-11 items-center gap-1 rounded-full border bg-card pl-4 pr-1 text-[15px] font-medium">
+                {z.name}
+                {isOwner && (
+                  <button
+                    type="button"
+                    onClick={() => remove(z.id, z.name)}
+                    className="flex h-9 items-center rounded-full px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                    aria-label={`Togli la zona ${z.name}`}
+                  >
+                    Togli
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        <form onSubmit={add} className="mt-4 flex gap-2">
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Es. Polignano a Mare" aria-label="Nuova zona" />
+          <Button type="submit" disabled={busy || name.trim().length < 2}>
+            <Plus aria-hidden />
+            Aggiungi
+          </Button>
+        </form>
+        {isOwner && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Togliere una zona dalla lista non cambia gli immobili e le ricerche che la usano già.
           </p>
         )}
-        <div className="mb-6 flex items-center gap-4">
-          <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
-            {logo ? (
-              <img src={logo} alt="Logo dell'agenzia" className="h-full w-full object-contain" />
-            ) : (
-              <span className="px-2 text-center text-sm text-muted-foreground">Nessun logo</span>
-            )}
-          </span>
-          {isOwner && (
-            <label className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-lg border border-input px-4 font-semibold hover:bg-muted">
-              <ImagePlus className="size-5" aria-hidden />
-              {logoBusy ? "Caricamento…" : logo ? "Cambia logo" : "Carica il logo"}
-              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={(e) => onLogo(e.target.files)} disabled={logoBusy} />
-            </label>
-          )}
-        </div>
-        <form onSubmit={save} className="space-y-5" noValidate>
-          <Field label="Nome dell'agenzia" htmlFor="ag-name">
-            <Input id="ag-name" value={name} onChange={(e) => setName(e.target.value)} disabled={disabled} />
-          </Field>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Telefono" htmlFor="ag-phone">
-              <Input id="ag-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={disabled} />
-            </Field>
-            <Field label="Email" htmlFor="ag-email">
-              <Input id="ag-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={disabled} />
-            </Field>
-          </div>
-          <Field label="Indirizzo" htmlFor="ag-address">
-            <Input id="ag-address" value={address} onChange={(e) => setAddress(e.target.value)} disabled={disabled} placeholder="Es. Via Sparano 10, Bari" />
-          </Field>
-          <FormError message={error} />
-          {isOwner && (
-            <Button type="submit" className="w-full sm:w-auto" disabled={busy}>
-              <Check aria-hidden />
-              {busy ? "Salvataggio…" : "Salva"}
-            </Button>
-          )}
-        </form>
       </CardContent>
     </Card>
   );

@@ -10,9 +10,9 @@ import { BackLink } from "@/components/shared/BackLink";
 import { kindLabel } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/format";
-import { useQuery } from "@/hooks/useQuery";
 import { friendlyError } from "@/lib/errors";
-import { createProperty, listZones } from "@/services/api";
+import { ZoneSelect } from "@/features/matching/ZonePicker";
+import { createProperty } from "@/services/api";
 import type { Contract, PropertyKind } from "@/types/domain";
 
 const steps = ["Foto", "Dati", "Prezzo", "Proprietario"] as const;
@@ -138,7 +138,6 @@ export function NewPropertyPage() {
     set("photos", [...form.photos, ...added]);
   }
 
-  const zones = useQuery(listZones).data ?? [];
   const isLast = step === steps.length - 1;
 
   return (
@@ -232,13 +231,8 @@ export function NewPropertyPage() {
             <TextField id="np-address" label="Indirizzo" placeholder="Es. Via Sparano 15" value={form.address} error={errors.address} onChange={(v) => set("address", v)} />
             <div className="grid gap-5 sm:grid-cols-2">
               <TextField id="np-city" label="Città" placeholder="Es. Bari" value={form.city} error={errors.city} onChange={(v) => set("city", v)} />
-              <Field label="Zona" htmlFor="np-zone">
-                <Input id="np-zone" list="np-zones" value={form.zone} onChange={(e) => set("zone", e.target.value)} placeholder="Es. Bari – Murat" />
-                <datalist id="np-zones">
-                  {zones.map((z) => (
-                    <option key={z} value={z} />
-                  ))}
-                </datalist>
+              <Field label="Zona" htmlFor="np-zone" hint="Serve a trovare gli acquirenti giusti">
+                <ZoneSelect id="np-zone" value={form.zone} onChange={(v) => set("zone", v)} />
               </Field>
             </div>
             <div className="grid grid-cols-3 gap-3">

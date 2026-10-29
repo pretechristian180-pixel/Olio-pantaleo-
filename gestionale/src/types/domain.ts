@@ -178,3 +178,23 @@ export interface Invitation {
   createdAt: string;
   acceptedAt: string | null;
 }
+
+/* ---------- Matching ---------- */
+
+export type MatchStatus = Enums<"stato_match">;
+
+/** Un immobile compatibile con la ricerca di un acquirente, con punteggio (0-100) e motivi. */
+export interface Match {
+  id: ID;
+  propertyId: ID;
+  contactId: ID;
+  score: number;
+  reasons: string[];
+  status: MatchStatus;
+  proposedAt: string | null;
+}
+
+export interface Zone {
+  id: ID;
+  name: string;
+}

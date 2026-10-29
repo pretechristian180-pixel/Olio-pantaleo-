@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/input";
 import { Segmented } from "@/components/ui/segmented";
 import { BackLink } from "@/components/shared/BackLink";
-import { useQuery } from "@/hooks/useQuery";
 import { friendlyError } from "@/lib/errors";
 import { sourceLabel, temperatureLabel, toneClasses } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/lib/format";
-import { createContact, listZones } from "@/services/api";
+import { ZoneChips } from "@/features/matching/ZonePicker";
+import { createContact } from "@/services/api";
 import type { ContactRole, ContactSource, Contract, Temperature } from "@/types/domain";
 
 export function NewContactPage() {
@@ -24,11 +24,10 @@ export function NewContactPage() {
   const [email, setEmail] = useState("");
   const [temperature, setTemperature] = useState<Temperature>("tiepido");
   const [contract, setContract] = useState<Contract>("vendita");
-  const [zone, setZone] = useState("");
+  const [zones, setZones] = useState<string[]>([]);
   const [budget, setBudget] = useState("");
   const [sqm, setSqm] = useState("");
   const [source, setSource] = useState<ContactSource | "">("");
-  const zones = useQuery(listZones);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -56,7 +55,7 @@ export function NewContactPage() {
       source: source || null,
       search:
         role === "acquirente"
-          ? { zones: zone ? [zone.trim()] : [], budgetMax: Number(budget) || null, sqmMin: Number(sqm) || null, contract }
+          ? { zones, budgetMax: Number(budget) || null, sqmMin: Number(sqm) || null, contract }
           : undefined,
       });
     } catch (err) {
@@ -151,14 +150,10 @@ export function NewContactPage() {
                 { value: "affitto", label: "Affittare" },
               ]}
             />
-            <Field label="Zona" htmlFor="nc-zone">
-              <Input id="nc-zone" list="nc-zones" value={zone} onChange={(e) => setZone(e.target.value)} placeholder="Es. Polignano a Mare" />
-              <datalist id="nc-zones">
-                {(zones.data ?? []).map((z) => (
-                  <option key={z} value={z} />
-                ))}
-              </datalist>
-            </Field>
+            <div>
+              <p className="mb-2 text-[15px] font-medium">In quali zone? (puoi sceglierne più di una)</p>
+              <ZoneChips value={zones} onChange={setZones} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <Field label={contract === "affitto" ? "Affitto max (€)" : "Budget max (€)"} htmlFor="nc-budget">
                 <Input

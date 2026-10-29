@@ -18,6 +18,7 @@ import type {
   TodaySummary,
 } from "../services/api";
 import { addDays, daysSince, startOfDay } from "@/lib/format";
+import { evaluateMatch } from "@/lib/matching";
 import type {
   Activity,
   Agency,
@@ -29,9 +30,12 @@ import type {
   DealStage,
   ID,
   Invitation,
+  Match,
+  MatchStatus,
   Property,
   PropertyKind,
   Task,
+  Zone,
 } from "@/types/domain";
 import { emitChange } from "@/services/events";
 import * as legacy from "./legacy";
@@ -242,26 +246,85 @@ export async function listProperties(f: PropertyFilters = {}) {
   );
 }
 
+/* ---------- Zone e matching (stessa logica del database, vedi lib/matching.ts) ---------- */
+
+let zones: Zone[] = [...new Set([...db.properties.map((p) => p.zone), ...db.contacts.flatMap((c) => c.search?.zones ?? [])])]
+  .filter(Boolean)
+  .map((name, i) => ({ id: `z${i}`, name }));
+
+export async function listZoneItems() {
+  return wait([...zones].sort((a, b) => a.name.localeCompare(b.name, "it")), 150);
+}
+
 export async function listZones() {
-  return [...new Set(db.properties.map((p) => p.zone))].sort((a, b) => a.localeCompare(b, "it"));
+  return (await listZoneItems()).map((z) => z.name);
+}
+
+export async function addZone(name: string) {
+  const clean = name.trim().replace(/\s+/g, " ");
+  const existing = zones.find((z) => z.name.toLowerCase() === clean.toLowerCase());
+  if (existing) return existing.name;
+  zones.push({ id: newId("z"), name: clean });
+  emitChange();
+  return clean;
+}
+
+export async function deleteZone(id: ID) {
+  zones = zones.filter((z) => z.id !== id);
+  emitChange();
+}
+
+// Stato dei match (proposto, interessato, scartato); il punteggio si ricalcola a ogni lettura
+const matchState = new Map<string, { id: string; status: MatchStatus; proposedAt: string | null }>();
+// Vito Carofiglio (nuovo contatto di oggi) ha ancora un immobile "da proporre", così si vede il pulsante WhatsApp
+db.proposed.forEach((pids, cid) =>
+  pids.filter((pid) => !(cid === "c4" && pid === "p8")).forEach((pid) => matchState.set(`${pid}|${cid}`, { id: `m_${pid}_${cid}`, status: "proposto", proposedAt: addDays(new Date(), -2).toISOString() })),
+);
+
+function currentMatches(): Match[] {
+  const out: Match[] = [];
+  for (const p of db.properties) {
+    for (const c of db.contacts) {
+      if (c.role === "proprietario" || !c.search || c.id === p.ownerId) continue;
+      const key = `${p.id}|${c.id}`;
+      const state = matchState.get(key);
+      const evaluation = p.status === "disponibile" ? evaluateMatch(p, c.search) : null;
+      if (!evaluation && !state) continue;
+      const st = state ?? { id: `m_${p.id}_${c.id}`, status: "da_proporre" as const, proposedAt: null };
+      out.push({ id: st.id, propertyId: p.id, contactId: c.id, score: evaluation?.score ?? 50, reasons: evaluation?.reasons ?? [], status: st.status, proposedAt: st.proposedAt });
+    }
+  }
+  return out;
+}
+
+export async function setMatchStatus(id: ID, status: MatchStatus) {
+  const m = currentMatches().find((x) => x.id === id);
+  if (!m) return;
+  const prev = matchState.get(`${m.propertyId}|${m.contactId}`);
+  matchState.set(`${m.propertyId}|${m.contactId}`, {
+    id,
+    status,
+    proposedAt: status === "proposto" ? new Date().toISOString() : (prev?.proposedAt ?? null),
+  });
+  const p = findProperty(m.propertyId);
+  const what = p ? `${p.address}, ${p.city}` : "l'immobile";
+  if (status === "proposto") addActivity(m.contactId, "whatsapp", `Proposto su WhatsApp: ${what}`);
+  if (status === "interessato") addActivity(m.contactId, "nota", `Interessato a ${what}`);
+  if (status === "scartato") addActivity(m.contactId, "nota", `Non interessato a ${what}`);
+  emitChange();
 }
 
 export async function getProperty(id: ID): Promise<PropertyDetail | null> {
   const p = findProperty(id);
   if (!p) return wait(null);
-  const buyers = db.contacts.filter(
-    (c) =>
-      c.role !== "proprietario" &&
-      c.search &&
-      (!c.search.contract || c.search.contract === p.contract) &&
-      (c.search.budgetMax == null || c.search.budgetMax >= p.price * 0.9) &&
-      (c.search.sqmMin == null || p.sqm == null || c.search.sqmMin <= p.sqm) &&
-      (c.search.zones.includes(p.zone) || (db.proposed.get(c.id) ?? []).includes(p.id)),
-  );
+  const matches = currentMatches()
+    .filter((m) => m.propertyId === id)
+    .map((m) => ({ ...m, contact: findContact(m.contactId)! }))
+    .sort((a, b) => b.score - a.score);
   return wait({
     property: p,
     owner: findContact(p.ownerId),
-    matchingBuyers: buyers,
+    matches,
     stats: {
       visits: db.appointments.filter((a) => a.propertyId === id && a.kind === "visita").length,
       deals: db.deals.filter((d) => d.propertyId === id).length,
@@ -332,7 +395,13 @@ export async function getContact(id: ID): Promise<ContactDetail | null> {
   if (!c) return wait(null);
   return wait({
     contact: { ...c, activities: [...(db.activities.get(id) ?? [])].sort((a, b) => b.date.localeCompare(a.date)) },
-    proposed: (db.proposed.get(id) ?? []).map(findProperty).filter((p): p is Property => !!p),
+    matches: currentMatches()
+      .filter((m) => m.contactId === id && m.status === "da_proporre")
+      .map((m) => ({ ...m, property: findProperty(m.propertyId)! }))
+      .sort((a, b) => b.score - a.score),
+    proposed: currentMatches()
+      .filter((m) => m.contactId === id && (m.status === "proposto" || m.status === "interessato"))
+      .map(({ ...match }) => ({ ...findProperty(match.propertyId)!, match })),
     owned: db.properties.filter((p) => p.ownerId === id),
     canEdit: true,
   });

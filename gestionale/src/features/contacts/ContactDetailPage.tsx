@@ -14,6 +14,7 @@ import { contactRoleLabel, contractLabel, sourceLabel, temperatureLabel } from "
 import { formatPrice, formatRelative, formatTime, fullName } from "@/lib/format";
 import { getContact } from "@/services/api";
 import type { ActivityKind, Property } from "@/types/domain";
+import { MatchItem, ScoreBadge } from "@/features/matching/MatchItem";
 import { ContactActions } from "./ContactActions";
 
 const activityIcon: Record<ActivityKind, { icon: typeof Phone; label: string }> = {
@@ -51,7 +52,7 @@ export function ContactDetailPage() {
       />
     );
 
-  const { contact: c, proposed, owned } = data;
+  const { contact: c, proposed, owned, matches } = data;
   const buyer = c.role !== "proprietario";
 
   return (
@@ -123,16 +124,61 @@ export function ContactDetailPage() {
           </Card>
         </div>
 
-        <aside>
+        <aside className="space-y-4">
+          {buyer && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Immobili compatibili</CardTitle>
+                {matches.length > 0 && <span className="text-muted-foreground">{matches.length} da proporre</span>}
+              </CardHeader>
+              <CardContent className="pt-2">
+                {matches.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    {c.search
+                      ? "Nessun immobile nuovo per lui. Appena ne entra uno giusto, compare qui e ricevi un promemoria."
+                      : "Indica cosa cerca (zona, budget, metri quadri) e Mattonio troverà gli immobili giusti."}
+                  </p>
+                ) : (
+                  <ul className="divide-y">
+                    {matches.map((m) => (
+                      <MatchItem
+                        key={m.id}
+                        match={m}
+                        contact={c}
+                        property={m.property}
+                        header={<MiniProperty property={m.property} score={m.score} />}
+                      />
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>{buyer ? "Immobili proposti" : "I suoi immobili"}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="pt-2">
               {(buyer ? proposed : owned).length === 0 ? (
                 <p className="text-muted-foreground">{buyer ? "Non gli hai ancora proposto nulla." : "Nessun immobile collegato."}</p>
+              ) : buyer ? (
+                <ul className="divide-y">
+                  {proposed.map((p) =>
+                    p.match ? (
+                      <MatchItem key={p.id} match={p.match} contact={c} property={p} header={<MiniProperty property={p} />} />
+                    ) : (
+                      <li key={p.id} className="py-3">
+                        <MiniProperty property={p} />
+                      </li>
+                    ),
+                  )}
+                </ul>
               ) : (
-                (buyer ? proposed : owned).map((p) => <MiniProperty key={p.id} property={p} />)
+                <div className="space-y-3">
+                  {owned.map((p) => (
+                    <MiniProperty key={p.id} property={p} />
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
@@ -151,14 +197,17 @@ function Fact({ label, value, className }: { label: string; value: string; class
   );
 }
 
-function MiniProperty({ property: p }: { property: Property }) {
+function MiniProperty({ property: p, score }: { property: Property; score?: number }) {
   return (
     <Link to={`/immobili/${p.id}`} className="flex gap-3 rounded-lg border p-2 transition-colors hover:bg-muted/60">
       <span className="h-20 w-24 shrink-0 overflow-hidden rounded-md">
         <PropertyPhoto photo={p.photos[0]} kind={p.kind} tint={p.tint} alt="" />
       </span>
       <span className="min-w-0 py-0.5">
-        <span className="block font-semibold">{formatPrice(p.price, p.contract === "affitto")}</span>
+        <span className="flex items-center gap-2">
+          <span className="font-semibold">{formatPrice(p.price, p.contract === "affitto")}</span>
+          {score != null && <ScoreBadge score={score} />}
+        </span>
         <span className="block truncate text-[15px] text-muted-foreground">
           {p.address}, {p.city}
         </span>

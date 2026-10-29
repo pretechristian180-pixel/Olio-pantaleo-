@@ -6,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar } from "@/components/shared/Avatar";
 import { BackLink } from "@/components/shared/BackLink";
-import { StatusBadge, TemperatureBadge } from "@/components/shared/badges";
+import { StatusBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { PropertyPhoto } from "@/components/shared/PropertyPhoto";
 import { ContactActions } from "@/features/contacts/ContactActions";
+import { MatchItem, ScoreBadge } from "@/features/matching/MatchItem";
 import { useAppointmentDialog } from "@/features/agenda/AppointmentDialog";
 import { useQuery } from "@/hooks/useQuery";
 import { contractLabel, kindLabel } from "@/lib/labels";
@@ -40,7 +41,11 @@ export function PropertyDetailPage() {
       />
     );
 
-  const { property: p, owner, matchingBuyers, stats } = data;
+  const { property: p, owner, matches, stats } = data;
+  // Gli scartati non si mostrano; prima quelli da proporre, poi gli altri
+  const order = { da_proporre: 0, interessato: 1, proposto: 2, scartato: 3 } as const;
+  const visibleMatches = matches.filter((m) => m.status !== "scartato").sort((a, b) => order[a.status] - order[b.status] || b.score - a.score);
+  const toPropose = matches.filter((m) => m.status === "da_proporre").length;
   const photo = p.photos[photoIndex] ?? p.photos[0];
 
   const facts = [
@@ -128,25 +133,36 @@ export function PropertyDetailPage() {
                   <Users className="size-6" aria-hidden />
                 </span>
                 <p className="text-[17px]">
-                  <strong className="text-3xl font-bold">{matchingBuyers.length}</strong>{" "}
-                  {matchingBuyers.length === 1 ? "persona interessata" : "persone interessate"}
+                  <strong className="text-3xl font-bold">{visibleMatches.length}</strong>{" "}
+                  {visibleMatches.length === 1 ? "persona interessata" : "persone interessate"}
+                  {toPropose > 0 && <span className="block text-[15px] text-muted-foreground">{toPropose} da proporre</span>}
                 </p>
               </div>
-              {matchingBuyers.length > 0 ? (
+              {visibleMatches.length > 0 ? (
                 <ul className="mt-4 divide-y border-t">
-                  {matchingBuyers.map((c) => (
-                    <li key={c.id}>
-                      <Link to={`/contatti/${c.id}`} className="flex items-center gap-3 py-3 hover:text-primary-strong">
-                        <Avatar person={c} size="sm" />
-                        <span className="flex-1 font-medium">{fullName(c)}</span>
-                        <TemperatureBadge value={c.temperature} />
-                        <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
-                      </Link>
-                    </li>
+                  {visibleMatches.map((m) => (
+                    <MatchItem
+                      key={m.id}
+                      match={m}
+                      contact={m.contact}
+                      property={p}
+                      header={
+                        <Link to={`/contatti/${m.contact.id}`} className="flex items-center gap-3 hover:text-primary-strong">
+                          <Avatar person={m.contact} size="sm" />
+                          <span className="flex-1 font-medium">{fullName(m.contact)}</span>
+                          <ScoreBadge score={m.score} />
+                          <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
+                        </Link>
+                      }
+                    />
                   ))}
                 </ul>
               ) : (
-                <p className="mt-3 text-muted-foreground">Per ora nessun acquirente cerca un immobile così.</p>
+                <p className="mt-3 text-muted-foreground">
+                  {p.status === "disponibile"
+                    ? "Per ora nessun acquirente cerca un immobile così. Appena qualcuno corrisponde, lo trovi qui e ricevi un promemoria."
+                    : "Il matching lavora sugli immobili disponibili."}
+                </p>
               )}
             </CardContent>
           </Card>

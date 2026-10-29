@@ -24,6 +24,8 @@ import type {
   DealStage,
   ID,
   Invitation,
+  Match,
+  MatchStatus,
   Property,
   PropertyKind,
   PropertyStats,
@@ -31,6 +33,7 @@ import type {
   SearchCriteria,
   Task,
   Temperature,
+  Zone,
 } from "@/types/domain";
 import { emitChange } from "./events";
 
@@ -429,15 +432,61 @@ export async function listProperties(f: PropertyFilters = {}) {
   return propertiesWithCover(ok(await q) as unknown as PropertyRow[]);
 }
 
+/* ---------- Zone dell'agenzia (lista unica per immobili e ricerche) ---------- */
+
+export async function listZoneItems(): Promise<Zone[]> {
+  const rows = ok(await supabase.from("zones").select("id, nome"));
+  return rows.map((z) => ({ id: z.id, name: z.nome })).sort((a, b) => a.name.localeCompare(b.name, "it"));
+}
+
 export async function listZones() {
-  const rows = ok(await supabase.from("properties").select("zona").not("zona", "is", null));
-  return [...new Set(rows.map((r) => r.zona as string))].sort((a, b) => a.localeCompare(b, "it"));
+  return (await listZoneItems()).map((z) => z.name);
+}
+
+/** Aggiunge una zona (se esiste già con un'altra grafia, restituisce quella esistente). */
+export async function addZone(name: string) {
+  const clean = name.trim().replace(/\s+/g, " ");
+  const existing = (await listZoneItems()).find((z) => z.name.toLowerCase() === clean.toLowerCase());
+  if (existing) return existing.name;
+  ok(await supabase.from("zones").insert({ nome: clean }));
+  emitChange();
+  return clean;
+}
+
+export async function deleteZone(id: ID) {
+  const rows = ok(await supabase.from("zones").delete().eq("id", id).select("id"));
+  if (!rows.length) throw new NotAllowedError();
+  emitChange();
+}
+
+/* ---------- Matching (calcolato dal database, vedi migrazione "matching") ---------- */
+
+function toMatch(r: Tables<"matches">): Match {
+  return {
+    id: r.id,
+    propertyId: r.property_id,
+    contactId: r.contact_id,
+    score: r.punteggio,
+    reasons: r.motivi ?? [],
+    status: r.stato,
+    proposedAt: r.proposto_at,
+  };
+}
+
+export type BuyerMatch = Match & { contact: Contact };
+export type PropertyMatch = Match & { property: Property };
+
+/** Cambia lo stato di un match: la cronologia del cliente la aggiorna il database. */
+export async function setMatchStatus(id: ID, status: MatchStatus) {
+  const rows = ok(await supabase.from("matches").update({ stato: status }).eq("id", id).select("id"));
+  if (!rows.length) throw new NotAllowedError();
+  emitChange();
 }
 
 export interface PropertyDetail {
   property: Property;
   owner?: Contact;
-  matchingBuyers: Contact[];
+  matches: BuyerMatch[];
   stats: PropertyStats;
   canEdit: boolean;
 }
@@ -445,43 +494,28 @@ export interface PropertyDetail {
 export async function getProperty(id: ID): Promise<PropertyDetail | null> {
   const row = okMaybe(await supabase.from("properties").select(PROPERTY_SELECT).eq("id", id).maybeSingle()) as unknown as PropertyRow | null;
   if (!row) return null;
-  const [signed, owner, criteria, visits, deals] = await Promise.all([
+  const [signed, owner, matchRows, visits, deals] = await Promise.all([
     signPhotos((row.property_photos ?? []).map((p) => p.url)),
     row.owner_id
       ? supabase.from("contacts").select("*").eq("id", row.owner_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
-    supabase.from("search_criteria").select("*, contact:contacts(*)"),
+    supabase.from("matches").select("*, contact:contacts(*)").eq("property_id", id).order("punteggio", { ascending: false }),
     supabase.from("appointments").select("id", { count: "exact", head: true }).eq("property_id", id).eq("tipo", "visita"),
     supabase.from("deals").select("id", { count: "exact", head: true }).eq("property_id", id),
   ]);
   const property = toProperty(row, signed);
-  type CriteriaRow = Tables<"search_criteria"> & { contact: Tables<"contacts"> | null };
-  const buyers = (ok(criteria) as unknown as CriteriaRow[])
-    .filter((sc) => sc.contact && sc.contact.tipo !== "proprietario" && matches(toSearch(sc), property))
-    .map((sc) => toContact(sc.contact!));
+  type MatchRow = Tables<"matches"> & { contact: Tables<"contacts"> | null };
+  const buyers = (ok(matchRows) as unknown as MatchRow[])
+    .filter((m) => m.contact)
+    .map((m) => ({ ...toMatch(m), contact: toContact(m.contact!) }));
   const ownerRow = okMaybe(owner);
   return {
     property,
     owner: ownerRow ? toContact(ownerRow) : undefined,
-    matchingBuyers: buyers,
+    matches: buyers,
     stats: { visits: visits.count ?? 0, deals: deals.count ?? 0, daysOnline: daysSince(property.createdAt) },
     canEdit: canEdit(property.agentId),
   };
-}
-
-/** Un acquirente è compatibile se l'immobile rientra in tutto ciò che ha indicato. */
-function matches(s: SearchCriteria, p: Property) {
-  if (s.contract && s.contract !== p.contract) return false;
-  if (s.kind && s.kind !== p.kind) return false;
-  if (s.budgetMax != null && p.price > s.budgetMax * 1.1) return false;
-  if (s.budgetMin != null && p.price < s.budgetMin * 0.9) return false;
-  if (s.sqmMin != null && p.sqm != null && p.sqm < s.sqmMin) return false;
-  if (s.roomsMin != null && p.rooms != null && p.rooms < s.roomsMin) return false;
-  if (s.zones.length) {
-    const where = `${p.zone} ${p.city}`.toLowerCase();
-    if (!s.zones.some((z) => where.includes(z.toLowerCase()))) return false;
-  }
-  return true;
 }
 
 export interface NewProperty {
@@ -586,7 +620,10 @@ export async function listContacts(): Promise<ContactWithLast[]> {
 
 export interface ContactDetail {
   contact: Contact & { activities: Activity[] };
-  proposed: Property[];
+  /** Immobili compatibili non ancora proposti */
+  matches: PropertyMatch[];
+  /** Immobili già proposti (con il matching, in trattativa o in visita) */
+  proposed: (Property & { match?: Match })[];
   owned: Property[];
   canEdit: boolean;
 }
@@ -594,21 +631,38 @@ export interface ContactDetail {
 export async function getContact(id: ID): Promise<ContactDetail | null> {
   const row = okMaybe(await supabase.from("contacts").select("*, search_criteria(*)").eq("id", id).maybeSingle()) as unknown as ContactRow | null;
   if (!row) return null;
-  const [acts, deals, appts, owned] = await Promise.all([
+  const [acts, deals, appts, owned, matchRows] = await Promise.all([
     supabase.from("activities").select("id, tipo, descrizione, created_at").eq("contact_id", id).order("created_at", { ascending: false }),
     supabase.from("deals").select("property_id").eq("contact_id", id).not("property_id", "is", null),
     supabase.from("appointments").select("property_id").eq("contact_id", id).not("property_id", "is", null),
     supabase.from("properties").select(PROPERTY_SELECT).eq("owner_id", id),
+    supabase
+      .from("matches")
+      .select(`*, property:properties(${PROPERTY_SELECT})`)
+      .eq("contact_id", id)
+      .neq("stato", "scartato")
+      .order("punteggio", { ascending: false }),
   ]);
+  type MatchRow = Tables<"matches"> & { property: PropertyRow | null };
+  const matchList = (ok(matchRows) as unknown as MatchRow[]).filter((m) => m.property);
+  const matchProps = await propertiesWithCover(matchList.map((m) => m.property!));
+  const withProps = matchList.map((m, i) => ({ ...toMatch(m), property: matchProps[i] }));
   // Immobili proposti: quelli collegati alle sue trattative o ai suoi appuntamenti
-  const proposedIds = [...new Set([...ok(deals), ...ok(appts)].map((r) => r.property_id as string))];
+  const proposedByMatch = withProps.filter((m) => m.status !== "da_proporre");
+  const proposedIds = [...new Set([...ok(deals), ...ok(appts)].map((r) => r.property_id as string))].filter(
+    (pid) => !proposedByMatch.some((m) => m.propertyId === pid),
+  );
   const proposedRows = proposedIds.length
     ? (ok(await supabase.from("properties").select(PROPERTY_SELECT).in("id", proposedIds)) as unknown as PropertyRow[])
     : [];
   const contact = toContact(row);
   return {
     contact: { ...contact, activities: ok(acts).map(toActivity) },
-    proposed: await propertiesWithCover(proposedRows),
+    matches: withProps.filter((m) => m.status === "da_proporre"),
+    proposed: [
+      ...proposedByMatch.map(({ property, ...match }) => ({ ...property, match })),
+      ...(await propertiesWithCover(proposedRows)),
+    ],
     owned: await propertiesWithCover(ok(owned) as unknown as PropertyRow[]),
     canEdit: canEdit(contact.agentId),
   };

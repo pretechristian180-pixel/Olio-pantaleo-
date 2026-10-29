@@ -286,6 +286,29 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["search_criteria"]["Insert"]>;
         Relationships: [];
       };
+      zones: {
+        Row: { agency_id: string; created_at: string; id: string; nome: string };
+        Insert: { agency_id?: string; created_at?: string; id?: string; nome: string };
+        Update: Partial<Database["public"]["Tables"]["zones"]["Insert"]>;
+        Relationships: [];
+      };
+      matches: {
+        Row: {
+          agency_id: string;
+          contact_id: string;
+          created_at: string;
+          id: string;
+          motivi: string[];
+          property_id: string;
+          proposto_at: string | null;
+          punteggio: number;
+          stato: E["stato_match"];
+          updated_at: string;
+        };
+        Insert: never;
+        Update: { stato?: E["stato_match"] };
+        Relationships: [];
+      };
       tasks: {
         Row: {
           agency_id: string;
@@ -331,6 +354,7 @@ export type Database = {
       piano_agenzia: "start" | "pro" | "elite";
       ruolo_utente: "titolare" | "agente";
       stato_immobile: "disponibile" | "in_trattativa" | "venduto" | "affittato" | "ritirato";
+      stato_match: "da_proporre" | "proposto" | "interessato" | "scartato";
       temperatura_contatto: "caldo" | "tiepido" | "freddo";
       tipo_appuntamento: "visita" | "valutazione" | "firma" | "altro";
       tipo_attivita: "chiamata" | "whatsapp" | "email" | "visita" | "nota" | "cambio_fase";
