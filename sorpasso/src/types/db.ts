@@ -16,6 +16,7 @@ export type Cambio = "manuale" | "automatico";
 export type FonteLead =
   | "autoscout24"
   | "subito"
+  | "automobile_it"
   | "sito"
   | "facebook"
   | "instagram"
@@ -135,6 +136,9 @@ export interface VehicleView extends Vehicle {
   foto_copertina: string | null;
   numero_foto: number;
   lead_aperti: number;
+  /** Portali su cui l'annuncio è online (id di portals) */
+  portali_online: string[];
+  pubblicazione_errore: boolean;
 }
 
 export type TipoVoceEconomica = "costo" | "ricavo";
@@ -296,6 +300,8 @@ export interface Lead {
   punteggio: number;
   assegnato_a: ID | null;
   creato_da: ID | null;
+  /** Annuncio di provenienza (lead arrivato da un portale) */
+  listing_id: ID | null;
   primo_contatto_at: ISODate | null;
   ultimo_contatto_at: ISODate | null;
   prossima_azione_at: ISODate | null;
@@ -476,4 +482,107 @@ export interface ReportPeriodo {
   motivi_perso: { motivo: string; lead: number }[];
   per_mese: { mese: string; lead: number; vinti: number }[];
   vinti_nel_periodo: number;
+}
+
+/* ---------- Pubblicazione multi-portale ---------- */
+
+export type ModalitaPortale = "api" | "feed" | "manuale";
+export type StatoConnessionePortale = "non_configurato" | "attivo" | "errore" | "disattivato";
+export type StatoAnnuncio = "bozza" | "in_pubblicazione" | "pubblicato" | "errore" | "sospeso" | "rimosso";
+export type OperazioneSync = "publish" | "update" | "suspend" | "remove" | "stats";
+export type StatoJob = "in_coda" | "in_corso" | "completato" | "errore" | "annullato";
+export type AzioneManuale = "pubblica" | "aggiorna" | "sospendi" | "rimuovi";
+
+/** Catalogo globale dei portali e dei loro requisiti */
+export interface Portal {
+  id: string;
+  nome: string;
+  sito: string | null;
+  modalita_supportate: ModalitaPortale[];
+  modalita_predefinita: ModalitaPortale;
+  fonte_lead: FonteLead;
+  campi_obbligatori: string[];
+  foto_min: number;
+  foto_max: number;
+  descrizione_min: number;
+  supporta_sospensione: boolean;
+  supporta_badge_prenotata: boolean;
+  ordine: number;
+}
+
+export interface OrganizationPortal {
+  id: ID;
+  organization_id: ID;
+  portal_id: string;
+  attivo: boolean;
+  modalita: ModalitaPortale;
+  stato_connessione: StatoConnessionePortale;
+  /** Solo l'id del segreto in Vault: le credenziali non tornano mai al client */
+  credenziali_secret_id: ID | null;
+  config: Record<string, unknown>;
+  feed_token: string;
+  webhook_token: string;
+  costo_mensile: number;
+  ultimo_controllo_at: ISODate | null;
+  ultimo_errore: string | null;
+  created_at: ISODate;
+}
+
+export interface VehicleListing {
+  id: ID;
+  organization_id: ID;
+  vehicle_id: ID;
+  portal_id: string;
+  attivo: boolean;
+  stato: StatoAnnuncio;
+  prezzo_portale: number | null;
+  id_esterno: string | null;
+  url: string | null;
+  azione_manuale: AzioneManuale | null;
+  ultimo_sync_at: ISODate | null;
+  errore_messaggio: string | null;
+  visualizzazioni: number | null;
+  contatti: number | null;
+  statistiche_at: ISODate | null;
+  pubblicato_at: ISODate | null;
+  rimosso_at: ISODate | null;
+  created_at: ISODate;
+  updated_at: ISODate;
+}
+
+export interface SyncJob {
+  id: ID;
+  organization_id: ID;
+  listing_id: ID;
+  operazione: OperazioneSync;
+  stato: StatoJob;
+  tentativi: number;
+  max_tentativi: number;
+  prossimo_tentativo_at: ISODate;
+  errore: string | null;
+  motivo: string | null;
+  created_at: ISODate;
+  iniziato_at: ISODate | null;
+  finito_at: ISODate | null;
+}
+
+/** Riga di controllo_qualita_annuncio() */
+export interface ControlloQualita {
+  portal_id: string;
+  portale: string;
+  problemi: string[];
+  pronto: boolean;
+}
+
+/** Riga di report_portali() */
+export interface ReportPortale {
+  portal_id: string;
+  portale: string;
+  attivo: boolean;
+  auto_pubblicate: number;
+  contatti: number;
+  vendite: number;
+  costo: number;
+  costo_per_lead: number | null;
+  costo_per_vendita: number | null;
 }

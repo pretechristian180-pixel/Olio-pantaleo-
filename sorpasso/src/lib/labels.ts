@@ -4,8 +4,10 @@ import type {
   Cambio,
   ChecklistVoce,
   FonteLead,
+  ModalitaPortale,
   RegimeIva,
   Ruolo,
+  StatoAnnuncio,
   StatoAppuntamento,
   StatoLead,
   StatoPreventivo,
@@ -13,6 +15,7 @@ import type {
   StatoVoce,
   Tempistica,
   TipoAppuntamento,
+  AzioneManuale,
   TipoAttivita,
   TipoDocumento,
   TipoVeicolo,
@@ -40,6 +43,7 @@ export const RUOLI: Record<Ruolo, string> = {
 export const FONTI: Record<FonteLead, string> = {
   autoscout24: "AutoScout24",
   subito: "Subito",
+  automobile_it: "Automobile.it",
   sito: "Sito web",
   facebook: "Facebook",
   instagram: "Instagram",
@@ -196,3 +200,46 @@ export const opzioni = <K extends string>(m: Record<K, string | { label: string 
     const v = m[k];
     return { value: k, label: typeof v === "string" ? v : v.label };
   });
+
+/* ---------- Pubblicazione multi-portale ---------- */
+
+export const STATI_ANNUNCIO: Record<StatoAnnuncio, { label: string; tone: Tone }> = {
+  bozza: { label: "Non pubblicato", tone: "gray" },
+  in_pubblicazione: { label: "In pubblicazione", tone: "accent" },
+  pubblicato: { label: "Online", tone: "green" },
+  errore: { label: "Errore", tone: "red" },
+  sospeso: { label: "Sospeso", tone: "yellow" },
+  rimosso: { label: "Rimosso", tone: "gray" },
+};
+
+export const MODALITA_PORTALE: Record<ModalitaPortale, { label: string; spiegazione: string }> = {
+  api: {
+    label: "Collegamento diretto (API)",
+    spiegazione: "Sorpasso pubblica, aggiorna e toglie l'annuncio da solo, in pochi minuti. Serve l'abilitazione del portale.",
+  },
+  feed: {
+    label: "File automatico (feed)",
+    spiegazione: "Sorpasso prepara un file sempre aggiornato a un indirizzo privato: il portale lo legge da solo a intervalli regolari.",
+  },
+  manuale: {
+    label: "Manuale assistito",
+    spiegazione: "Prepariamo testo e foto da copiare sul portale; tu incolli l'indirizzo dell'annuncio e ti avvisiamo quando va aggiornato o tolto.",
+  },
+};
+
+export const AZIONI_MANUALI: Record<AzioneManuale, { label: string; istruzione: string }> = {
+  pubblica: { label: "Pubblica a mano", istruzione: "Crea l'annuncio sul portale con testo e foto qui sotto, poi incolla il suo indirizzo." },
+  aggiorna: { label: "Aggiorna a mano", istruzione: "Prezzo, foto o dati sono cambiati: aggiorna l'annuncio sul portale, poi premi «Fatto»." },
+  sospendi: { label: "Segna come prenotata", istruzione: "L'auto è prenotata: sospendi l'annuncio o segnalo come prenotato sul portale, poi premi «Fatto»." },
+  rimuovi: { label: "Togli l'annuncio", istruzione: "L'auto è venduta: elimina l'annuncio dal portale per non ricevere più richieste, poi premi «Fatto»." },
+};
+
+/** Sigle brevi per le icone dei portali nello stock */
+export const SIGLE_PORTALI: Record<string, string> = {
+  autoscout24: "AS24",
+  subito: "Subito",
+  automobile_it: "Auto.it",
+  meta: "Meta",
+  sito: "Sito",
+  altro: "Altro",
+};
