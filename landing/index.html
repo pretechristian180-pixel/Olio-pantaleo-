@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mattonio – Il gestionale con automazioni per agenzie immobiliari</title>
+<meta name="description" content="Mattonio è il gestionale per agenzie immobiliari italiane che risponde ai lead in automatico, trova gli acquirenti giusti per ogni immobile e manda i report ai proprietari. Prenota una demo gratuita.">
+<meta name="theme-color" content="#16202E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:site_name" content="Mattonio">
+<meta property="og:title" content="Mattonio – Il gestionale con automazioni per agenzie immobiliari">
+<meta property="og:description" content="Risponde ai lead, trova gli acquirenti giusti e aggiorna i proprietari da solo. Tu pensi solo a chiudere.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
+<style>
+:root {
+  --notte: #16202E;
+  --mattone: #C4532F;
+  --mattone-scuro: #A8432A;
+  --avorio: #F6F4F0;
+  --bianco: #FFFFFF;
+  --grigio: #4A5361;
+  --linea: rgba(22, 32, 46, 0.10);
+  --linea-scura: rgba(246, 244, 240, 0.14);
+  --raggio: 12px;
+  --ombra: 0 1px 2px rgba(22, 32, 46, 0.05), 0 4px 14px rgba(22, 32, 46, 0.04);
+  --font: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gutter: max(20px, env(safe-area-inset-left, 0px));
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--avorio); color: var(--notte);
+  font-family: var(--font); font-weight: 500; font-size: 17px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; }
+[data-icona] { display: inline-flex; flex: none; }
+[data-icona][hidden] { display: none; }
+[data-icona] > svg { width: 1.25em; height: 1.25em; }
+a { color: inherit; }
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.3rem, 6.2vw, 4rem); }
+h2 { font-size: clamp(1.9rem, 4.4vw, 2.85rem); }
+h3 { font-size: 1.2rem; letter-spacing: -0.02em; line-height: 1.25; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--mattone); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-left: var(--gutter); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.sezione { padding-block: clamp(72px, 10vw, 120px); }
+.sezione--bianca { background: var(--bianco); }
+.sezione--notte { background: var(--notte); color: var(--avorio); }
+.sezione--notte .sottotitolo, .sezione--notte .card p { color: rgba(246, 244, 240, 0.74); }
+.intestazione { max-width: 720px; margin-bottom: clamp(40px, 6vw, 64px); }
+.intestazione--centro { margin-inline: auto; text-align: center; }
+.occhiello {
+  display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mattone);
+}
+.sottotitolo { margin-top: 18px; font-size: 1.12rem; color: var(--grigio); max-width: 62ch; }
+.intestazione--centro .sottotitolo { margin-inline: auto; }
+
+/* Mattoncino: puntino degli elenchi, separatore, numerazione */
+.mattoncino { display: inline-block; width: 14px; height: 8px; border-radius: 2px; background: var(--mattone); flex: none; }
+.separatore { display: flex; justify-content: center; gap: 6px; padding-block: 8px; }
+.separatore .mattoncino:nth-child(2) { background: var(--notte); }
+.sezione--notte .separatore .mattoncino:nth-child(2) { background: var(--avorio); }
+
+/* Logo */
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--notte); }
+/* I due mattoni in basso prendono il colore del testo: blu notte su chiaro, avorio su scuro */
+.logo svg { width: 42px; height: 22px; color: var(--notte); }
+.logo span { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.03em; line-height: 1; }
+.logo--negativo { color: var(--avorio); }
+.logo--negativo svg { color: var(--avorio); }
+
+/* Pulsanti */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px;
+  border-radius: var(--raggio); border: 2px solid transparent; font: inherit; font-weight: 700; font-size: 1rem;
+  text-decoration: none; cursor: pointer; transition: background-color .18s, border-color .18s, color .18s, transform .18s;
+}
+.btn svg { width: 20px; height: 20px; }
+.btn--primario { background: var(--mattone); color: var(--bianco); }
+.btn--primario:hover { background: var(--mattone-scuro); }
+.btn--secondario { background: transparent; color: var(--notte); border-color: rgba(22, 32, 46, 0.22); }
+.btn--secondario:hover { border-color: var(--notte); }
+.sezione--notte .btn--secondario, .box-nexora .btn--secondario { color: var(--avorio); border-color: var(--linea-scura); }
+.sezione--notte .btn--secondario:hover, .box-nexora .btn--secondario:hover { border-color: var(--avorio); }
+.btn--piccolo { min-height: 44px; padding: 0 18px; font-size: 0.95rem; }
+.btn:active { transform: translateY(1px); }
+
+/* Navbar */
+.nav {
+  position: fixed; inset: 0 0 auto; z-index: 50; padding-top: env(safe-area-inset-top, 0px);
+  background: rgba(246, 244, 240, 0.94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent; transition: border-color .2s;
+}
+.nav.scorrendo { border-bottom-color: var(--linea); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 72px; }
+.nav__link { display: flex; align-items: center; gap: 32px; }
+.nav__link a { text-decoration: none; font-weight: 600; color: var(--grigio); transition: color .15s; }
+.nav__link a:hover { color: var(--notte); }
+.nav__azioni { display: flex; align-items: center; gap: 12px; }
+.nav__menu {
+  display: none; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: var(--raggio);
+  border: 1px solid var(--linea); background: var(--bianco); font: inherit; font-weight: 700; color: var(--notte); cursor: pointer;
+}
+.nav__menu svg { width: 20px; height: 20px; }
+.tendina { display: none; }
+
+/* Hero */
+.hero { padding-top: calc(72px + env(safe-area-inset-top, 0px) + clamp(40px, 7vw, 88px)); padding-bottom: clamp(64px, 9vw, 112px); }
+.hero__griglia { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: clamp(40px, 6vw, 72px); align-items: center; }
+.hero__testo { min-width: 0; }
+.hero h1 .accento { color: var(--mattone); }
+.hero .sottotitolo { font-size: 1.2rem; margin-top: 24px; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+.punti-forza { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 40px; padding: 0; list-style: none; font-weight: 600; color: var(--grigio); font-size: 0.97rem; }
+.punti-forza li { display: inline-flex; align-items: center; gap: 10px; }
+
+/* Mockup: laptop + telefono con la schermata "Oggi" */
+.mockup { position: relative; min-width: 0; padding-bottom: 36px; }
+.laptop { position: relative; margin-right: 13%; }
+.laptop__schermo { background: var(--notte); border-radius: 16px 16px 0 0; padding: 10px; }
+.laptop__base { height: 14px; margin: 0 -4%; background: #2A3545; border-radius: 0 0 14px 14px; }
+.app { display: grid; grid-template-columns: 22% 1fr; background: var(--avorio); border-radius: 8px; overflow: hidden; font-size: 10px; line-height: 1.35; aspect-ratio: 16 / 10.4; }
+.app__lato { background: var(--bianco); border-right: 1px solid var(--linea); padding: 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+.app__lato .logo svg { width: 22px; height: 12px; }
+.app__lato .logo span { font-size: 11px; }
+.app__voce { display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: 6px; color: var(--grigio); font-weight: 600; }
+.app__voce svg { width: 11px; height: 11px; }
+.app__voce--attiva { background: rgba(196, 83, 47, 0.10); color: var(--mattone); }
+.app__corpo { padding: 12px 14px; min-width: 0; overflow: hidden; }
+.app__data { color: var(--grigio); font-size: 9px; }
+.app__titolo { font-weight: 800; letter-spacing: -0.03em; font-size: 15px; margin: 1px 0 10px; }
+.app__numeri { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.numero { background: var(--bianco); border: 1px solid var(--linea); border-radius: 8px; padding: 7px 8px; }
+.numero b { display: block; font-size: 18px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.numero span { color: var(--grigio); font-size: 8.5px; }
+.app__colonne { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.app__blocco h4 { margin: 0 0 5px; font-size: 10px; font-weight: 800; letter-spacing: -0.01em; }
+.riga { display: flex; align-items: flex-start; gap: 6px; background: var(--bianco); border: 1px solid var(--linea); border-radius: 7px; padding: 6px 7px; margin-bottom: 5px; }
+.riga small { display: block; color: var(--grigio); font-size: 8px; }
+.riga .ora { font-weight: 800; min-width: 26px; }
+.spunta { width: 10px; height: 10px; border: 1.5px solid rgba(22, 32, 46, 0.3); border-radius: 50%; flex: none; margin-top: 1px; }
+.barretta { width: 3px; align-self: stretch; border-radius: 2px; background: var(--mattone); flex: none; }
+.barretta--notte { background: var(--notte); }
+.telefono {
+  position: absolute; right: 0; bottom: 0; width: 31%; min-width: 132px; background: var(--notte); border-radius: 22px; padding: 7px;
+  box-shadow: 0 18px 40px rgba(22, 32, 46, 0.22);
+}
+.telefono__schermo { background: var(--avorio); border-radius: 16px; padding: 12px 9px 10px; font-size: 8.5px; line-height: 1.35; aspect-ratio: 9 / 18; overflow: hidden; }
+.telefono .app__titolo { font-size: 12px; margin-bottom: 7px; }
+.telefono .numero { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; padding: 6px 7px; }
+.telefono .numero b { font-size: 15px; }
+.telefono .riga { padding: 5px 6px; }
+
+/* Card */
+.griglia-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.card { background: var(--bianco); border: 1px solid var(--linea); border-radius: var(--raggio); padding: 28px; box-shadow: var(--ombra); min-width: 0; }
+.card h3 { margin-top: 18px; }
+.card p { margin-top: 10px; color: var(--grigio); }
+.icona { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: var(--raggio); background: rgba(196, 83, 47, 0.10); color: var(--mattone); }
+.icona svg { width: 24px; height: 24px; }
+.problema .card { background: var(--avorio); box-shadow: none; }
+.problema__chiusa { margin-top: 40px; text-align: center; font-weight: 700; font-size: 1.15rem; }
+
+/* Automazioni */
+.automazioni .card { background: rgba(246, 244, 240, 0.05); border-color: var(--linea-scura); box-shadow: none; }
+.automazioni .icona { background: rgba(196, 83, 47, 0.18); color: #E58A6A; }
+.automazioni .card h3 { color: var(--avorio); }
+.automazioni__nota { margin-top: 44px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px 24px; text-align: center; color: rgba(246, 244, 240, 0.74); }
+
+/* Come funziona */
+.passi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; list-style: none; padding: 0; margin: 0; counter-reset: passo; }
+.passo { position: relative; background: var(--bianco); border: 1px solid var(--linea); border-radius: var(--raggio); padding: 28px; box-shadow: var(--ombra); }
+.passo__numero { display: flex; gap: 4px; margin-bottom: 22px; }
+.passo__numero .mattoncino { width: 22px; height: 12px; border-radius: 3px; }
+.passo__numero .spento { background: rgba(22, 32, 46, 0.12); }
+.passo p { margin-top: 10px; color: var(--grigio); }
+.passo__freccia { position: absolute; top: 50%; right: -19px; z-index: 1; color: var(--mattone); transform: translateY(-50%); }
+.passo__freccia > svg { width: 18px; height: 18px; }
+
+/* Funzioni (blocchi alternati) */
+.funzione { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 80px); align-items: center; }
+.funzione + .funzione { margin-top: clamp(64px, 9vw, 104px); }
+.funzione:nth-child(even) .funzione__testo { order: 2; }
+.funzione__testo { min-width: 0; }
+.funzione__testo p { margin-top: 14px; color: var(--grigio); }
+.elenco { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 10px; }
+.elenco li { display: flex; align-items: baseline; gap: 12px; font-weight: 600; }
+.elenco li .mattoncino { transform: translateY(-2px); }
+.schermata { min-width: 0; background: var(--bianco); border: 1px solid var(--linea); border-radius: 16px; padding: 18px; box-shadow: var(--ombra); font-size: 13px; line-height: 1.4; }
+.schermata__barra { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; font-weight: 800; letter-spacing: -0.02em; font-size: 15px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; background: rgba(22, 32, 46, 0.07); color: var(--notte); white-space: nowrap; }
+.chip--mattone { background: rgba(196, 83, 47, 0.12); color: var(--mattone-scuro); }
+.chip--verde { background: #E9F4EC; color: #1F6B3A; }
+.mini-immobili { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mini-immobile { border: 1px solid var(--linea); border-radius: 10px; overflow: hidden; }
+.mini-immobile__foto { aspect-ratio: 16 / 10; background: #E7E2DA; position: relative; }
+.mini-immobile__foto svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mini-immobile__testo { padding: 8px 10px; }
+.mini-immobile__testo b { display: block; font-size: 14px; letter-spacing: -0.02em; }
+.mini-immobile__testo small { color: var(--grigio); }
+.portali { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.contatto { display: flex; gap: 12px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--linea); }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; background: rgba(196, 83, 47, 0.12); color: var(--mattone-scuro); flex: none; }
+.cerca { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.cerca div { background: var(--avorio); border-radius: 8px; padding: 8px 10px; }
+.cerca small { display: block; color: var(--grigio); font-size: 11px; }
+.cerca b { font-size: 13px; }
+.kanban { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.kanban__col { background: var(--avorio); border-radius: 10px; padding: 8px; min-width: 0; }
+.kanban__col h4 { margin: 0 0 8px; font-size: 11px; font-weight: 800; }
+.kanban__card { background: var(--bianco); border: 1px solid var(--linea); border-radius: 8px; padding: 7px; margin-bottom: 6px; font-size: 11px; }
+.kanban__card b { display: block; font-size: 12px; }
+.agenda { display: grid; grid-template-columns: 44px repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; }
+.agenda__ora { color: var(--grigio); padding-top: 4px; }
+.agenda__testa { font-weight: 800; text-align: center; padding-bottom: 4px; }
+.agenda__slot { min-height: 34px; border-radius: 7px; background: var(--avorio); padding: 5px 6px; }
+.agenda__slot--pieno { background: rgba(196, 83, 47, 0.12); color: var(--mattone-scuro); font-weight: 700; border-left: 3px solid var(--mattone); }
+.agenda__slot--notte { background: rgba(22, 32, 46, 0.08); color: var(--notte); font-weight: 700; border-left: 3px solid var(--notte); }
+.report { display: grid; gap: 10px; }
+.report__righe { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.report__righe div { background: var(--avorio); border-radius: 8px; padding: 10px; }
+.report__righe b { display: block; font-size: 18px; font-weight: 800; letter-spacing: -0.03em; }
+.report__righe small { color: var(--grigio); font-size: 11px; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.timeline li { display: flex; gap: 10px; align-items: baseline; }
+
+/* Prezzi */
+.interruttore { display: inline-flex; padding: 4px; border-radius: var(--raggio); background: var(--bianco); border: 1px solid var(--linea); margin-top: 28px; }
+.interruttore button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-weight: 700; color: var(--grigio); cursor: pointer; }
+.interruttore button[aria-pressed="true"] { background: var(--notte); color: var(--avorio); }
+.interruttore .sconto { font-weight: 600; opacity: .85; }
+.prezzi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.piano { position: relative; display: flex; flex-direction: column; background: var(--bianco); border: 1px solid var(--linea); border-radius: var(--raggio); padding: 32px 28px; box-shadow: var(--ombra); min-width: 0; }
+.piano--evidenza { border: 2px solid var(--mattone); }
+.etichetta { position: absolute; top: -14px; left: 28px; padding: 4px 12px; border-radius: 999px; background: var(--mattone); color: var(--bianco); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.02em; }
+.piano__nome { font-size: 0.85rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mattone); }
+.piano__prezzo { display: flex; align-items: baseline; gap: 6px; margin-top: 14px; }
+.piano__prezzo b { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.piano__prezzo span { color: var(--grigio); font-weight: 600; }
+.piano__setup { margin-top: 8px; color: var(--grigio); font-size: 0.95rem; }
+.piano__annuale { margin-top: 6px; font-size: 0.9rem; font-weight: 700; color: var(--mattone-scuro); min-height: 1.4em; }
+.piano .elenco { margin-top: 24px; flex: 1; align-content: start; }
+.piano .elenco li { font-weight: 500; }
+.piano .btn { margin-top: 28px; width: 100%; }
+.prezzi__nota { margin-top: 28px; text-align: center; color: var(--grigio); font-weight: 600; }
+
+/* Nexora */
+.box-nexora { display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; background: var(--notte); color: var(--avorio); border-radius: var(--raggio); padding: clamp(28px, 5vw, 48px); }
+.box-nexora__testo { display: flex; gap: 20px; align-items: flex-start; max-width: 760px; min-width: 0; flex: 1 1 420px; }
+.box-nexora .icona { background: rgba(196, 83, 47, 0.18); color: #E58A6A; flex: none; }
+.box-nexora h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+.box-nexora p { margin-top: 10px; color: rgba(246, 244, 240, 0.74); }
+
+/* Testimonianze */
+.citazione { display: flex; flex-direction: column; gap: 18px; }
+.citazione svg { width: 28px; height: 28px; color: var(--mattone); }
+.citazione blockquote { margin: 0; font-size: 1.08rem; font-weight: 600; }
+.citazione figcaption { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--linea); color: var(--grigio); }
+.citazione figcaption b { display: block; color: var(--notte); }
+
+/* FAQ */
+.faq { max-width: 820px; margin: 0 auto; display: grid; gap: 12px; }
+.faq details { background: var(--bianco); border: 1px solid var(--linea); border-radius: var(--raggio); box-shadow: var(--ombra); }
+.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; min-height: 64px; cursor: pointer; list-style: none; font-weight: 700; font-size: 1.06rem; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary svg { width: 22px; height: 22px; flex: none; color: var(--mattone); transition: transform .2s; }
+.faq details[open] summary svg { transform: rotate(180deg); }
+.faq details > div { padding: 0 24px 22px; color: var(--grigio); }
+
+/* CTA finale e form */
+.finale__griglia { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 6vw, 80px); align-items: start; }
+.finale h2 { font-size: clamp(2rem, 4.6vw, 3.1rem); }
+.finale .elenco li { font-weight: 600; color: rgba(246, 244, 240, 0.86); }
+.modulo { background: var(--bianco); color: var(--notte); border-radius: var(--raggio); padding: clamp(24px, 4vw, 36px); min-width: 0; }
+.modulo h3 { font-size: 1.35rem; }
+.modulo > p { margin-top: 6px; color: var(--grigio); }
+.campi { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.campo { display: grid; gap: 6px; min-width: 0; }
+.campo--intero { grid-column: 1 / -1; }
+.campo label { font-weight: 700; font-size: 0.95rem; }
+.campo input, .campo select {
+  width: 100%; min-height: 52px; padding: 0 14px; border-radius: 10px; border: 1.5px solid rgba(22, 32, 46, 0.18);
+  background: var(--bianco); color: var(--notte); font: inherit; font-size: 16px;
+}
+.campo select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A5361' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 42px; }
+.campo input:focus, .campo select:focus { outline: none; border-color: var(--mattone); box-shadow: 0 0 0 4px rgba(196, 83, 47, 0.15); }
+.campo [aria-invalid="true"] { border-color: #B42318; }
+.campo .errore { color: #B42318; font-size: 0.88rem; font-weight: 600; min-height: 0; }
+.trappola { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.modulo .btn { width: 100%; margin-top: 24px; }
+.modulo .privacy { margin-top: 14px; font-size: 0.85rem; color: var(--grigio); }
+.esito { margin-top: 16px; padding: 14px 16px; border-radius: 10px; font-weight: 600; }
+.esito--errore { background: #FDECEA; color: #B42318; }
+.conferma { text-align: center; padding-block: 24px; }
+.conferma .icona { width: 64px; height: 64px; background: #E9F4EC; color: #1F6B3A; }
+.conferma .icona svg { width: 32px; height: 32px; }
+.conferma h3 { margin-top: 18px; font-size: 1.5rem; }
+.conferma p { margin-top: 10px; color: var(--grigio); }
+
+/* Footer */
+.footer { background: var(--notte); color: rgba(246, 244, 240, 0.74); border-top: 1px solid var(--linea-scura); padding-block: 48px calc(48px + env(safe-area-inset-bottom, 0px)); }
+.footer .wrap { display: flex; flex-wrap: wrap; gap: 28px 48px; justify-content: space-between; align-items: flex-start; }
+.footer__colonna { display: grid; gap: 10px; }
+.footer a { text-decoration: none; }
+.footer a:hover { color: var(--avorio); }
+.footer__riga { display: inline-flex; align-items: center; gap: 10px; }
+.footer__riga svg { width: 18px; height: 18px; }
+
+/* CTA fissa su telefono */
+.cta-fissa { display: none; }
+
+/* Animazioni di ingresso (solo se c'è JavaScript e l'utente non ha chiesto meno movimento) */
+.js .entra { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+.js .entra.visibile { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .entra { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1020px) {
+  .hero__griglia, .finale__griglia { grid-template-columns: 1fr; }
+  .mockup { max-width: 640px; }
+  .griglia-3, .prezzi { grid-template-columns: 1fr 1fr; }
+  .prezzi .piano--evidenza { order: -1; grid-column: 1 / -1; }
+  .passi { grid-template-columns: 1fr; }
+  .passo__freccia { display: none; }
+}
+
+/* ---------- Telefono ---------- */
+@media (max-width: 760px) {
+  body { font-size: 16.5px; }
+  .nav__link, .nav__azioni .btn { display: none; }
+  .nav__menu { display: inline-flex; }
+  .tendina { position: absolute; inset: 100% 0 auto; background: var(--avorio); border-bottom: 1px solid var(--linea); padding: 8px var(--gutter) 20px; }
+  .tendina.aperta { display: grid; gap: 4px; }
+  .tendina a { display: flex; align-items: center; min-height: 52px; padding: 0 4px; font-weight: 700; font-size: 1.1rem; text-decoration: none; border-bottom: 1px solid var(--linea); }
+  .tendina .btn { margin-top: 12px; border-bottom: 0; justify-content: center; color: var(--bianco); }
+  .hero__cta .btn { width: 100%; }
+  .griglia-3, .prezzi, .funzione, .campi { grid-template-columns: 1fr; }
+  .prezzi .piano--evidenza { grid-column: auto; }
+  .funzione:nth-child(even) .funzione__testo { order: 0; }
+  .laptop { margin-right: 0; }
+  .app { grid-template-columns: 1fr; }
+  .app__lato { display: none; }
+  .telefono { width: 36%; right: -2px; }
+  .app__colonne { grid-template-columns: 1fr; }
+  .app__colonne .app__blocco:last-child { display: none; }
+  .kanban { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kanban__col:nth-child(n+3) { display: none; }
+  .cta-fissa {
+    display: block; position: fixed; inset: auto 0 0; z-index: 40;
+    padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(246, 244, 240, 0.96); border-top: 1px solid var(--linea);
+    transition: transform .25s ease;
+  }
+  .cta-fissa .btn { width: 100%; }
+  .cta-fissa.nascosta { transform: translateY(110%); }
+  .footer { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add("js");</script>
+
+<!-- Simbolo del logo, riusato ovunque -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mattoni" viewBox="0 0 120 64">
+    <rect x="33" y="0" width="54" height="28" rx="5" fill="#C4532F"/>
+    <rect x="4" y="36" width="54" height="28" rx="5" fill="currentColor"/>
+    <rect x="62" y="36" width="54" height="28" rx="5" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<!-- 1. NAVBAR -->
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="#inizio" aria-label="Mattonio, torna all'inizio">
+      <svg aria-hidden="true"><use href="#mattoni"/></svg><span>mattonio</span>
+    </a>
+    <nav class="nav__link" aria-label="Sezioni">
+      <a href="#funzioni">Funzioni</a>
+      <a href="#automazioni">Automazioni</a>
+      <a href="#prezzi">Prezzi</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav__azioni">
+      <a class="btn btn--primario btn--piccolo" href="#demo">Prenota una demo</a>
+      <button class="nav__menu" type="button" aria-expanded="false" aria-controls="tendina" id="apri-menu">
+        <span data-icona="menu" class="ico-apri"></span><span data-icona="x" class="ico-chiudi" hidden></span><span>Menu</span>
+      </button>
+    </div>
+  </div>
+  <div class="tendina" id="tendina">
+    <a href="#funzioni">Funzioni</a>
+    <a href="#automazioni">Automazioni</a>
+    <a href="#prezzi">Prezzi</a>
+    <a href="#faq">FAQ</a>
+    <a class="btn btn--primario" href="#demo">Prenota una demo</a>
+  </div>
+</header>
+
+<main id="inizio">
+
+<!-- 2. HERO -->
+<section class="hero">
+  <div class="wrap hero__griglia">
+    <div class="hero__testo">
+      <p class="occhiello"><span class="mattoncino"></span>Gestionale per agenzie immobiliari</p>
+      <h1>Il gestionale che lavora mentre tu <span class="accento">fai le visite.</span></h1>
+      <p class="sottotitolo">Mattonio risponde ai lead in automatico, trova gli acquirenti giusti per ogni immobile e manda i report ai proprietari. Tu pensi solo a chiudere.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primario" href="#demo">Prenota una demo gratuita<span data-icona="arrow-right"></span></a>
+        <a class="btn btn--secondario" href="#come-funziona"><span data-icona="circle-play"></span>Guarda come funziona</a>
+      </div>
+      <ul class="punti-forza">
+        <li><span class="mattoncino"></span>Pensato per le agenzie italiane</li>
+        <li><span class="mattoncino"></span>Funziona da telefono</li>
+        <li><span class="mattoncino"></span>Pronto in pochi giorni</li>
+      </ul>
+    </div>
+
+    <div class="mockup" role="img" aria-label="Il gestionale Mattonio su computer e telefono: la schermata Oggi con appuntamenti, contatti da richiamare e incarichi in scadenza">
+      <div class="laptop" aria-hidden="true">
+        <div class="laptop__schermo">
+          <div class="app">
+            <div class="app__lato">
+              <span class="logo"><svg><use href="#mattoni"/></svg><span>mattonio</span></span>
+              <div style="height:8px"></div>
+              <div class="app__voce app__voce--attiva"><span data-icona="sparkles"></span>Oggi</div>
+              <div class="app__voce"><span data-icona="house"></span>Immobili</div>
+              <div class="app__voce"><span data-icona="contact-round"></span>Contatti</div>
+              <div class="app__voce"><span data-icona="kanban"></span>Trattative</div>
+              <div class="app__voce"><span data-icona="calendar-days"></span>Agenda</div>
+            </div>
+            <div class="app__corpo">
+              <div class="app__data">Martedì 14 ottobre</div>
+              <div class="app__titolo">Buongiorno, Giuseppe</div>
+              <div class="app__numeri">
+                <div class="numero"><b>4</b><span>appuntamenti oggi</span></div>
+                <div class="numero"><b>3</b><span>lead da richiamare</span></div>
+                <div class="numero"><b>2</b><span>incarichi in scadenza</span></div>
+              </div>
+              <div class="app__colonne">
+                <div class="app__blocco">
+                  <h4>Cose da fare oggi</h4>
+                  <div class="riga"><span class="spunta"></span><span><b>Richiama Maria Rossi</b><small>Ha visto Via Roma 48 ieri</small></span></div>
+                  <div class="riga"><span class="spunta"></span><span><b>Rinnova incarico</b><small>Scade tra 3 giorni</small></span></div>
+                  <div class="riga"><span class="spunta"></span><span><b>Chiama Vito Carofiglio</b><small>Nuovo lead dal portale</small></span></div>
+                </div>
+                <div class="app__blocco">
+                  <h4>Appuntamenti</h4>
+                  <div class="riga"><span class="barretta"></span><span class="ora">09:30</span><span><b>Visita</b><small>Viale Einaudi 90</small></span></div>
+                  <div class="riga"><span class="barretta barretta--notte"></span><span class="ora">11:00</span><span><b>Valutazione</b><small>Via Sparano 12</small></span></div>
+                  <div class="riga"><span class="barretta"></span><span class="ora">15:30</span><span><b>Visita</b><small>Via Roma 48</small></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="laptop__base"></div>
+      </div>
+      <div class="telefono" aria-hidden="true">
+        <div class="telefono__schermo">
+          <div class="app__data">Martedì 14 ottobre</div>
+          <div class="app__titolo">Oggi</div>
+          <div class="numero"><b>4</b><span>appuntamenti</span></div>
+          <div class="numero"><b>3</b><span>lead da richiamare</span></div>
+          <div class="numero"><b>2</b><span>incarichi in scadenza</span></div>
+          <div class="riga" style="margin-top:7px"><span class="barretta"></span><span><b>09:30 Visita</b><small>Viale Einaudi 90</small></span></div>
+          <div class="riga"><span class="barretta barretta--notte"></span><span><b>11:00 Valutazione</b><small>Via Sparano 12</small></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. IL PROBLEMA -->
+<section class="sezione sezione--bianca problema">
+  <div class="wrap">
+    <div class="intestazione intestazione--centro entra">
+      <p class="occhiello"><span class="mattoncino"></span>Il problema</p>
+      <h2>Quanti clienti stai perdendo senza accorgertene?</h2>
+      <p class="sottotitolo">Non per mancanza di bravura: perché in agenzia le cose da seguire sono troppe e il telefono squilla sempre nel momento sbagliato.</p>
+    </div>
+    <div class="griglia-3">
+      <article class="card entra">
+        <span class="icona" data-icona="hourglass"></span>
+        <h3>Il lead dal portale aspetta ore prima di una risposta</h3>
+        <p>Nel frattempo ha scritto ad altre tre agenzie. Indovina chi lo richiama per primo.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="user-x"></span>
+        <h3>Il proprietario non sa cosa sta succedendo e non rinnova l'incarico</h3>
+        <p>Dal suo punto di vista, il silenzio vuol dire che nessuno sta lavorando alla sua casa.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="archive"></span>
+        <h3>Gli acquirenti giusti sono già nel tuo archivio, ma nessuno se ne ricorda</h3>
+        <p>Erano in quella cartella, in quella chat, in quel quaderno. Da qualche parte.</p>
+      </article>
+    </div>
+    <p class="problema__chiusa entra">Mattonio non dimentica niente. Nemmeno il martedì pomeriggio.</p>
+  </div>
+</section>
+
+<!-- 4. LE AUTOMAZIONI -->
+<section class="sezione sezione--notte automazioni" id="automazioni">
+  <div class="wrap">
+    <div class="intestazione entra">
+      <p class="occhiello"><span class="mattoncino"></span>Automazioni</p>
+      <h2>Le cose che Mattonio fa da solo</h2>
+      <p class="sottotitolo">Le attività ripetitive che oggi ti rubano la giornata, gestite in automatico. Tu decidi cosa attivare e con quali parole.</p>
+    </div>
+    <div class="griglia-3">
+      <article class="card entra">
+        <span class="icona" data-icona="message-circle-reply"></span>
+        <h3>Risposta immediata ai lead</h3>
+        <p>Chi scrive dai portali riceve un WhatsApp in pochi minuti.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="users-round"></span>
+        <h3>Matching automatico</h3>
+        <p>Nuovo immobile, il sistema avvisa gli acquirenti compatibili.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="calendar-check"></span>
+        <h3>Follow-up dopo la visita</h3>
+        <p>Messaggio al cliente e promemoria all'agente.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="file-chart-column"></span>
+        <h3>Report settimanale al proprietario</h3>
+        <p>Visualizzazioni, contatti e visite, senza alzare il telefono.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="trending-down"></span>
+        <h3>Immobili fermi</h3>
+        <p>Avviso quando un annuncio non riceve visite da troppo tempo.</p>
+      </article>
+      <article class="card entra">
+        <span class="icona" data-icona="file-clock"></span>
+        <h3>Scadenza incarichi</h3>
+        <p>Avviso 30 giorni prima, con la sequenza di rinnovo pronta.</p>
+      </article>
+    </div>
+    <div class="automazioni__nota entra">
+      <p>Nessuna automazione parte senza che tu l'abbia approvata.</p>
+      <a class="btn btn--secondario" href="#demo">Vedile all'opera in una demo<span data-icona="arrow-right"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- 5. COME FUNZIONA -->
+<section class="sezione" id="come-funziona">
+  <div class="wrap">
+    <div class="intestazione intestazione--centro entra">
+      <p class="occhiello"><span class="mattoncino"></span>Come funziona</p>
+      <h2>Tre passaggi. Il lavoro pesante lo facciamo noi.</h2>
+    </div>
+    <ol class="passi">
+      <li class="passo entra">
+        <div class="passo__numero" aria-hidden="true"><span class="mattoncino"></span><span class="mattoncino spento"></span><span class="mattoncino spento"></span></div>
+        <h3>Importiamo i tuoi immobili e contatti</h3>
+        <p>Dal gestionale che usi oggi, da un foglio Excel o dalla rubrica. Niente da ricopiare a mano.</p>
+        <span class="passo__freccia" data-icona="arrow-right" aria-hidden="true"></span>
+      </li>
+      <li class="passo entra">
+        <div class="passo__numero" aria-hidden="true"><span class="mattoncino"></span><span class="mattoncino"></span><span class="mattoncino spento"></span></div>
+        <h3>Attiviamo le automazioni sul tuo modo di lavorare</h3>
+        <p>Messaggi, tempi e avvisi li scriviamo insieme, con il tono della tua agenzia.</p>
+        <span class="passo__freccia" data-icona="arrow-right" aria-hidden="true"></span>
+      </li>
+      <li class="passo entra">
+        <div class="passo__numero" aria-hidden="true"><span class="mattoncino"></span><span class="mattoncino"></span><span class="mattoncino"></span></div>
+        <h3>Tu lavori, Mattonio segue tutto il resto</h3>
+        <p>Apri l'app al mattino e trovi già scritto chi richiamare, cosa fare e chi visitare.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<div class="separatore" aria-hidden="true"><span class="mattoncino"></span><span class="mattoncino"></span><span class="mattoncino"></span></div>
+
+<!-- 6. FUNZIONI DEL GESTIONALE -->
+<section class="sezione" id="funzioni">
+  <div class="wrap">
+    <div class="intestazione entra">
+      <p class="occhiello"><span class="mattoncino"></span>Funzioni</p>
+      <h2>Tutto il lavoro dell'agenzia, in un posto solo</h2>
+      <p class="sottotitolo">Schermate semplici, pulsanti grandi, zero gergo. Si capisce al primo colpo, anche tra una visita e l'altra.</p>
+    </div>
+
+    <div class="funzione entra">
+      <div class="funzione__testo">
+        <h3 style="font-size:1.7rem">Immobili e pubblicazione sui portali</h3>
+        <p>Carichi foto e dati dal telefono, una volta sola. Mattonio tiene in ordine stato, prezzo e scadenza dell'incarico.</p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Inserimento guidato in quattro passaggi</li>
+          <li><span class="mattoncino"></span>Pubblicazione sui portali dalla stessa scheda</li>
+          <li><span class="mattoncino"></span>Acquirenti compatibili mostrati su ogni immobile</li>
+        </ul>
+      </div>
+      <div class="schermata" aria-hidden="true">
+        <div class="schermata__barra">Immobili <span class="chip">Bari e provincia</span></div>
+        <div class="mini-immobili">
+          <div class="mini-immobile">
+            <div class="mini-immobile__foto"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#E7E2DA"/><rect x="50" y="22" width="60" height="70" rx="3" fill="#F6F4F0"/><g fill="#C9BFB2"><rect x="58" y="32" width="12" height="9"/><rect x="74" y="32" width="12" height="9"/><rect x="90" y="32" width="12" height="9"/><rect x="58" y="48" width="12" height="9"/><rect x="74" y="48" width="12" height="9"/><rect x="90" y="48" width="12" height="9"/></g><rect x="74" y="72" width="12" height="20" fill="#16202E"/></svg></div>
+            <div class="mini-immobile__testo"><b>245.000 €</b><small>Via Roma 48, Bari</small><div class="portali"><span class="chip chip--verde">Disponibile</span></div></div>
+          </div>
+          <div class="mini-immobile">
+            <div class="mini-immobile__foto"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#EDE6DC"/><path d="M40 52 80 26l40 26z" fill="#C4532F"/><rect x="48" y="52" width="64" height="38" fill="#F6F4F0"/><rect x="74" y="66" width="12" height="24" fill="#16202E"/><circle cx="24" cy="78" r="12" fill="#B9C2A8"/><circle cx="138" cy="76" r="14" fill="#B9C2A8"/></svg></div>
+            <div class="mini-immobile__testo"><b>430.000 €</b><small>Lecce</small><div class="portali"><span class="chip chip--mattone">In trattativa</span></div></div>
+          </div>
+        </div>
+        <div class="portali"><span class="chip">Pubblicato su: [PORTALE 1]</span><span class="chip">[PORTALE 2]</span><span class="chip">Sito agenzia</span></div>
+      </div>
+    </div>
+
+    <div class="funzione entra">
+      <div class="funzione__testo">
+        <h3 style="font-size:1.7rem">Contatti con cosa cercano</h3>
+        <p>Ogni acquirente ha zona, budget e metri quadri. Così quando entra l'immobile giusto, il sistema sa già a chi proporlo.</p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Chiama, WhatsApp e appuntamento con un tocco</li>
+          <li><span class="mattoncino"></span>Cronologia di ogni telefonata e visita</li>
+          <li><span class="mattoncino"></span>Caldo, tiepido o freddo, a colpo d'occhio</li>
+        </ul>
+      </div>
+      <div class="schermata" aria-hidden="true">
+        <div class="contatto">
+          <span class="avatar">MR</span>
+          <div style="flex:1;min-width:0"><b style="font-size:15px">Maria Rossi</b><div style="color:var(--grigio)">Acquirente · 347 552 1098</div></div>
+          <span class="chip chip--mattone">Caldo</span>
+        </div>
+        <div style="font-weight:800;margin-top:12px">Cosa cerca</div>
+        <div class="cerca">
+          <div><small>Zona</small><b>Murat</b></div>
+          <div><small>Budget</small><b>260.000 €</b></div>
+          <div><small>Almeno</small><b>85 mq</b></div>
+        </div>
+        <ul class="timeline" style="margin-top:14px">
+          <li><span class="mattoncino"></span><span><b>Visita</b> · ieri: le è piaciuto il soggiorno</span></li>
+          <li><span class="mattoncino" style="background:var(--notte)"></span><span><b>WhatsApp</b> · inviate foto e planimetria</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="funzione entra">
+      <div class="funzione__testo">
+        <h3 style="font-size:1.7rem">Trattative in kanban</h3>
+        <p>Dal primo contatto al rogito: vedi in un attimo dove si trova ogni trattativa e quanto vale.</p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Sposti la card e la cronologia si aggiorna da sola</li>
+          <li><span class="mattoncino"></span>Dopo la visita parte il promemoria per richiamare</li>
+          <li><span class="mattoncino"></span>Ogni agente vede le sue, il titolare tutte</li>
+        </ul>
+      </div>
+      <div class="schermata" aria-hidden="true">
+        <div class="kanban">
+          <div class="kanban__col"><h4>Nuovo</h4><div class="kanban__card"><b>V. Carofiglio</b>315.000 €</div><div class="kanban__card"><b>G. Palmisano</b>750 €/mese</div></div>
+          <div class="kanban__col"><h4>Visita</h4><div class="kanban__card"><b>M. Rossi</b>245.000 €</div></div>
+          <div class="kanban__col"><h4>Proposta</h4><div class="kanban__card"><b>A. De Santis</b>495.000 €</div></div>
+          <div class="kanban__col"><h4>Rogito</h4><div class="kanban__card"><b>M. Guglielmi</b>192.000 €</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="funzione entra">
+      <div class="funzione__testo">
+        <h3 style="font-size:1.7rem">Agenda condivisa</h3>
+        <p>Visite, valutazioni e firme con colori diversi. Tocchi un orario libero, scegli cliente e immobile, fatto.</p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Vista giornaliera sul telefono, settimanale al computer</li>
+          <li><span class="mattoncino"></span>Ogni appuntamento finisce nella scheda del cliente</li>
+        </ul>
+      </div>
+      <div class="schermata" aria-hidden="true">
+        <div class="agenda">
+          <span></span><span class="agenda__testa">Lun</span><span class="agenda__testa">Mar</span><span class="agenda__testa">Mer</span>
+          <span class="agenda__ora">09:00</span><span class="agenda__slot agenda__slot--pieno">Visita</span><span class="agenda__slot"></span><span class="agenda__slot agenda__slot--notte">Valutazione</span>
+          <span class="agenda__ora">11:00</span><span class="agenda__slot"></span><span class="agenda__slot agenda__slot--pieno">Visita</span><span class="agenda__slot"></span>
+          <span class="agenda__ora">15:00</span><span class="agenda__slot agenda__slot--notte">Firma</span><span class="agenda__slot"></span><span class="agenda__slot agenda__slot--pieno">Visita</span>
+          <span class="agenda__ora">17:00</span><span class="agenda__slot"></span><span class="agenda__slot"></span><span class="agenda__slot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="funzione entra">
+      <div class="funzione__testo">
+        <h3 style="font-size:1.7rem">Area proprietario</h3>
+        <p>Il proprietario vede da solo come sta andando il suo immobile. Tu smetti di rispondere a "allora, novità?".</p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Visualizzazioni, contatti e visite aggiornati</li>
+          <li><span class="mattoncino"></span>Report settimanale inviato in automatico</li>
+        </ul>
+      </div>
+      <div class="schermata" aria-hidden="true">
+        <div class="schermata__barra">Via Roma 48, Bari <span class="chip">Report settimanale</span></div>
+        <div class="report">
+          <div class="report__righe">
+            <div><b>[N]</b><small>visualizzazioni</small></div>
+            <div><b>[N]</b><small>contatti</small></div>
+            <div><b>[N]</b><small>visite</small></div>
+          </div>
+          <ul class="timeline">
+            <li><span class="mattoncino"></span><span>Giovedì: visita con una coppia interessata</span></li>
+            <li><span class="mattoncino" style="background:var(--notte)"></span><span>Sabato: seconda visita fissata</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. PREZZI -->
+<section class="sezione sezione--bianca" id="prezzi">
+  <div class="wrap">
+    <div class="intestazione intestazione--centro entra">
+      <p class="occhiello"><span class="mattoncino"></span>Prezzi</p>
+      <h2>Prezzi chiari, senza sorprese</h2>
+      <p class="sottotitolo">Il setup comprende configurazione, importazione e formazione. Poi un canone mensile, e basta.</p>
+      <div class="interruttore" role="group" aria-label="Periodo di pagamento">
+        <button type="button" data-periodo="mensile" aria-pressed="true">Mensile</button>
+        <button type="button" data-periodo="annuale" aria-pressed="false">Annuale <span class="sconto" id="etichetta-sconto"></span></button>
+      </div>
+    </div>
+    <div class="prezzi">
+      <article class="piano entra">
+        <p class="piano__nome">Start</p>
+        <p class="piano__prezzo"><b data-prezzo="79">79 €</b><span>/mese</span></p>
+        <p class="piano__setup">+ setup 490 €</p>
+        <p class="piano__annuale" data-annuale></p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Fino a 2 utenti</li>
+          <li><span class="mattoncino"></span>Immobili, contatti, agenda, trattative</li>
+          <li><span class="mattoncino"></span>Matching automatico</li>
+          <li><span class="mattoncino"></span>Pubblicazione sui portali</li>
+        </ul>
+        <a class="btn btn--secondario" href="#demo" data-piano="Start">Prenota una demo</a>
+      </article>
+      <article class="piano piano--evidenza entra">
+        <span class="etichetta">La più scelta</span>
+        <p class="piano__nome">Pro</p>
+        <p class="piano__prezzo"><b data-prezzo="149">149 €</b><span>/mese</span></p>
+        <p class="piano__setup">+ setup 990 €</p>
+        <p class="piano__annuale" data-annuale></p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Fino a 5 utenti</li>
+          <li><span class="mattoncino"></span>Tutto lo Start</li>
+          <li><span class="mattoncino"></span>Risposta automatica WhatsApp ai lead</li>
+          <li><span class="mattoncino"></span>Follow-up dopo le visite</li>
+          <li><span class="mattoncino"></span>Report e area proprietario</li>
+          <li><span class="mattoncino"></span>Avvisi su immobili fermi e incarichi in scadenza</li>
+        </ul>
+        <a class="btn btn--primario" href="#demo" data-piano="Pro">Prenota una demo</a>
+      </article>
+      <article class="piano entra">
+        <p class="piano__nome">Elite</p>
+        <p class="piano__prezzo"><b data-prezzo="299">299 €</b><span>/mese</span></p>
+        <p class="piano__setup">+ setup 1.990 €</p>
+        <p class="piano__annuale" data-annuale></p>
+        <ul class="elenco">
+          <li><span class="mattoncino"></span>Utenti illimitati</li>
+          <li><span class="mattoncino"></span>Tutto il Pro</li>
+          <li><span class="mattoncino"></span>Sito vetrina sincronizzato</li>
+          <li><span class="mattoncino"></span>AI per annunci, lead e valutazioni</li>
+          <li><span class="mattoncino"></span>Sequenze di acquisizione, recensioni e referral</li>
+          <li><span class="mattoncino"></span>Onboarding dedicato e importazione dati</li>
+        </ul>
+        <a class="btn btn--secondario" href="#demo" data-piano="Elite">Prenota una demo</a>
+      </article>
+    </div>
+    <p class="prezzi__nota">Utente extra 15 €/mese · Prezzi IVA esclusa</p>
+  </div>
+</section>
+
+<!-- 8. CONTENUTI E MARKETING -->
+<section class="sezione" style="padding-block: clamp(56px, 8vw, 88px)">
+  <div class="wrap">
+    <div class="box-nexora entra">
+      <div class="box-nexora__testo">
+        <span class="icona" data-icona="video"></span>
+        <div>
+          <h2>Vuoi anche i video dei tuoi immobili e le campagne per acquisire proprietari?</h2>
+          <p>Ci pensa Nexora, il team dietro Mattonio.</p>
+        </div>
+      </div>
+      <a class="btn btn--secondario" href="[LINK SITO NEXORA]" target="_blank" rel="noopener">Scopri Nexora<span data-icona="arrow-right"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- 9. TESTIMONIANZE (segnaposto: da sostituire con recensioni vere) -->
+<section class="sezione sezione--bianca">
+  <div class="wrap">
+    <div class="intestazione intestazione--centro entra">
+      <p class="occhiello"><span class="mattoncino"></span>Chi lo usa</p>
+      <h2>Lo dicono le agenzie</h2>
+    </div>
+    <div class="griglia-3">
+      <figure class="card citazione entra" style="margin:0">
+        <span data-icona="quote"></span>
+        <blockquote>[CITAZIONE]</blockquote>
+        <figcaption><b>[NOME AGENZIA]</b>[CITTÀ]</figcaption>
+      </figure>
+      <figure class="card citazione entra" style="margin:0">
+        <span data-icona="quote"></span>
+        <blockquote>[CITAZIONE]</blockquote>
+        <figcaption><b>[NOME AGENZIA]</b>[CITTÀ]</figcaption>
+      </figure>
+      <figure class="card citazione entra" style="margin:0">
+        <span data-icona="quote"></span>
+        <blockquote>[CITAZIONE]</blockquote>
+        <figcaption><b>[NOME AGENZIA]</b>[CITTÀ]</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 10. FAQ -->
+<section class="sezione" id="faq">
+  <div class="wrap">
+    <div class="intestazione intestazione--centro entra">
+      <p class="occhiello"><span class="mattoncino"></span>FAQ</p>
+      <h2>Le domande che ci fanno tutti</h2>
+    </div>
+    <div class="faq entra">
+      <details>
+        <summary>Devo cambiare il mio gestionale attuale?<span data-icona="chevron-down"></span></summary>
+        <div>Mattonio può prendere il suo posto: importiamo noi immobili e contatti da quello che usi oggi, da un foglio Excel o dalla rubrica. In demo guardiamo insieme cosa usi adesso e come fare il passaggio senza fermare il lavoro.</div>
+      </details>
+      <details>
+        <summary>Quanto tempo serve per partire?<span data-icona="chevron-down"></span></summary>
+        <div>Pochi giorni. Il tempo dipende soprattutto da quanti dati ci sono da importare: [TEMPI MEDI DI ATTIVAZIONE]. Configurazione, importazione e formazione sono comprese nel setup.</div>
+      </details>
+      <details>
+        <summary>Funziona da telefono?<span data-icona="chevron-down"></span></summary>
+        <div>Sì, è pensato prima di tutto per il telefono: chiami, scrivi su WhatsApp, fissi un appuntamento o carichi le foto di un immobile tra una visita e l'altra. Al computer hai le stesse cose, con più spazio.</div>
+      </details>
+      <details>
+        <summary>I miei dati sono al sicuro?<span data-icona="chevron-down"></span></summary>
+        <div>I dati sono su server in Europa e ogni agenzia vede soltanto i propri: la separazione è garantita direttamente dal database, non solo dall'app. Il titolare decide chi entra e può disattivare un utente in qualsiasi momento. [DETTAGLI SU BACKUP E GDPR]</div>
+      </details>
+      <details>
+        <summary>Posso disdire quando voglio?<span data-icona="chevron-down"></span></summary>
+        <div>[CONDIZIONI DI DISDETTA]. In ogni caso i dati restano tuoi: se decidi di andare via, te li restituiamo in un formato che puoi riutilizzare.</div>
+      </details>
+      <details>
+        <summary>Si collega a Immobiliare.it e Idealista?<span data-icona="chevron-down"></span></summary>
+        <div>La pubblicazione sui portali è compresa in tutti i piani. [DETTAGLI SULLE INTEGRAZIONI CON IMMOBILIARE.IT E IDEALISTA]. In demo ti mostriamo come funziona con i portali che usi tu.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- 11. CTA FINALE -->
+<section class="sezione sezione--notte finale" id="demo">
+  <div class="wrap finale__griglia">
+    <div class="entra">
+      <p class="occhiello"><span class="mattoncino"></span>Demo gratuita</p>
+      <h2>La prossima trattativa la chiudi con Mattonio.</h2>
+      <p class="sottotitolo">Lasciaci due dati: ti chiamiamo noi e ti mostriamo Mattonio sulla tua agenzia, non su un esempio inventato.</p>
+      <ul class="elenco" style="margin-top:28px">
+        <li><span class="mattoncino"></span>Gratuita e senza impegno</li>
+        <li><span class="mattoncino"></span>[DURATA DEMO] online, quando ti fa comodo</li>
+        <li><span class="mattoncino"></span>Nessun numero di carta richiesto</li>
+      </ul>
+    </div>
+
+    <div class="modulo entra" id="modulo">
+      <form id="form-demo" novalidate>
+        <h3>Prenota la tua demo</h3>
+        <p>Ti richiamiamo entro [TEMPO DI RISPOSTA].</p>
+        <div class="campi">
+          <div class="campo">
+            <label for="f-nome">Nome e cognome</label>
+            <input id="f-nome" name="nome" autocomplete="name" required maxlength="120">
+            <span class="errore" id="e-nome"></span>
+          </div>
+          <div class="campo">
+            <label for="f-agenzia">Agenzia</label>
+            <input id="f-agenzia" name="agenzia" autocomplete="organization" required maxlength="160">
+            <span class="errore" id="e-agenzia"></span>
+          </div>
+          <div class="campo">
+            <label for="f-citta">Città</label>
+            <input id="f-citta" name="citta" autocomplete="address-level2" required maxlength="120">
+            <span class="errore" id="e-citta"></span>
+          </div>
+          <div class="campo">
+            <label for="f-telefono">Telefono</label>
+            <input id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required maxlength="25">
+            <span class="errore" id="e-telefono"></span>
+          </div>
+          <div class="campo campo--intero">
+            <label for="f-agenti">Quanti agenti siete?</label>
+            <select id="f-agenti" name="numero_agenti" required>
+              <option value="">Scegli</option>
+              <option value="1">Solo io</option>
+              <option value="2-3">2 o 3</option>
+              <option value="4-5">4 o 5</option>
+              <option value="6-10">Da 6 a 10</option>
+              <option value="più di 10">Più di 10</option>
+            </select>
+            <span class="errore" id="e-numero_agenti"></span>
+          </div>
+          <!-- Campo trappola per i bot: le persone non lo vedono -->
+          <div class="trappola" aria-hidden="true">
+            <label for="f-sito">Sito web</label>
+            <input id="f-sito" name="sito" tabindex="-1" autocomplete="off">
+          </div>
+        </div>
+        <button class="btn btn--primario" type="submit" id="invia">Prenota la demo<span data-icona="arrow-right"></span></button>
+        <div class="esito esito--errore" id="esito" role="alert" hidden></div>
+        <p class="privacy">Usiamo questi dati solo per contattarti per la demo. <a href="[LINK PRIVACY]">Informativa privacy</a>.</p>
+      </form>
+      <div class="conferma" id="conferma" hidden tabindex="-1">
+        <span class="icona" data-icona="circle-check"></span>
+        <h3>Richiesta ricevuta. Grazie!</h3>
+        <p id="conferma-testo">Ti chiamiamo entro [TEMPO DI RISPOSTA] per fissare la demo. Intanto puoi tornare alle visite.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- 12. FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__colonna">
+      <a class="logo logo--negativo" href="#inizio" aria-label="Mattonio, torna all'inizio"><svg aria-hidden="true"><use href="#mattoni"/></svg><span>mattonio</span></a>
+      <p>Un prodotto Nexora Gruppo Digitale</p>
+    </div>
+    <div class="footer__colonna">
+      <a class="footer__riga" href="mailto:[EMAIL]"><span data-icona="mail"></span>[EMAIL]</a>
+      <a class="footer__riga" href="tel:[TELEFONO]"><span data-icona="phone"></span>[TELEFONO]</a>
+    </div>
+    <div class="footer__colonna">
+      <a href="[LINK PRIVACY]">Privacy</a>
+      <a href="[LINK COOKIE]">Cookie</a>
+    </div>
+  </div>
+</footer>
+
+<!-- CTA fissa in basso su telefono -->
+<div class="cta-fissa" id="cta-fissa">
+  <a class="btn btn--primario" href="#demo">Prenota una demo</a>
+</div>
+
+<script src="icone.js"></script>
+<script>
+(function () {
+  // ===== Configurazione =====
+  // Progetto Supabase e tabella in cui finiscono le richieste di demo.
+  // La chiave pubblicabile può stare nella pagina: la tabella accetta solo inserimenti (RLS).
+  var SUPABASE_URL = "https://bwpgpsrcddlngpskyajr.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_3QxjhWJWm0FxQfNPFTkTyA_jAn1Qnkk";
+  // Sconto per il pagamento annuale: es. 0.15 per il 15%. Finché è null la pagina mostra il segnaposto.
+  var SCONTO_ANNUALE = null;
+
+  // ===== Icone lucide =====
+  document.querySelectorAll("[data-icona]").forEach(function (el) {
+    var corpo = window.ICONE && window.ICONE[el.getAttribute("data-icona")];
+    if (!corpo) return;
+    el.insertAdjacentHTML("beforeend",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + corpo + "</svg>");
+  });
+
+  // ===== Navbar: bordo allo scorrimento e menu a tendina =====
+  var nav = document.getElementById("nav");
+  var bottone = document.getElementById("apri-menu");
+  var tendina = document.getElementById("tendina");
+  function impostaMenu(aperto) {
+    tendina.classList.toggle("aperta", aperto);
+    bottone.setAttribute("aria-expanded", String(aperto));
+    bottone.querySelector(".ico-apri").hidden = aperto;
+    bottone.querySelector(".ico-chiudi").hidden = !aperto;
+    bottone.querySelector("span:last-child").textContent = aperto ? "Chiudi" : "Menu";
+  }
+  function chiudiMenu() { impostaMenu(false); }
+  bottone.addEventListener("click", function () { impostaMenu(!tendina.classList.contains("aperta")); });
+  tendina.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", chiudiMenu); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") chiudiMenu(); });
+  function aggiornaNav() { nav.classList.toggle("scorrendo", window.scrollY > 8); }
+  window.addEventListener("scroll", aggiornaNav, { passive: true });
+  aggiornaNav();
+
+  // ===== Animazioni di ingresso e CTA fissa =====
+  var entrate = document.querySelectorAll(".entra");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (voci) {
+      voci.forEach(function (v) {
+        if (v.isIntersecting) { v.target.classList.add("visibile"); io.unobserve(v.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    entrate.forEach(function (el) { io.observe(el); });
+
+    // La CTA fissa sparisce quando il form è già sullo schermo
+    var cta = document.getElementById("cta-fissa");
+    new IntersectionObserver(function (voci) {
+      cta.classList.toggle("nascosta", voci[0].isIntersecting);
+    }, { threshold: 0.05 }).observe(document.getElementById("demo"));
+  } else {
+    entrate.forEach(function (el) { el.classList.add("visibile"); });
+  }
+
+  // ===== Prezzi mensili / annuali =====
+  var euro = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 });
+  var etichetta = document.getElementById("etichetta-sconto");
+  etichetta.textContent = SCONTO_ANNUALE ? "−" + Math.round(SCONTO_ANNUALE * 100) + "%" : "−[SCONTO ANNUALE]";
+  function mostraPeriodo(periodo) {
+    document.querySelectorAll("[data-periodo]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-periodo") === periodo));
+    });
+    document.querySelectorAll(".piano").forEach(function (piano) {
+      var prezzo = piano.querySelector("[data-prezzo]");
+      var base = Number(prezzo.getAttribute("data-prezzo"));
+      var nota = piano.querySelector("[data-annuale]");
+      if (periodo === "annuale") {
+        if (SCONTO_ANNUALE) {
+          prezzo.textContent = euro.format(Math.round(base * (1 - SCONTO_ANNUALE))) + " €";
+          nota.textContent = "Fatturato annualmente";
+        } else {
+          prezzo.textContent = base + " €";
+          nota.textContent = "Con pagamento annuale: [SCONTO ANNUALE] di sconto";
+        }
+      } else {
+        prezzo.textContent = base + " €";
+        nota.textContent = "";
+      }
+    });
+  }
+  document.querySelectorAll("[data-periodo]").forEach(function (b) {
+    b.addEventListener("click", function () { mostraPeriodo(b.getAttribute("data-periodo")); });
+  });
+
+  // ===== Form demo → Supabase (tabella demo_requests) =====
+  var form = document.getElementById("form-demo");
+  var esito = document.getElementById("esito");
+  var invia = document.getElementById("invia");
+  var regole = {
+    nome: function (v) { return v.length >= 2 ? "" : "Scrivi nome e cognome."; },
+    agenzia: function (v) { return v.length >= 2 ? "" : "Scrivi il nome dell'agenzia."; },
+    citta: function (v) { return v.length >= 2 ? "" : "In che città lavorate?"; },
+    telefono: function (v) { return /^[0-9 +().-]{6,25}$/.test(v) && v.replace(/\D/g, "").length >= 6 ? "" : "Controlla il numero di telefono."; },
+    numero_agenti: function (v) { return v ? "" : "Scegli quanti siete."; }
+  };
+  function valida() {
+    var dati = {}, primoErrore = null;
+    Object.keys(regole).forEach(function (k) {
+      var campo = form.elements[k];
+      var valore = campo.value.trim();
+      var errore = regole[k](valore);
+      document.getElementById("e-" + k).textContent = errore;
+      campo.setAttribute("aria-invalid", errore ? "true" : "false");
+      if (errore && !primoErrore) primoErrore = campo;
+      dati[k] = valore;
+    });
+    if (primoErrore) { primoErrore.focus(); return null; }
+    return dati;
+  }
+  Object.keys(regole).forEach(function (k) {
+    form.elements[k].addEventListener("input", function () {
+      if (form.elements[k].getAttribute("aria-invalid") === "true") {
+        var errore = regole[k](form.elements[k].value.trim());
+        document.getElementById("e-" + k).textContent = errore;
+        form.elements[k].setAttribute("aria-invalid", errore ? "true" : "false");
+      }
+    });
+  });
+  // Il pulsante "Prenota una demo" di un piano ricorda la scelta (utile a chi richiama)
+  var pianoScelto = "";
+  document.querySelectorAll("[data-piano]").forEach(function (a) {
+    a.addEventListener("click", function () { pianoScelto = a.getAttribute("data-piano"); });
+  });
+  function confermato(dati) {
+    form.hidden = true;
+    var conferma = document.getElementById("conferma");
+    conferma.hidden = false;
+    if (dati && dati.nome) {
+      document.getElementById("conferma-testo").textContent =
+        "Grazie " + dati.nome.split(" ")[0] + ": ti chiamiamo entro [TEMPO DI RISPOSTA] per fissare la demo" +
+        (pianoScelto ? " del piano " + pianoScelto : "") + ". Intanto puoi tornare alle visite.";
+    }
+    conferma.focus();
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    esito.hidden = true;
+    if (form.elements.sito.value) { confermato(null); return; } // bot: fingiamo che sia andato tutto bene
+    var dati = valida();
+    if (!dati) return;
+    invia.disabled = true;
+    invia.firstChild.textContent = "Invio in corso…";
+    fetch(SUPABASE_URL + "/rest/v1/demo_requests", {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(dati)
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        confermato(dati);
+      })
+      .catch(function () {
+        esito.textContent = "Non siamo riusciti a inviare la richiesta. Controlla la connessione e riprova, oppure chiamaci al [TELEFONO].";
+        esito.hidden = false;
+        invia.disabled = false;
+        invia.firstChild.textContent = "Prenota la demo";
+      });
+  });
+})();
+</script>
+</body>
+</html>
