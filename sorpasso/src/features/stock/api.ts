@@ -98,7 +98,7 @@ function useInvalidaVeicoli() {
 /** Campi della scheda modificabili dal form (il resto lo gestiscono trigger e altre sezioni). */
 export type VeicoloInput = Omit<
   Vehicle,
-  "id" | "organization_id" | "created_at" | "updated_at" | "data_uscita" | "descrizione" | "descrizione_breve" | "pubblica" | "token_pubblico"
+  "id" | "organization_id" | "created_at" | "updated_at" | "data_uscita" | "descrizione" | "descrizione_breve" | "pubblica" | "token_pubblico" | "riferimento"
 >;
 
 export function useSalvaVeicolo() {

@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { Users } from "lucide-react";
+import { AlertTriangle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VehiclePhoto } from "@/components/shared/VehiclePhoto";
 import { euro, km } from "@/lib/format";
-import { ALIMENTAZIONI, STATI_VEICOLO, TIPI_VEICOLO, toneGiacenza } from "@/lib/labels";
+import { ALIMENTAZIONI, SIGLE_PORTALI, STATI_VEICOLO, TIPI_VEICOLO, toneGiacenza } from "@/lib/labels";
 import type { VehicleView } from "@/types/db";
 
 /** Badge giorni di giacenza: verde, giallo o rosso rispetto alla soglia aziendale. */
@@ -49,6 +49,20 @@ export function VeicoloCard({ v, fotoUrl }: { v: VehicleView; fotoUrl?: string |
         </p>
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
           <BadgeGiacenza v={v} size="sm" />
+          {v.portali_online.length > 0 && (
+            <span className="flex flex-wrap gap-1" aria-label={`Online su ${v.portali_online.map((p) => SIGLE_PORTALI[p] ?? p).join(", ")}`}>
+              {v.portali_online.map((p) => (
+                <span key={p} title={`Online su ${SIGLE_PORTALI[p] ?? p}`} className="rounded bg-success-soft px-1.5 py-0.5 text-[11px] font-semibold leading-none text-success">
+                  {SIGLE_PORTALI[p] ?? p}
+                </span>
+              ))}
+            </span>
+          )}
+          {v.pubblicazione_errore && (
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-destructive" title="Una pubblicazione è in errore: apri la scheda, tab Pubblicazione">
+              <AlertTriangle className="size-4" aria-hidden /> Errore portale
+            </span>
+          )}
           {v.lead_aperti > 0 && (
             <span className="inline-flex items-center gap-1 text-sm font-medium text-accent">
               <Users className="size-4" aria-hidden />

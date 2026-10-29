@@ -26,6 +26,7 @@ import { autoLead, nomeLead } from "./LeadCard";
 import { AzioniRapide } from "./scheda/AzioniRapide";
 import { DatiLeadDialog } from "./scheda/DatiLeadDialog";
 import { PannelloAI } from "./scheda/PannelloAI";
+import { ProvenienzaAnnuncio } from "./scheda/ProvenienzaAnnuncio";
 import { ProssimaAzione } from "./scheda/ProssimaAzione";
 import { Timeline } from "./scheda/Timeline";
 
@@ -125,6 +126,7 @@ function Intestazione({ lead, sola_lettura }: { lead: LeadView; sola_lettura: bo
             </span>
           )}
           <span>{FONTI[lead.fonte]}</span>
+          <ProvenienzaAnnuncio leadId={lead.id} />
           <span>Arrivato il {dataOra(lead.created_at)}</span>
           <span>Venditore: {lead.assegnato_nome ?? "nessuno"}</span>
         </p>

@@ -15,13 +15,14 @@ import { qk } from "@/lib/queries";
 import { FONTI } from "@/lib/labels";
 import { addDays, durata, euro, numero, startOfDay, startOfMonth, toDateInput } from "@/lib/format";
 import type { ReportPeriodo } from "@/types/db";
+import { ReportPortali } from "./ReportPortali";
 
 /*
  * Colori dei grafici (validati con lo script dataviz: CVD e contrasto ok su bianco).
  * Serie 1 = lead (blu elettrico), serie 2 = vinti (arancio). Testo sempre in inchiostro neutro.
  */
 const C = {
-  serie1: "#2f6bff",
+  serie1: "#3d6bff",
   serie2: "#eb6834",
   griglia: "#e5e9f0",
   asse: "#5b6578",
@@ -63,7 +64,7 @@ const tooltipStyle = {
   contentStyle: { borderRadius: 10, border: "1px solid #e5e9f0", boxShadow: "0 8px 24px rgb(13 21 38 / 0.12)", fontSize: 14 },
   labelStyle: { fontWeight: 600, color: "#0d1526" },
   itemStyle: { color: "#0d1526" },
-  cursor: { fill: "rgb(47 107 255 / 0.06)" },
+  cursor: { fill: "rgb(61 107 255 / 0.06)" },
 };
 const tick = { fill: C.asse, fontSize: 13 };
 
@@ -264,6 +265,7 @@ export default function ReportPage() {
           )}
         </div>
       )}
+      {valido && <ReportPortali da={range.da} a={range.a} />}
     </div>
   );
 }

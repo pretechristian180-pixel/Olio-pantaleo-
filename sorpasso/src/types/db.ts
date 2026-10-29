@@ -124,6 +124,8 @@ export interface Vehicle {
   /** Pagina pubblica attiva */
   pubblica: boolean;
   token_pubblico: string;
+  /** Codice da riportare negli annunci ("SA-1A2B3C"): collega i lead dai portali all'auto */
+  riferimento: string;
   created_at: ISODate;
   updated_at: ISODate;
 }

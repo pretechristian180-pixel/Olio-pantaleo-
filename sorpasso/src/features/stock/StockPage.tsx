@@ -38,6 +38,7 @@ export default function StockPage() {
   const [alimentazione, setAlimentazione] = useState<Alimentazione | "">("");
   const [fascia, setFascia] = useState("");
   const [soloOltreSoglia, setSoloOltreSoglia] = useState(false);
+  const [pubblicazione, setPubblicazione] = useState<"" | "online" | "non_pubblicate" | "errori">("");
   const [ordine, setOrdine] = useState<Ordine>("giacenza");
   const [filtriAperti, setFiltriAperti] = useState(false);
 
@@ -54,6 +55,9 @@ export default function StockPage() {
       if (min !== undefined && (v.prezzo_vendita ?? 0) < min) return false;
       if (max !== undefined && (v.prezzo_vendita ?? 0) >= max) return false;
       if (soloOltreSoglia && !v.oltre_soglia) return false;
+      if (pubblicazione === "online" && !v.portali_online.length) return false;
+      if (pubblicazione === "non_pubblicate" && v.portali_online.length) return false;
+      if (pubblicazione === "errori" && !v.pubblicazione_errore) return false;
       return true;
     });
     const cmp: Record<Ordine, (a: VehicleView, b: VehicleView) => number> = {
@@ -63,7 +67,7 @@ export default function StockPage() {
       recenti: (a, b) => b.data_ingresso.localeCompare(a.data_ingresso) || b.created_at.localeCompare(a.created_at),
     };
     return [...lista].sort(cmp[ordine]);
-  }, [tutti, cerca, tipo, stato, alimentazione, fascia, soloOltreSoglia, ordine]);
+  }, [tutti, cerca, tipo, stato, alimentazione, fascia, soloOltreSoglia, pubblicazione, ordine]);
 
   const inStock = tutti.filter((v) => v.stato !== "venduto");
   const disponibili = inStock.filter((v) => v.stato === "disponibile").length;
@@ -72,7 +76,7 @@ export default function StockPage() {
 
   const foto = useFotoUrls(filtrati.map((v) => v.foto_copertina));
 
-  const filtriAttivi = [tipo, alimentazione, fascia].filter(Boolean).length + (soloOltreSoglia ? 1 : 0) + (stato !== "non_venduti" ? 1 : 0);
+  const filtriAttivi = [tipo, alimentazione, fascia, pubblicazione].filter(Boolean).length + (soloOltreSoglia ? 1 : 0) + (stato !== "non_venduti" ? 1 : 0);
   const azzera = () => {
     setCerca("");
     setTipo("");
@@ -80,6 +84,7 @@ export default function StockPage() {
     setAlimentazione("");
     setFascia("");
     setSoloOltreSoglia(false);
+    setPubblicazione("");
   };
 
   const aggiungi = isManager ? (
@@ -185,6 +190,12 @@ export default function StockPage() {
                     {f.label}
                   </option>
                 ))}
+              </Select>
+              <Select value={pubblicazione} onChange={(e) => setPubblicazione(e.target.value as typeof pubblicazione)} aria-label="Pubblicazione sui portali">
+                <option value="">Pubblicazione: tutte</option>
+                <option value="online">Online su almeno un portale</option>
+                <option value="non_pubblicate">Non pubblicate</option>
+                <option value="errori">Con errori di pubblicazione</option>
               </Select>
               <label className="flex h-12 cursor-pointer items-center gap-3 rounded-lg border px-4 text-[15px]">
                 <input type="checkbox" className="size-5 accent-[var(--accent)]" checked={soloOltreSoglia} onChange={(e) => setSoloOltreSoglia(e.target.checked)} />

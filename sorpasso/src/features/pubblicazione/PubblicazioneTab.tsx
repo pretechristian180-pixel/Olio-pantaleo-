@@ -12,6 +12,7 @@ import { generaDescrizioni } from "@/lib/ai";
 import { mostraErrore } from "@/lib/errors";
 import type { VehicleView } from "@/types/db";
 import { copia, linkCondividiWhatsApp, linkPubblico, useAggiornaPubblicazione } from "./api";
+import { SezionePortali } from "./SezionePortali";
 
 const MAX_COMPLETA = 5000;
 const MAX_BREVE = 600;
@@ -29,12 +30,16 @@ async function copiaConAvviso(testo: string, cosa: string) {
 
 /**
  * Tab "Pubblicazione" della scheda veicolo:
- * descrizioni (AI + modifica), pagina pubblica con link e QR, scheda tecnica PDF, condivisione WhatsApp.
+ * portali (pubblica ovunque, stato per portale, modalità manuale), descrizioni (AI + modifica),
+ * pagina pubblica con link e QR, scheda tecnica PDF, condivisione WhatsApp.
  */
 export default function PubblicazioneTab({ veicolo }: { veicolo: VehicleView }) {
   return (
     <div className="space-y-6">
-      <Descrizioni veicolo={veicolo} />
+      <SezionePortali veicolo={veicolo} />
+      <div id="descrizioni-annuncio" className="scroll-mt-24">
+        <Descrizioni veicolo={veicolo} />
+      </div>
       <PaginaPubblica veicolo={veicolo} />
       <SchedaPdf veicolo={veicolo} />
     </div>
