@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { Search } from "lucide-react";
-import { Toaster } from "@/components/ui/sonner";
 import { AppointmentDialogProvider } from "@/features/agenda/AppointmentDialog";
-import { emptyMode } from "@/services/store";
+import { Avatar } from "@/components/shared/Avatar";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { BottomNav } from "./BottomNav";
 import { GlobalSearch, SearchTrigger } from "./GlobalSearch";
 import { Logo } from "./Logo";
@@ -19,6 +19,7 @@ export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const { pathname } = useLocation();
+  const { agent } = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,21 +30,26 @@ export function AppShell() {
       <div className="min-h-dvh bg-background">
         <Sidebar />
         <div className="lg:pl-60">
-          {emptyMode && (
-            <div className="bg-warning-soft px-4 py-2 text-center text-[15px] text-warning">
-              Modalità demo senza dati. <a href="/?pieno" className="font-semibold underline">Torna ai dati di esempio</a>
-            </div>
-          )}
           <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
             <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:h-18 lg:px-8">
               <div className="lg:hidden">
                 <Logo />
               </div>
               <SearchTrigger onOpen={() => setSearchOpen(true)} className="ml-auto hidden max-w-md lg:ml-0 lg:flex" />
+              {/* Su telefono il profilo (e le Impostazioni) si apre da qui */}
+              {agent && (
+                <Link
+                  to="/impostazioni"
+                  className="ml-auto flex h-11 items-center gap-2 rounded-lg px-1.5 font-medium text-foreground/80 lg:hidden"
+                >
+                  <Avatar person={agent} size="sm" className="size-8 text-[13px]" />
+                  Profilo
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="ml-auto flex h-11 items-center gap-2 rounded-lg border px-3.5 font-medium text-foreground/80 lg:hidden"
+                className="flex h-11 items-center gap-2 rounded-lg border px-3.5 font-medium text-foreground/80 lg:hidden"
               >
                 <Search className="size-5" aria-hidden />
                 Cerca
@@ -57,7 +63,6 @@ export function AppShell() {
         <BottomNav onAdd={() => setAddOpen(true)} />
         <QuickAddSheet open={addOpen} onOpenChange={setAddOpen} />
         <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
-        <Toaster />
       </div>
     </AppointmentDialogProvider>
   );

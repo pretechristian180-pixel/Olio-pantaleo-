@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useQuery } from "@/hooks/useQuery";
@@ -34,7 +35,7 @@ export function AgendaPage() {
   const weekStart = startOfWeek(day);
   const from = currentView === "giorno" ? day : weekStart;
   const to = addDays(from, currentView === "giorno" ? 1 : 7);
-  const { data, loading } = useQuery(() => listAppointments(from, to), [from.getTime(), to.getTime()]);
+  const { data, loading, error, reload } = useQuery(() => listAppointments(from, to), [from.getTime(), to.getTime()]);
 
   const step = currentView === "giorno" ? 1 : 7;
   const today = startOfDay(new Date());
@@ -92,7 +93,9 @@ export function AgendaPage() {
 
       {currentView === "giorno" && <WeekStrip day={day} onPick={setDay} />}
 
-      {loading || !data ? (
+      {error ? (
+        <ErrorState message={error} onRetry={reload} />
+      ) : loading || !data ? (
         <div className="space-y-2">
           {[0, 1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-16" />
@@ -129,7 +132,7 @@ function defaultStart(day: Date) {
 function Legend() {
   return (
     <ul className="flex gap-4 text-[15px] text-muted-foreground">
-      {(Object.keys(appointmentKind) as AppointmentKind[]).map((k) => (
+      {(["visita", "valutazione", "firma"] as AppointmentKind[]).map((k) => (
         <li key={k} className="flex items-center gap-1.5">
           <span className={cn("size-3 rounded-full", toneClasses[appointmentKind[k].tone].dot)} aria-hidden />
           {appointmentKind[k].label}

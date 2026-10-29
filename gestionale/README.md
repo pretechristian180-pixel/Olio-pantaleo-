@@ -9,19 +9,39 @@ Il backend (Supabase, autenticazione, più agenzie) verrà collegato in una fase
 
 ```bash
 cd gestionale
+cp .env.example .env.local   # URL e chiave pubblicabile del progetto Supabase "Casalista"
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:3000
 npm run build      # controllo dei tipi + build di produzione
 ```
 
-Per creare l'anteprima in un unico file (`dist-anteprima/casalista.html`) usa `npm run anteprima`.
+## Backend: Supabase
 
-Aggiungi `?vuoto` all'indirizzo per vedere gli **stati vuoti** (e `?pieno` per tornare ai dati di esempio).
+- **Progetto**: "Casalista" (`bwpgpsrcddlngpskyajr`, Francoforte).
+- **Schema e sicurezza**: `supabase/migrations/`. Ogni tabella operativa ha `agency_id`;
+  RLS attiva su tutte le tabelle, con la funzione `get_my_agency_id()` in ogni policy.
+  Le chiavi esterne composte `(id, agency_id)` impediscono di collegare dati di agenzie diverse.
+- **Permessi**: il titolare vede e modifica tutto della sua agenzia, gestisce utenti e dati
+  dell'agenzia. L'agente vede immobili, contatti, trattative e agenda dell'agenzia, ma modifica solo
+  ciò che ha assegnato (`agente_id`); vede solo le proprie "cose da fare".
+- **Registrazione**: chi si registra crea l'agenzia e ne diventa titolare (trigger `handle_new_user`).
+- **Inviti**: Impostazioni → Utenti → "Invita un agente" chiama la Edge Function
+  `supabase/functions/invita-agente`, che invia l'email; l'agente sceglie la password ed entra già
+  collegato all'agenzia.
+- **Automatismi** (trigger nel database): cronologia per nuovo contatto, nuovo immobile, nuova trattativa,
+  cambio fase e nuovo appuntamento; promemoria automatici "Chiama…" per i nuovi acquirenti e
+  "Richiama…, ha visto l'immobile" dopo la fase Visita. Chiamate e WhatsApp sono registrati dall'app.
+- **Foto**: bucket privato `property-photos`, percorso `{agency_id}/{property_id}/…`; le foto sono
+  ridotte a 1600px e compresse in JPEG prima del caricamento. I loghi stanno nel bucket `agency-logos`.
 
-## Stack
+### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
-React 19 · TypeScript · Vite · Tailwind CSS v4 · componenti in stile shadcn/ui (Radix) ·
-React Router · Sonner (toast) · dnd-kit (kanban) · Inter.
+1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app
+   (per lo sviluppo `http://localhost:3000`, già predefinito) e, tra i Redirect URL,
+   `<indirizzo app>/imposta-password` e `<indirizzo app>/`.
+2. **Authentication → Emails → SMTP**: collega un servizio email (es. Resend, Brevo, Postmark).
+   Senza SMTP Supabase invia le email (conferma registrazione, inviti, recupero password) solo agli
+   indirizzi dei membri del team Supabase, con un limite di pochi messaggi l'ora.
 
 ## Struttura
 
@@ -29,36 +49,16 @@ React Router · Sonner (toast) · dnd-kit (kanban) · Inter.
 src/
   app/              rotte (router.tsx) e pagina 404
   components/
-    ui/             componenti base shadcn/ui: Button, Card, Badge, Input/Select, Dialog, Skeleton…
+    ui/             componenti base shadcn/ui
     layout/         AppShell, menu laterale, barra in basso con "+", ricerca globale
-    shared/         pezzi riusati tra le sezioni: EmptyState, PageHeader, StatCard, Avatar, foto immobile
+    shared/         EmptyState, ErrorState, PageHeader, StatCard, Avatar, foto immobile
   features/
-    today/          1. Oggi
-    properties/     2. Immobili (lista, scheda, inserimento a 4 passaggi)
-    contacts/       3. Contatti (lista con schede, scheda contatto, nuovo contatto)
-    deals/          4. Trattative (kanban trascinabile; su telefono colonne scorrevoli)
-    agenda/         5. Agenda (giorno/settimana, finestra "Nuovo appuntamento")
-  services/
-    api.ts          UNICO punto di accesso ai dati (funzioni asincrone)
-    store.ts        archivio in memoria che simula il database
-  data/mock.ts      dati finti
-  types/domain.ts   modello dati (ogni entità ha agencyId)
-  hooks/            useQuery, useMediaQuery
-  lib/              formattazione (€, date in italiano), etichette e colori
+    auth/           accesso, registrazione, recupero e scelta password, protezione rotte
+    today/ properties/ contacts/ deals/ agenda/ settings/
+  services/api.ts   UNICO punto di accesso ai dati (query Supabase → oggetti dell'interfaccia)
+  lib/              client Supabase, messaggi di errore in italiano, compressione foto, formattazione
+  types/            database.ts (tipi generati dallo schema) e domain.ts (modello dell'interfaccia)
+supabase/
+  migrations/       schema, RLS, trigger, storage, indici
+  functions/        invita-agente (Edge Function)
 ```
-
-## Collegamento a Supabase (prossimo passo)
-
-- Le pagine non leggono mai i dati finti direttamente: passano tutte da `src/services/api.ts`.
-  Basterà sostituire il corpo di quelle funzioni con le query Supabase, senza toccare l'interfaccia.
-- Ogni entità ha `agencyId` → colonna `agency_id` con policy RLS per separare le agenzie.
-- Le foto hanno già il campo `url` (Supabase Storage); senza url viene mostrata un'illustrazione.
-- L'autenticazione si innesta in `src/app/router.tsx` avvolgendo `AppShell` in una rotta protetta.
-- Le variabili d'ambiente da compilare sono in `.env.example`.
-
-## Regole di design seguite
-
-- Una sola azione principale per schermata, pulsanti alti almeno 48px, testo base 16px.
-- Massimo 5 voci di menu, sempre con testo (mai icone da sole).
-- Blu `#2563EB` unico colore principale; verde = fatto, arancione = avviso, rosso solo per gli errori.
-- Card al posto delle tabelle, skeleton al posto degli spinner, toast in basso per confermare.

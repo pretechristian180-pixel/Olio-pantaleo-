@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Segmented } from "@/components/ui/segmented";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useQuery } from "@/hooks/useQuery";
 import { listProperties, listZones, type PropertyFilters } from "@/services/api";
@@ -17,8 +18,8 @@ export function PropertiesPage() {
   const [status, setStatus] = useState<PropertyStatus | "tutti">("tutti");
   const [zone, setZone] = useState("tutte");
   const filters: PropertyFilters = { query, contract, status, zone };
-  const { data, loading } = useQuery(() => listProperties(filters), [query, contract, status, zone]);
-  const zones = listZones();
+  const { data, loading, error, reload } = useQuery(() => listProperties(filters), [query, contract, status, zone]);
+  const zones = useQuery(listZones).data ?? [];
   const filtering = query !== "" || contract !== "tutti" || status !== "tutti" || zone !== "tutte";
 
   function reset() {
@@ -71,8 +72,10 @@ export function PropertiesPage() {
           <Select value={status} onChange={(e) => setStatus(e.target.value as PropertyStatus | "tutti")} aria-label="Stato" className="lg:w-44">
             <option value="tutti">Ogni stato</option>
             <option value="disponibile">Disponibile</option>
-            <option value="trattativa">In trattativa</option>
+            <option value="in_trattativa">In trattativa</option>
             <option value="venduto">Venduto</option>
+            <option value="affittato">Affittato</option>
+            <option value="ritirato">Ritirato</option>
           </Select>
           <Select value={zone} onChange={(e) => setZone(e.target.value)} aria-label="Zona" className="lg:w-48">
             <option value="tutte">Ogni zona</option>
@@ -85,7 +88,9 @@ export function PropertiesPage() {
         </div>
       </div>
 
-      {loading || !data ? (
+      {error ? (
+        <ErrorState message={error} onRetry={reload} />
+      ) : loading || !data ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <PropertyCardSkeleton key={i} />

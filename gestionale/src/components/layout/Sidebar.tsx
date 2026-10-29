@@ -1,14 +1,14 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Avatar } from "@/components/shared/Avatar";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/lib/format";
-import { getSession } from "@/services/api";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { Logo } from "./Logo";
 import { navItems } from "./nav";
 
 /** Menu laterale (solo desktop): logo, 5 voci, profilo in basso. */
 export function Sidebar() {
-  const { agent, agency } = getSession();
+  const { agent, agency } = useAuth();
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-background lg:flex">
       <div className="flex h-18 items-center px-5">
@@ -32,13 +32,19 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      <div className="m-3 flex items-center gap-3 rounded-lg border p-3">
-        <Avatar person={agent} size="sm" />
-        <div className="min-w-0">
-          <p className="truncate text-[15px] font-semibold">{fullName(agent)}</p>
-          <p className="truncate text-sm text-muted-foreground">{agency.name}</p>
-        </div>
-      </div>
+      {agent && agency && (
+        <Link
+          to="/impostazioni"
+          title="Profilo e impostazioni"
+          className="m-3 flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-muted/60"
+        >
+          <Avatar person={agent} size="sm" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] font-semibold">{fullName(agent)}</p>
+            <p className="truncate text-sm text-muted-foreground">{agency.name}</p>
+          </div>
+        </Link>
+      )}
     </aside>
   );
 }

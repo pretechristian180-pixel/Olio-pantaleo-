@@ -1,5 +1,7 @@
 import type {
   AppointmentKind,
+  ContactRole,
+  ContactSource,
   Contract,
   DealStage,
   PropertyKind,
@@ -11,8 +13,10 @@ export type Tone = "blue" | "green" | "orange" | "red" | "gray" | "violet" | "te
 
 export const statusLabel: Record<PropertyStatus, { label: string; tone: Tone }> = {
   disponibile: { label: "Disponibile", tone: "green" },
-  trattativa: { label: "In trattativa", tone: "orange" },
+  in_trattativa: { label: "In trattativa", tone: "orange" },
   venduto: { label: "Venduto", tone: "gray" },
+  affittato: { label: "Affittato", tone: "gray" },
+  ritirato: { label: "Ritirato", tone: "gray" },
 };
 
 export const contractLabel: Record<Contract, string> = {
@@ -23,10 +27,23 @@ export const contractLabel: Record<Contract, string> = {
 export const kindLabel: Record<PropertyKind, string> = {
   appartamento: "Appartamento",
   villa: "Villa",
-  trullo: "Trullo",
-  masseria: "Masseria",
-  attico: "Attico",
-  casa: "Casa indipendente",
+  locale: "Locale commerciale",
+  terreno: "Terreno",
+  altro: "Altro",
+};
+
+export const contactRoleLabel: Record<ContactRole, string> = {
+  acquirente: "Acquirente",
+  proprietario: "Proprietario",
+  entrambi: "Acquirente e proprietario",
+};
+
+export const sourceLabel: Record<ContactSource, string> = {
+  portale: "Portale immobiliare",
+  sito: "Sito dell'agenzia",
+  passaparola: "Passaparola",
+  social: "Social",
+  altro: "Altro",
 };
 
 export const temperatureLabel: Record<Temperature, { label: string; tone: Tone; hint: string }> = {
@@ -48,6 +65,7 @@ export const appointmentKind: Record<AppointmentKind, { label: string; tone: Ton
   visita: { label: "Visita", tone: "blue" },
   valutazione: { label: "Valutazione", tone: "violet" },
   firma: { label: "Firma", tone: "teal" },
+  altro: { label: "Altro", tone: "gray" },
 };
 
 /** Classi Tailwind per ogni tono (sfondo tenue + testo + pallino) */

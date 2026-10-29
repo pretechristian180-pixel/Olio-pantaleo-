@@ -3,14 +3,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/input";
+import { Field, Input, Select } from "@/components/ui/input";
 import { Segmented } from "@/components/ui/segmented";
 import { BackLink } from "@/components/shared/BackLink";
-import { temperatureLabel, toneClasses } from "@/lib/labels";
+import { useQuery } from "@/hooks/useQuery";
+import { friendlyError } from "@/lib/errors";
+import { sourceLabel, temperatureLabel, toneClasses } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/lib/format";
 import { createContact, listZones } from "@/services/api";
-import type { ContactRole, Contract, Temperature } from "@/types/domain";
+import type { ContactRole, ContactSource, Contract, Temperature } from "@/types/domain";
 
 export function NewContactPage() {
   const navigate = useNavigate();
@@ -25,8 +27,11 @@ export function NewContactPage() {
   const [zone, setZone] = useState("");
   const [budget, setBudget] = useState("");
   const [sqm, setSqm] = useState("");
+  const [source, setSource] = useState<ContactSource | "">("");
+  const zones = useQuery(listZones);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -38,18 +43,27 @@ export function NewContactPage() {
     if (Object.keys(errs).length) return;
 
     setSaving(true);
-    const c = await createContact({
+    setSaveError(null);
+    let c;
+    try {
+      c = await createContact({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       phone: phone.trim(),
       email: email.trim() || undefined,
       role,
       temperature,
+      source: source || null,
       search:
         role === "acquirente"
-          ? { zones: zone ? [zone] : [], budgetMax: Number(budget) || 0, sqmMin: Number(sqm) || 0, contract }
+          ? { zones: zone ? [zone.trim()] : [], budgetMax: Number(budget) || null, sqmMin: Number(sqm) || null, contract }
           : undefined,
-    });
+      });
+    } catch (err) {
+      setSaveError(friendlyError(err));
+      setSaving(false);
+      return;
+    }
     toast.success("Contatto salvato", { description: fullName(c) });
     navigate(`/contatti/${c.id}`, { replace: true });
   }
@@ -88,6 +102,17 @@ export function NewContactPage() {
         </Field>
         <Field label="Email (facoltativa)" htmlFor="nc-em">
           <Input id="nc-em" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </Field>
+
+        <Field label="Da dove arriva? (facoltativo)" htmlFor="nc-src">
+          <Select id="nc-src" value={source} onChange={(e) => setSource(e.target.value as ContactSource | "")}>
+            <option value="">Non lo so</option>
+            {(Object.keys(sourceLabel) as ContactSource[]).map((k) => (
+              <option key={k} value={k}>
+                {sourceLabel[k]}
+              </option>
+            ))}
+          </Select>
         </Field>
 
         <div>
@@ -129,7 +154,7 @@ export function NewContactPage() {
             <Field label="Zona" htmlFor="nc-zone">
               <Input id="nc-zone" list="nc-zones" value={zone} onChange={(e) => setZone(e.target.value)} placeholder="Es. Polignano a Mare" />
               <datalist id="nc-zones">
-                {listZones().map((z) => (
+                {(zones.data ?? []).map((z) => (
                   <option key={z} value={z} />
                 ))}
               </datalist>
@@ -151,6 +176,11 @@ export function NewContactPage() {
         )}
       </div>
 
+      {saveError && (
+        <p role="alert" className="mt-6 rounded-lg bg-destructive-soft px-4 py-3 text-[15px] font-medium text-destructive">
+          {saveError}
+        </p>
+      )}
       <Button type="submit" size="lg" className="mt-8 w-full" disabled={saving}>
         <Check aria-hidden />
         {saving ? "Salvataggio…" : "Salva contatto"}

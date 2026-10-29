@@ -3,12 +3,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-// `vite build --mode anteprima`: build autocontenuta (font e immagini incorporati)
-// usata per pubblicare l'anteprima condivisibile, vedi scripts/anteprima.mjs
-export default defineConfig(({ mode }) => ({
+// Porta 3000: è l'indirizzo predefinito (Site URL) dei link nelle email di Supabase Auth
+export default defineConfig({
   plugins: [react(), tailwindcss()],
-  build: mode === "anteprima" ? { outDir: "dist-anteprima", assetsInlineLimit: 100_000_000, cssCodeSplit: false } : undefined,
+  server: { port: 3000 },
+  preview: { port: 3000 },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
   },
-}));
+});

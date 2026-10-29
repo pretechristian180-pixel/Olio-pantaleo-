@@ -8,21 +8,23 @@ import { Avatar } from "@/components/shared/Avatar";
 import { BackLink } from "@/components/shared/BackLink";
 import { StatusBadge, TemperatureBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PropertyPhoto } from "@/components/shared/PropertyPhoto";
 import { ContactActions } from "@/features/contacts/ContactActions";
 import { useAppointmentDialog } from "@/features/agenda/AppointmentDialog";
 import { useQuery } from "@/hooks/useQuery";
 import { contractLabel, kindLabel } from "@/lib/labels";
 import { cn } from "@/lib/utils";
-import { daysSince, formatPrice, fullName } from "@/lib/format";
+import { formatPrice, formatShortDate, fullName } from "@/lib/format";
 import { getProperty } from "@/services/api";
 
 export function PropertyDetailPage() {
   const { id = "" } = useParams();
-  const { data, loading } = useQuery(() => getProperty(id), [id]);
+  const { data, loading, error, reload } = useQuery(() => getProperty(id), [id]);
   const { openAppointment } = useAppointmentDialog();
   const [photoIndex, setPhotoIndex] = useState(0);
 
+  if (error) return <ErrorState message={error} onRetry={reload} />;
   if (loading) return <DetailSkeleton />;
   if (!data)
     return (
@@ -38,16 +40,17 @@ export function PropertyDetailPage() {
       />
     );
 
-  const { property: p, owner, matchingBuyers } = data;
+  const { property: p, owner, matchingBuyers, stats } = data;
   const photo = p.photos[photoIndex] ?? p.photos[0];
 
   const facts = [
-    { label: "Superficie", value: `${p.sqm} mq` },
-    { label: "Locali", value: p.rooms },
-    { label: "Bagni", value: p.bathrooms },
+    p.sqm != null && { label: "Superficie", value: `${p.sqm} mq` },
+    p.rooms != null && { label: "Locali", value: p.rooms },
+    p.bathrooms != null && { label: "Bagni", value: p.bathrooms },
     { label: "Tipo", value: kindLabel[p.kind] },
     p.floor && { label: "Piano", value: p.floor },
     p.energyClass && { label: "Classe energetica", value: p.energyClass },
+    p.mandateEnd && { label: "Incarico fino al", value: formatShortDate(p.mandateEnd) },
   ].filter(Boolean) as { label: string; value: string | number }[];
 
   return (
@@ -109,7 +112,9 @@ export function PropertyDetailPage() {
           </dl>
 
           <h2 className="mt-8 text-xl font-semibold">Descrizione</h2>
-          <p className="mt-2 max-w-prose text-[17px] leading-relaxed text-foreground/85">{p.description}</p>
+          <p className="mt-2 max-w-prose text-[17px] leading-relaxed text-foreground/85">
+            {p.description || "Nessuna descrizione inserita."}
+          </p>
         </div>
 
         <aside className="space-y-4">
@@ -169,9 +174,9 @@ export function PropertyDetailPage() {
               <CardTitle>Statistiche</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-3 gap-2 text-center">
-              <Stat icon={<Eye />} value={p.stats.views} label="visite all'annuncio" />
-              <Stat icon={<MessageSquare />} value={p.stats.contacts} label="richieste" />
-              <Stat icon={<Timer />} value={daysSince(p.stats.onlineSince)} label="giorni online" />
+              <Stat icon={<Eye />} value={stats.visits} label="visite fissate" />
+              <Stat icon={<MessageSquare />} value={stats.deals} label="trattative" />
+              <Stat icon={<Timer />} value={stats.daysOnline} label="giorni online" />
             </CardContent>
           </Card>
         </aside>

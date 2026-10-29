@@ -8,6 +8,8 @@ import { PropertyPhoto } from "@/components/shared/PropertyPhoto";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { formatPrice, fullName } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
+import { contactRoleLabel } from "@/lib/labels";
 import { searchAll, type SearchResults } from "@/services/api";
 
 /** Campo che apre la ricerca globale (immobili e contatti). */
@@ -31,6 +33,7 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults | null>(null);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,12 +46,19 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
     setLoading(true);
     let alive = true;
     const t = setTimeout(() => {
-      searchAll(q).then((r) => {
-        if (!alive) return;
-        setResults(r);
-        setLoading(false);
-      });
-    }, 150);
+      searchAll(q)
+        .then((r) => {
+          if (!alive) return;
+          setResults(r);
+          setSearchError(null);
+          setLoading(false);
+        })
+        .catch((e) => {
+          if (!alive) return;
+          setSearchError(friendlyError(e));
+          setLoading(false);
+        });
+    }, 250);
     return () => {
       alive = false;
       clearTimeout(t);
@@ -102,7 +112,8 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
                 ))}
               </div>
             )}
-            {empty && <EmptyState art="ricerca" title="Nessun risultato" text={`Non abbiamo trovato nulla per “${query}”.`} />}
+            {searchError && <p role="alert" className="px-2 py-6 text-center font-medium text-destructive">{searchError}</p>}
+            {empty && !searchError && <EmptyState art="ricerca" title="Nessun risultato" text={`Non abbiamo trovato nulla per “${query}”.`} />}
             {results && results.properties.length > 0 && (
               <section className="mb-4">
                 <h3 className="px-2 pb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Immobili</h3>
@@ -136,7 +147,8 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{fullName(c)}</span>
                       <span className="block text-[15px] text-muted-foreground">
-                        {c.role === "acquirente" ? "Acquirente" : "Proprietario"} · {c.phone}
+                        {contactRoleLabel[c.role]}
+                        {c.phone && ` · ${c.phone}`}
                       </span>
                     </span>
                   </button>

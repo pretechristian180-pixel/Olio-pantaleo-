@@ -63,6 +63,8 @@ function PropertyArt({
     floor: `hsl(${(h + 20) % 360} 15% 84%)`,
   };
   const id = `g${h}${scene}${kind}`;
+  // Disegno segnaposto in base al tipo: palazzo, casa con giardino o terreno
+  const art = kind === "villa" || kind === "altro" ? "casa" : kind === "terreno" ? "terreno" : "palazzo";
 
   return (
     <svg
@@ -84,7 +86,7 @@ function PropertyArt({
           <rect width="400" height="300" fill={`url(#${id}sky)`} />
           <circle cx="320" cy="62" r="26" fill="hsl(45 95% 85%)" />
           <path d="M0 240 Q100 215 200 232 T400 228 V300 H0Z" fill={c.green} opacity=".45" />
-          {(kind === "appartamento" || kind === "attico") && (
+          {art === "palazzo" && (
             <g>
               <rect x="110" y="70" width="180" height="190" rx="4" fill={c.wall} />
               <rect x="110" y="70" width="180" height="14" fill={c.wallDark} />
@@ -96,11 +98,10 @@ function PropertyArt({
                   </g>
                 )),
               )}
-              {kind === "attico" && <rect x="150" y="48" width="100" height="22" rx="3" fill={c.wallDark} />}
               <rect x="186" y="226" width="28" height="34" rx="2" fill={c.wood} />
             </g>
           )}
-          {(kind === "villa" || kind === "casa") && (
+          {art === "casa" && (
             <g>
               <rect x="90" y="140" width="220" height="110" rx="4" fill={c.wall} />
               <path d="M76 146 L200 82 L324 146Z" fill={c.accent} />
@@ -111,33 +112,12 @@ function PropertyArt({
               <circle cx="345" cy="220" r="30" fill={c.green} />
             </g>
           )}
-          {kind === "trullo" && (
+          {art === "terreno" && (
             <g>
-              <rect x="70" y="170" width="260" height="80" rx="6" fill="hsl(40 30% 96%)" />
-              {[110, 200, 290].map((x, i) => (
+              {[50, 130, 210, 290, 370].map((x, i) => (
                 <g key={x}>
-                  <path d={`M${x - 46} 176 Q${x} ${i === 1 ? 70 : 96} ${x + 46} 176Z`} fill="hsl(30 8% 55%)" />
-                  <circle cx={x} cy={i === 1 ? 86 : 108} r="6" fill="hsl(40 30% 96%)" />
-                </g>
-              ))}
-              <rect x="186" y="206" width="28" height="44" rx="14" fill={c.wood} />
-              <rect x="110" y="210" width="22" height="22" rx="11" fill={c.accentSoft} />
-              <rect x="268" y="210" width="22" height="22" rx="11" fill={c.accentSoft} />
-              <rect x="0" y="262" width="400" height="38" fill={c.accentSoft} opacity=".55" />
-            </g>
-          )}
-          {kind === "masseria" && (
-            <g>
-              <rect x="40" y="130" width="320" height="120" fill={c.stone} />
-              <rect x="150" y="96" width="100" height="40" fill={c.stoneDark} />
-              {[60, 110, 270, 320].map((x) => (
-                <rect key={x} x={x} y="160" width="26" height="36" rx="13" fill={c.wood} opacity=".75" />
-              ))}
-              <path d="M176 250 V196 a24 24 0 0 1 48 0 V250Z" fill={c.wood} />
-              {[20, 380].map((x) => (
-                <g key={x}>
-                  <rect x={x - 4} y="214" width="8" height="40" fill="hsl(30 25% 40%)" />
-                  <circle cx={x} cy="206" r="22" fill={c.greenDark} opacity=".85" />
+                  <rect x={x - 4} y={200 + (i % 2) * 10} width="8" height="40" fill="hsl(30 25% 40%)" />
+                  <circle cx={x} cy={190 + (i % 2) * 10} r="26" fill={i % 2 ? c.green : c.greenDark} opacity=".9" />
                 </g>
               ))}
             </g>

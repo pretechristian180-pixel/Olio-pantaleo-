@@ -7,9 +7,10 @@ import { Avatar } from "@/components/shared/Avatar";
 import { BackLink } from "@/components/shared/BackLink";
 import { StatusBadge, TemperatureBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PropertyPhoto } from "@/components/shared/PropertyPhoto";
 import { useQuery } from "@/hooks/useQuery";
-import { contractLabel, temperatureLabel } from "@/lib/labels";
+import { contactRoleLabel, contractLabel, sourceLabel, temperatureLabel } from "@/lib/labels";
 import { formatPrice, formatRelative, formatTime, fullName } from "@/lib/format";
 import { getContact } from "@/services/api";
 import type { ActivityKind, Property } from "@/types/domain";
@@ -20,14 +21,15 @@ const activityIcon: Record<ActivityKind, { icon: typeof Phone; label: string }> 
   whatsapp: { icon: MessageCircle, label: "WhatsApp" },
   visita: { icon: CalendarCheck, label: "Visita" },
   email: { icon: Mail, label: "Email" },
-  proposta: { icon: FileSignature, label: "Proposta" },
+  cambio_fase: { icon: FileSignature, label: "Trattativa" },
   nota: { icon: NotebookPen, label: "Nota" },
 };
 
 export function ContactDetailPage() {
   const { id = "" } = useParams();
-  const { data, loading } = useQuery(() => getContact(id), [id]);
+  const { data, loading, error, reload } = useQuery(() => getContact(id), [id]);
 
+  if (error) return <ErrorState message={error} onRetry={reload} />;
   if (loading)
     return (
       <div className="space-y-4">
@@ -50,7 +52,7 @@ export function ContactDetailPage() {
     );
 
   const { contact: c, proposed, owned } = data;
-  const buyer = c.role === "acquirente";
+  const buyer = c.role !== "proprietario";
 
   return (
     <div>
@@ -62,10 +64,11 @@ export function ContactDetailPage() {
           <h1 className="text-[28px] font-bold leading-tight tracking-tight">{fullName(c)}</h1>
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-muted-foreground">
             <TemperatureBadge value={c.temperature} />
-            <span>{buyer ? "Acquirente" : "Proprietario"}</span>
+            <span>{contactRoleLabel[c.role]}</span>
           </div>
           <p className="mt-1.5 text-[17px]">{c.phone}</p>
           {c.email && <p className="text-muted-foreground">{c.email}</p>}
+          {c.source && <p className="text-muted-foreground">Arrivato da: {sourceLabel[c.source]}</p>}
         </div>
       </div>
 
@@ -84,11 +87,10 @@ export function ContactDetailPage() {
                   <Fact label="Zona" value={c.search.zones.join(" · ") || "Qualsiasi"} className="col-span-2 sm:col-span-1" />
                   <Fact
                     label={c.search.contract === "affitto" ? "Affitto massimo" : "Budget massimo"}
-                    value={formatPrice(c.search.budgetMax, c.search.contract === "affitto")}
+                    value={c.search.budgetMax != null ? formatPrice(c.search.budgetMax, c.search.contract === "affitto") : "Non indicato"}
                   />
-                  <Fact label="Almeno" value={`${c.search.sqmMin} mq`} />
+                  <Fact label="Almeno" value={c.search.sqmMin != null ? `${c.search.sqmMin} mq` : "Non indicato"} />
                 </dl>
-                {c.search.notes && <p className="mt-4 text-[17px]">“{c.search.notes}”</p>}
               </CardContent>
             </Card>
           )}
@@ -99,6 +101,7 @@ export function ContactDetailPage() {
             </CardHeader>
             <CardContent>
               <ol className="relative space-y-6 before:absolute before:bottom-2 before:left-5 before:top-2 before:w-px before:bg-border">
+                {c.activities.length === 0 && <p className="text-muted-foreground">Ancora nessuna attività.</p>}
                 {c.activities.map((a) => {
                   const { icon: Icon, label } = activityIcon[a.kind];
                   return (

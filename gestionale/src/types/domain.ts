@@ -1,16 +1,24 @@
 /**
- * Modello dati del gestionale.
- * Ogni entità appartiene a un'agenzia (`agencyId`): quando collegheremo Supabase
- * questo campo diventa la colonna `agency_id` usata dalle policy RLS per tenere
- * separate le agenzie.
+ * Modello dati usato dall'interfaccia.
+ * I servizi in src/services/api.ts traducono le righe del database (colonne in italiano,
+ * vedi types/database.ts) in questi oggetti, così i componenti restano semplici.
+ * Ogni entità appartiene a un'agenzia: la separazione è garantita dalle policy RLS.
  */
+import type { Enums } from "./database";
 
 export type ID = string;
+
+export type Plan = Enums<"piano_agenzia">;
+export type Role = Enums<"ruolo_utente">;
 
 export interface Agency {
   id: ID;
   name: string;
-  city: string;
+  logoPath: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  plan: Plan;
 }
 
 export interface Agent {
@@ -18,19 +26,21 @@ export interface Agent {
   agencyId: ID;
   firstName: string;
   lastName: string;
-  email: string;
-  phone: string;
+  phone: string | null;
+  role: Role;
+  active: boolean;
 }
 
 /* ---------- Immobili ---------- */
 
-export type Contract = "vendita" | "affitto";
-export type PropertyStatus = "disponibile" | "trattativa" | "venduto";
-export type PropertyKind = "appartamento" | "villa" | "trullo" | "masseria" | "attico" | "casa";
+export type Contract = Enums<"tipo_contratto">;
+export type PropertyStatus = Enums<"stato_immobile">;
+export type PropertyKind = Enums<"tipo_immobile">;
 
-/** Foto: `url` sarà un file su Supabase Storage. Senza url mostriamo un'illustrazione. */
+/** Foto: `path` è il file su Supabase Storage, `url` il link temporaneo per mostrarla. */
 export interface PropertyPhoto {
   id: ID;
+  path?: string;
   url?: string;
   scene: "esterno" | "soggiorno" | "cucina" | "camera" | "vista";
 }
@@ -38,6 +48,7 @@ export interface PropertyPhoto {
 export interface Property {
   id: ID;
   agencyId: ID;
+  agentId: ID | null;
   kind: PropertyKind;
   title: string;
   address: string;
@@ -46,34 +57,44 @@ export interface Property {
   contract: Contract;
   status: PropertyStatus;
   price: number;
-  sqm: number;
-  rooms: number;
-  bathrooms: number;
+  sqm: number | null;
+  rooms: number | null;
+  bathrooms: number | null;
   floor?: string;
   energyClass?: string;
   description: string;
   photos: PropertyPhoto[];
-  ownerId: ID;
-  /** Tinta usata dall'illustrazione segnaposto */
+  ownerId: ID | null;
+  mandateStart: string | null;
+  mandateEnd: string | null;
+  /** Tinta dell'illustrazione mostrata quando non ci sono foto */
   tint: number;
-  stats: { views: number; contacts: number; onlineSince: string };
   createdAt: string;
+}
+
+export interface PropertyStats {
+  visits: number;
+  deals: number;
+  daysOnline: number;
 }
 
 /* ---------- Contatti ---------- */
 
-export type ContactRole = "acquirente" | "proprietario";
-export type Temperature = "caldo" | "tiepido" | "freddo";
+export type ContactRole = Enums<"tipo_contatto">;
+export type Temperature = Enums<"temperatura_contatto">;
+export type ContactSource = Enums<"fonte_contatto">;
 
 export interface SearchCriteria {
   zones: string[];
-  budgetMax: number;
-  sqmMin: number;
-  contract: Contract;
-  notes?: string;
+  budgetMin: number | null;
+  budgetMax: number | null;
+  sqmMin: number | null;
+  roomsMin: number | null;
+  contract: Contract | null;
+  kind: PropertyKind | null;
 }
 
-export type ActivityKind = "chiamata" | "whatsapp" | "visita" | "email" | "proposta" | "nota";
+export type ActivityKind = Enums<"tipo_attivita">;
 
 export interface Activity {
   id: ID;
@@ -85,46 +106,52 @@ export interface Activity {
 export interface Contact {
   id: ID;
   agencyId: ID;
+  agentId: ID | null;
   firstName: string;
   lastName: string;
   phone: string;
   email?: string;
   role: ContactRole;
   temperature: Temperature;
+  source: ContactSource | null;
+  notes?: string;
   search?: SearchCriteria;
-  activities: Activity[];
-  proposedPropertyIds: ID[];
   createdAt: string;
 }
 
 /* ---------- Trattative ---------- */
 
-export type DealStage = "nuovo" | "visita" | "proposta" | "compromesso" | "rogito";
+export type DealStage = Enums<"fase_trattativa">;
 
 export interface Deal {
   id: ID;
   agencyId: ID;
+  agentId: ID | null;
   contactId: ID;
-  propertyId: ID;
+  propertyId: ID | null;
   stage: DealStage;
   value: number;
+  commission: number | null;
   updatedAt: string;
 }
 
 /* ---------- Agenda ---------- */
 
-export type AppointmentKind = "visita" | "valutazione" | "firma";
+export type AppointmentKind = Enums<"tipo_appuntamento">;
 
 export interface Appointment {
   id: ID;
   agencyId: ID;
+  agentId: ID | null;
   kind: AppointmentKind;
   /** ISO date-time di inizio */
   start: string;
+  end: string;
   durationMin: number;
-  contactId: ID;
+  contactId: ID | null;
   propertyId?: ID;
   note?: string;
+  outcome?: string;
 }
 
 /* ---------- Cose da fare ---------- */
@@ -136,5 +163,18 @@ export interface Task {
   detail?: string;
   contactId?: ID;
   propertyId?: ID;
+  dueDate: string | null;
   done: boolean;
+  automatic: boolean;
+}
+
+/* ---------- Inviti ---------- */
+
+export interface Invitation {
+  id: ID;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: string;
+  acceptedAt: string | null;
 }

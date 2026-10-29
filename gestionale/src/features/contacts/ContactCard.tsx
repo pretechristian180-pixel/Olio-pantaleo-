@@ -3,6 +3,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { TemperatureBadge } from "@/components/shared/badges";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatRelative, fullName } from "@/lib/format";
+import { contactRoleLabel } from "@/lib/labels";
 import type { Activity, Contact } from "@/types/domain";
 import { ContactActions } from "./ContactActions";
 
@@ -17,7 +18,8 @@ export function ContactCard({ contact: c }: { contact: Contact & { lastActivity?
             <TemperatureBadge value={c.temperature} />
           </div>
           <p className="mt-0.5 text-muted-foreground">
-            {c.role === "acquirente" ? "Acquirente" : "Proprietario"} · {c.phone}
+            {contactRoleLabel[c.role]}
+            {c.phone && ` · ${c.phone}`}
           </p>
         </div>
       </Link>

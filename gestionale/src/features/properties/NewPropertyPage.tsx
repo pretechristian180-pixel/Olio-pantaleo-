@@ -10,13 +10,15 @@ import { BackLink } from "@/components/shared/BackLink";
 import { kindLabel } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/format";
+import { useQuery } from "@/hooks/useQuery";
+import { friendlyError } from "@/lib/errors";
 import { createProperty, listZones } from "@/services/api";
 import type { Contract, PropertyKind } from "@/types/domain";
 
 const steps = ["Foto", "Dati", "Prezzo", "Proprietario"] as const;
 
 interface FormState {
-  photos: { id: string; url: string }[];
+  photos: { id: string; url: string; file: File }[];
   kind: PropertyKind;
   contract: Contract;
   address: string;
@@ -27,6 +29,7 @@ interface FormState {
   bathrooms: string;
   description: string;
   price: string;
+  mandateEnd: string;
   ownerFirstName: string;
   ownerLastName: string;
   ownerPhone: string;
@@ -44,6 +47,7 @@ const initial: FormState = {
   bathrooms: "1",
   description: "",
   price: "",
+  mandateEnd: "",
   ownerFirstName: "",
   ownerLastName: "",
   ownerPhone: "",
@@ -56,6 +60,7 @@ export function NewPropertyPage() {
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -68,7 +73,7 @@ export function NewPropertyPage() {
       if (!form.address.trim()) e.address = "Scrivi l'indirizzo";
       if (!form.city.trim()) e.city = "Scrivi la città";
       if (!Number(form.sqm)) e.sqm = "Quanti metri quadri?";
-      if (!Number(form.rooms)) e.rooms = "Quanti locali?";
+      if (!Number(form.rooms) && (form.kind === "appartamento" || form.kind === "villa")) e.rooms = "Quanti locali?";
     }
     if (s === 2 && !Number(form.price)) e.price = "Scrivi il prezzo";
     if (s === 3) {
@@ -88,26 +93,36 @@ export function NewPropertyPage() {
       return;
     }
     setSaving(true);
-    const p = await createProperty({
-      kind: form.kind,
-      contract: form.contract,
-      status: "disponibile",
-      title: `${kindLabel[form.kind]} ${form.city ? `a ${form.city}` : ""}`.trim(),
-      address: form.address,
-      city: form.city,
-      zone: form.zone || form.city,
-      sqm: Number(form.sqm),
-      rooms: Number(form.rooms),
-      bathrooms: Number(form.bathrooms) || 1,
-      price: Number(form.price),
-      description: form.description || "Descrizione da completare.",
-      photos: form.photos.length
-        ? form.photos.map((ph) => ({ id: ph.id, url: ph.url, scene: "esterno" as const }))
-        : [{ id: "new", scene: "esterno" }],
-      owner: { firstName: form.ownerFirstName, lastName: form.ownerLastName, phone: form.ownerPhone },
-    });
-    toast.success("Immobile salvato", { description: `${p.address}, ${p.city}` });
-    navigate(`/immobili/${p.id}`, { replace: true });
+    setSaveError(null);
+    try {
+      const { property: p, failedPhotos } = await createProperty({
+        kind: form.kind,
+        contract: form.contract,
+        title: `${kindLabel[form.kind]} ${form.city ? `a ${form.city.trim()}` : ""}`.trim(),
+        address: form.address.trim(),
+        city: form.city.trim(),
+        zone: form.zone.trim(),
+        sqm: Number(form.sqm),
+        rooms: Number(form.rooms),
+        bathrooms: Number(form.bathrooms) || 1,
+        price: Number(form.price),
+        description: form.description.trim(),
+        mandateEnd: form.mandateEnd || null,
+        photos: form.photos.map((ph) => ph.file),
+        owner: { firstName: form.ownerFirstName.trim(), lastName: form.ownerLastName.trim(), phone: form.ownerPhone.trim() },
+      });
+      if (failedPhotos) {
+        toast.warning("Immobile salvato, ma alcune foto non sono state caricate", {
+          description: `${failedPhotos} ${failedPhotos === 1 ? "foto" : "foto"} da riprovare più tardi`,
+        });
+      } else {
+        toast.success("Immobile salvato", { description: `${p.address}, ${p.city}` });
+      }
+      navigate(`/immobili/${p.id}`, { replace: true });
+    } catch (err) {
+      setSaveError(friendlyError(err));
+      setSaving(false);
+    }
   }
 
   function back() {
@@ -117,11 +132,13 @@ export function NewPropertyPage() {
 
   function addPhotos(files: FileList | null) {
     if (!files) return;
-    const added = [...files].map((f) => ({ id: crypto.randomUUID(), url: URL.createObjectURL(f) }));
+    const added = [...files]
+      .filter((f) => f.type.startsWith("image/"))
+      .map((f) => ({ id: crypto.randomUUID(), url: URL.createObjectURL(f), file: f }));
     set("photos", [...form.photos, ...added]);
   }
 
-  const zones = listZones();
+  const zones = useQuery(listZones).data ?? [];
   const isLast = step === steps.length - 1;
 
   return (
@@ -260,6 +277,9 @@ export function NewPropertyPage() {
               </div>
               {errors.price && <p className="mt-1.5 text-sm font-medium text-destructive">{errors.price}</p>}
             </Field>
+            <Field label="L'incarico scade il (facoltativo)" htmlFor="np-mandate" hint="Ti avviseremo nella schermata Oggi quando si avvicina la scadenza.">
+              <Input id="np-mandate" type="date" value={form.mandateEnd} onChange={(e) => set("mandateEnd", e.target.value)} />
+            </Field>
           </>
         )}
 
@@ -275,6 +295,12 @@ export function NewPropertyPage() {
         )}
       </div>
 
+      {saveError && (
+        <p role="alert" className="mt-8 rounded-lg bg-destructive-soft px-4 py-3 text-[15px] font-medium text-destructive">
+          {saveError}
+        </p>
+      )}
+
       {/* Pulsanti: l'azione principale è sempre a destra e più grande */}
       <div className="mt-10 flex gap-3">
         {step > 0 && (
@@ -287,7 +313,7 @@ export function NewPropertyPage() {
           {isLast ? (
             <>
               <Check aria-hidden />
-              {saving ? "Salvataggio…" : "Salva immobile"}
+              {saving ? (form.photos.length ? "Caricamento foto…" : "Salvataggio…") : "Salva immobile"}
             </>
           ) : step === 0 && form.photos.length === 0 ? (
             <>

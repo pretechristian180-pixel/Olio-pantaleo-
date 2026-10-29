@@ -4,26 +4,30 @@ import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useQuery } from "@/hooks/useQuery";
 import { listContacts } from "@/services/api";
 import type { ContactRole } from "@/types/domain";
 import { ContactCard, ContactCardSkeleton } from "./ContactCard";
 
-type Tab = ContactRole | "tutti";
+type Tab = Exclude<ContactRole, "entrambi"> | "tutti";
+
+/** Chi è sia acquirente sia proprietario compare in entrambe le schede */
+const inTab = (role: ContactRole, tab: Tab) => tab === "tutti" || role === tab || role === "entrambi";
 
 export function ContactsPage() {
   const [params, setParams] = useSearchParams();
   const [tab, setTabState] = useState<Tab>((params.get("tipo") as Tab) || "acquirente");
-  const { data, loading } = useQuery(() => listContacts(), []);
+  const { data, loading, error, reload } = useQuery(() => listContacts(), []);
 
   function setTab(t: Tab) {
     setTabState(t);
     setParams(t === "acquirente" ? {} : { tipo: t }, { replace: true });
   }
 
-  const items = data?.filter((c) => tab === "tutti" || c.role === tab) ?? [];
-  const count = (r: Tab) => data?.filter((c) => r === "tutti" || c.role === r).length;
+  const items = data?.filter((c) => inTab(c.role, tab)) ?? [];
+  const count = (r: Tab) => data?.filter((c) => inTab(c.role, r)).length;
 
   const addButton = (
     <Button size="lg" asChild>
@@ -50,7 +54,9 @@ export function ContactsPage() {
         ]}
       />
 
-      {loading ? (
+      {error ? (
+        <ErrorState message={error} onRetry={reload} />
+      ) : loading ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2, 3].map((i) => (
             <ContactCardSkeleton key={i} />

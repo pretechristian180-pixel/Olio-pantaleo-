@@ -35,15 +35,21 @@ export function PropertyCard({ property: p }: { property: Property }) {
           </span>
         </p>
         <p className="mt-3 flex gap-4 border-t pt-3 text-[15px] text-muted-foreground">
-          <span>
-            <strong className="font-semibold text-foreground">{p.sqm}</strong> mq
-          </span>
-          <span>
-            <strong className="font-semibold text-foreground">{p.rooms}</strong> {p.rooms === 1 ? "locale" : "locali"}
-          </span>
-          <span>
-            <strong className="font-semibold text-foreground">{p.bathrooms}</strong> {p.bathrooms === 1 ? "bagno" : "bagni"}
-          </span>
+          {p.sqm != null && (
+            <span>
+              <strong className="font-semibold text-foreground">{p.sqm}</strong> mq
+            </span>
+          )}
+          {p.rooms != null && (
+            <span>
+              <strong className="font-semibold text-foreground">{p.rooms}</strong> {p.rooms === 1 ? "locale" : "locali"}
+            </span>
+          )}
+          {p.bathrooms != null && (
+            <span>
+              <strong className="font-semibold text-foreground">{p.bathrooms}</strong> {p.bathrooms === 1 ? "bagno" : "bagni"}
+            </span>
+          )}
         </p>
       </div>
     </Link>

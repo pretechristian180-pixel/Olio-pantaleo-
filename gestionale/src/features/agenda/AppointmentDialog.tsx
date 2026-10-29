@@ -6,6 +6,8 @@ import { Field, Input, Select, Textarea } from "@/components/ui/input";
 import { appointmentKind, toneClasses } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { fullName, formatLongDate } from "@/lib/format";
+import { useQuery } from "@/hooks/useQuery";
+import { friendlyError } from "@/lib/errors";
 import { createAppointment, pickerOptions } from "@/services/api";
 import type { AppointmentKind, ID } from "@/types/domain";
 
@@ -61,7 +63,9 @@ function toTimeInput(d: Date) {
 }
 
 function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () => void }) {
-  const { contacts, properties } = useMemo(pickerOptions, []);
+  const options = useQuery(pickerOptions);
+  const contacts = options.data?.contacts ?? [];
+  const properties = options.data?.properties ?? [];
   const start = defaults.start ?? nextRoundHour();
   const [kind, setKind] = useState<AppointmentKind>(defaults.kind ?? "visita");
   const [day, setDay] = useState(toDateInput(start));
@@ -71,6 +75,7 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -79,8 +84,15 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
       return;
     }
     setSaving(true);
+    setSaveError(null);
     const iso = new Date(`${day}T${time}`).toISOString();
-    await createAppointment({ kind, start: iso, contactId, propertyId: propertyId || undefined, note: note || undefined });
+    try {
+      await createAppointment({ kind, start: iso, contactId, propertyId: propertyId || undefined, note: note || undefined });
+    } catch (err) {
+      setSaveError(friendlyError(err));
+      setSaving(false);
+      return;
+    }
     const who = contacts.find((c) => c.id === contactId);
     toast.success("Appuntamento salvato", {
       description: `${appointmentKind[kind].label} con ${who ? fullName(who) : "il cliente"} alle ${time}`,
@@ -93,7 +105,7 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
       <div>
         <p className="mb-2 text-[15px] font-medium">Che tipo di appuntamento?</p>
         <div className="grid grid-cols-3 gap-2">
-          {(Object.keys(appointmentKind) as AppointmentKind[]).map((k) => (
+          {(["visita", "valutazione", "firma"] as AppointmentKind[]).map((k) => (
             <button
               key={k}
               type="button"
@@ -131,7 +143,7 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
           aria-invalid={error}
           className={cn(error && "border-destructive")}
         >
-          <option value="">Scegli il cliente</option>
+          <option value="">{options.loading ? "Caricamento…" : contacts.length ? "Scegli il cliente" : "Nessun contatto: aggiungine uno"}</option>
           {contacts.map((c) => (
             <option key={c.id} value={c.id}>
               {fullName(c)}
@@ -156,7 +168,13 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
         <Textarea id="ap-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Es. portare le chiavi" className="min-h-20" />
       </Field>
 
-      <Button type="submit" size="lg" className="w-full" disabled={saving}>
+      {options.error && <p className="text-sm font-medium text-destructive">{options.error}</p>}
+      {saveError && (
+        <p role="alert" className="rounded-lg bg-destructive-soft px-4 py-3 text-[15px] font-medium text-destructive">
+          {saveError}
+        </p>
+      )}
+      <Button type="submit" size="lg" className="w-full" disabled={saving || options.loading}>
         {saving ? "Salvataggio…" : "Salva appuntamento"}
       </Button>
     </form>

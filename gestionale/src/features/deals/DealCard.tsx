@@ -56,7 +56,7 @@ export const DealCard = forwardRef<HTMLDivElement, Props>(function DealCard(
       <p className="mt-2 text-xl font-bold tracking-tight">
         {rent ? `${formatPrice(Math.round(d.value / 12), true)}` : formatPrice(d.value)}
       </p>
-      {nextLabel && onNext && (
+      {nextLabel && onNext && d.canEdit && (
         <button
           type="button"
           onClick={onNext}

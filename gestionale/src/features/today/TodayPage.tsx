@@ -9,7 +9,10 @@ import { AppointmentItem } from "@/features/agenda/AppointmentItem";
 import { useAppointmentDialog } from "@/features/agenda/AppointmentDialog";
 import { useQuery } from "@/hooks/useQuery";
 import { formatLongDate } from "@/lib/format";
-import { getSession, getToday, toggleTask } from "@/services/api";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { friendlyError } from "@/lib/errors";
+import { getToday, toggleTask } from "@/services/api";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { TaskList } from "./TaskList";
 
 function greeting(d: Date) {
@@ -20,17 +23,22 @@ function greeting(d: Date) {
 }
 
 export function TodayPage() {
-  const { agent } = getSession();
-  const { data, loading } = useQuery(getToday);
+  const { agent } = useAuth();
+  const { data, loading, error, reload } = useQuery(getToday);
   const { openAppointment } = useAppointmentDialog();
   const now = new Date();
 
   async function onToggle(id: string, text: string, wasDone: boolean) {
-    await toggleTask(id);
+    try {
+      await toggleTask(id, !wasDone);
+    } catch (err) {
+      toast.error("Modifica non salvata", { description: friendlyError(err) });
+      return;
+    }
     if (!wasDone) {
       toast.success("Fatto!", {
         description: text,
-        action: { label: "Annulla", onClick: () => toggleTask(id) },
+        action: { label: "Annulla", onClick: () => toggleTask(id, false).catch((e) => toast.error(friendlyError(e))) },
       });
     }
   }
@@ -41,7 +49,8 @@ export function TodayPage() {
         <div>
           <p className="text-[17px] text-muted-foreground">{formatLongDate(now)}</p>
           <h1 className="mt-0.5 text-[28px] font-bold leading-tight tracking-tight sm:text-3xl">
-            {greeting(now)}, {agent.firstName}
+            {greeting(now)}
+            {agent?.firstName ? `, ${agent.firstName}` : ""}
           </h1>
         </div>
         {/* Su telefono l'azione rapida è il pulsante "+" in basso */}
@@ -51,8 +60,10 @@ export function TodayPage() {
         </Button>
       </div>
 
+      {error && <ErrorState message={error} onRetry={reload} className="mb-6" />}
+
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-        {loading || !data ? (
+        {error ? null : loading || !data ? (
           [0, 1, 2].map((i) => <Skeleton key={i} className="h-[82px] sm:h-[150px]" />)
         ) : (
           <>
@@ -76,7 +87,7 @@ export function TodayPage() {
           >
             Cose da fare oggi
           </SectionTitle>
-          {loading || !data ? (
+          {error ? null : loading || !data ? (
             <ListSkeleton />
           ) : data.tasks.length === 0 ? (
             <EmptyState
@@ -92,7 +103,7 @@ export function TodayPage() {
 
         <section>
           <SectionTitle>Appuntamenti di oggi</SectionTitle>
-          {loading || !data ? (
+          {error ? null : loading || !data ? (
             <ListSkeleton />
           ) : data.appointments.length === 0 ? (
             <EmptyState

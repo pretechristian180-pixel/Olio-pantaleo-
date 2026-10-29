@@ -17,10 +17,12 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Field, Select } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useQuery } from "@/hooks/useQuery";
 import { stages } from "@/lib/labels";
+import { friendlyError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { formatShortPrice, fullName } from "@/lib/format";
 import { createDeal, listDeals, moveDeal, pickerOptions, type DealWithRefs } from "@/services/api";
@@ -28,7 +30,7 @@ import type { DealStage } from "@/types/domain";
 import { DealCard } from "./DealCard";
 
 export function DealsPage() {
-  const { data, loading } = useQuery(listDeals);
+  const { data, loading, error, reload } = useQuery(listDeals);
   const isDesktop = useIsDesktop();
   const [newOpen, setNewOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -42,12 +44,23 @@ export function DealsPage() {
 
   async function move(deal: DealWithRefs, to: DealStage) {
     if (deal.stage === to) return;
+    if (!deal.canEdit) {
+      toast.error("Non puoi spostare questa trattativa", { description: "Puoi spostare solo le trattative assegnate a te." });
+      return;
+    }
     const from = deal.stage;
-    await moveDeal(deal.id, to);
+    try {
+      await moveDeal(deal.id, to);
+    } catch (err) {
+      toast.error("Trattativa non spostata", { description: friendlyError(err) });
+      return;
+    }
     const label = stages.find((s) => s.id === to)!.label;
     const who = deal.contact ? ` di ${fullName(deal.contact)}` : "";
     const msg = to === "rogito" ? `Complimenti! La trattativa${who} è arrivata al rogito` : `Trattativa${who} spostata in “${label}”`;
-    toast.success(msg, { action: { label: "Annulla", onClick: () => moveDeal(deal.id, from) } });
+    toast.success(msg, {
+      action: { label: "Annulla", onClick: () => moveDeal(deal.id, from).catch((e) => toast.error(friendlyError(e))) },
+    });
   }
 
   function onDragStart(e: DragStartEvent) {
@@ -77,7 +90,9 @@ export function DealsPage() {
         action={addButton}
       />
 
-      {loading || !data ? (
+      {error ? (
+        <ErrorState message={error} onRetry={reload} />
+      ) : loading || !data ? (
         <div className="flex gap-4 overflow-hidden">
           {[0, 1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-80 w-[85%] shrink-0 lg:w-auto lg:flex-1" />
@@ -149,7 +164,7 @@ function Column({ id, label, deals, children }: { id: DealStage; label: string; 
 }
 
 function DraggableDeal({ deal }: { deal: DealWithRefs }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: deal.id });
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: deal.id, disabled: !deal.canEdit });
   return <DealCard ref={setNodeRef} deal={deal} dragging={isDragging} {...attributes} {...listeners} />;
 }
 
@@ -244,8 +259,11 @@ function NewDealDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
 }
 
 function NewDealForm({ onDone }: { onDone: () => void }) {
-  const { contacts, properties } = useMemo(pickerOptions, []);
-  const buyers = contacts.filter((c) => c.role === "acquirente");
+  const options = useQuery(pickerOptions);
+  const properties = options.data?.properties ?? [];
+  const buyers = (options.data?.contacts ?? []).filter((c) => c.role !== "proprietario");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [contactId, setContactId] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [error, setError] = useState(false);
@@ -256,7 +274,14 @@ function NewDealForm({ onDone }: { onDone: () => void }) {
       setError(true);
       return;
     }
-    await createDeal({ contactId, propertyId });
+    setSaving(true);
+    try {
+      await createDeal({ contactId, propertyId });
+    } catch (err) {
+      setSaveError(friendlyError(err));
+      setSaving(false);
+      return;
+    }
     const c = buyers.find((x) => x.id === contactId);
     toast.success("Trattativa aggiunta", { description: c ? `${fullName(c)} è in “Nuovo contatto”` : undefined });
     onDone();
@@ -285,7 +310,12 @@ function NewDealForm({ onDone }: { onDone: () => void }) {
         </Select>
       </Field>
       {error && <p className="text-sm font-medium text-destructive">Scegli sia il cliente sia l'immobile</p>}
-      <Button type="submit" size="lg" className="w-full">
+      {(saveError || options.error) && (
+        <p role="alert" className="rounded-lg bg-destructive-soft px-4 py-3 text-[15px] font-medium text-destructive">
+          {saveError ?? options.error}
+        </p>
+      )}
+      <Button type="submit" size="lg" className="w-full" disabled={saving || options.loading}>
         Aggiungi trattativa
       </Button>
     </form>
