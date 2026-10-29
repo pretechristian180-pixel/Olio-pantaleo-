@@ -1,5 +1,5 @@
 -- =====================================================================
--- Casalista – schema iniziale multi-agenzia
+-- Mattonio – schema iniziale multi-agenzia
 -- Ogni tabella operativa ha agency_id; RLS attiva su tutte le tabelle.
 -- Le chiavi esterne composte (id, agency_id) impediscono di collegare
 -- righe di agenzie diverse (es. una trattativa a un contatto di un'altra agenzia).

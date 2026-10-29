@@ -1,6 +1,8 @@
-# Casalista — gestionale per agenzie immobiliari
+# Mattonio — gestionale per agenzie immobiliari
 
-> "Casalista" è un nome di lavoro: si cambia in `src/config/app.ts` (e nel `<title>` di `index.html`).
+> Il nome del prodotto è in `src/config/app.ts` (interfaccia), `index.html` (titolo e metadati),
+> `public/manifest.webmanifest` (app installabile) e `supabase/templates/` (email di sistema).
+> Il progetto Supabase si chiama ancora "Casalista": è solo il nome interno nel pannello Supabase.
 
 Interfaccia grafica e navigazione del gestionale, con dati finti realistici (immobili in Puglia).
 Il backend (Supabase, autenticazione, più agenzie) verrà collegato in una fase successiva.
@@ -22,8 +24,8 @@ npm run build      # controllo dei tipi + build di produzione
   RLS attiva su tutte le tabelle, con la funzione `get_my_agency_id()` in ogni policy.
   Le chiavi esterne composte `(id, agency_id)` impediscono di collegare dati di agenzie diverse.
 - **Permessi**: il titolare vede e modifica tutto della sua agenzia, gestisce utenti e dati
-  dell'agenzia. L'agente vede tutti gli immobili, le trattative e gli appuntamenti dell'agenzia, ma
-  **solo i propri contatti** (con la loro ricerca e cronologia) e le proprie "cose da fare";
+  dell'agenzia. L'agente vede tutti gli immobili e gli appuntamenti dell'agenzia, ma **solo i propri
+  contatti** (con la loro ricerca e cronologia), **le proprie trattative** e le proprie "cose da fare";
   modifica solo ciò che ha assegnato (`agente_id`).
 - **Registrazione**: chi si registra crea l'agenzia e ne diventa titolare (trigger `handle_new_user`).
 - **Inviti**: Impostazioni → Utenti → "Invita un agente" chiama la Edge Function
@@ -40,9 +42,19 @@ npm run build      # controllo dei tipi + build di produzione
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app
    (per lo sviluppo `http://localhost:3000`, già predefinito) e, tra i Redirect URL,
    `<indirizzo app>/imposta-password` e `<indirizzo app>/`.
-2. **Authentication → Emails → SMTP**: collega un servizio email (es. Resend, Brevo, Postmark).
-   Senza SMTP Supabase invia le email (conferma registrazione, inviti, recupero password) solo agli
-   indirizzi dei membri del team Supabase, con un limite di pochi messaggi l'ora.
+2. **Authentication → Emails → SMTP**: collega un servizio email (es. Resend, Brevo, Postmark) e
+   imposta come nome del mittente **Mattonio**. Senza SMTP Supabase invia le email (conferma
+   registrazione, inviti, recupero password) solo agli indirizzi dei membri del team Supabase, con un
+   limite di pochi messaggi l'ora.
+3. **Authentication → Emails → Templates**: incolla i modelli in italiano di `supabase/templates/`
+   (l'oggetto da usare è scritto nella prima riga di ogni file):
+
+   | Modello Supabase | File |
+   |---|---|
+   | Confirm signup | `conferma.html` |
+   | Invite user | `invito.html` |
+   | Reset password | `recupero.html` |
+   | Change email address | `cambio-email.html` |
 
 ## Struttura
 
@@ -62,4 +74,5 @@ src/
 supabase/
   migrations/       schema, RLS, trigger, storage, indici
   functions/        invita-agente (Edge Function)
+  templates/        email di sistema in italiano (da incollare nel pannello Supabase)
 ```

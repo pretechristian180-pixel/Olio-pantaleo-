@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { APP_NAME } from "@/config/app";
 import { Field, Input } from "@/components/ui/input";
 import { friendlyError } from "@/lib/errors";
 import { supabase } from "@/lib/supabase";
@@ -29,7 +30,7 @@ export function LoginPage() {
   return (
     <AuthLayout
       title="Accedi"
-      subtitle="Bentornato. Entra con la tua email."
+      subtitle={`Bentornato su ${APP_NAME}. Entra con la tua email.`}
       footer={
         <>
           Nuova agenzia?{" "}
