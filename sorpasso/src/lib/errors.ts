@@ -51,7 +51,9 @@ export function messaggioErrore(error: unknown, fallback = "Qualcosa è andato s
 export function mostraErrore(error: unknown, fallback?: string) {
   const e = error as ErroreGenerico;
   console.warn("[errore]", e?.code ?? (error instanceof Error ? error.name : "sconosciuto"));
-  toast.error(messaggioErrore(error, fallback));
+  const testo = messaggioErrore(error, fallback);
+  // id = testo: se lo stesso errore arriva due volte (componente + gestore globale) si vede un solo avviso
+  toast.error(testo, { id: `errore:${testo}` });
 }
 
 /**

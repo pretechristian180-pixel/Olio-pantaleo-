@@ -6,6 +6,7 @@ import { PageLoader } from "@/components/shared/States";
 import { useAuth } from "@/lib/auth";
 import { supabaseNonConfigurato } from "@/lib/supabase";
 import type { Ruolo } from "@/types/db";
+import { AccessoBloccato } from "./AccessoBloccato";
 import { ConfigurazioneMancante } from "./ConfigurazioneMancante";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -31,14 +32,21 @@ const PraticaDetailPage = lazy(() => import("@/features/pratiche/PraticaDetailPa
 const ReportPage = lazy(() => import("@/features/report/ReportPage"));
 const MarginiPage = lazy(() => import("@/features/economia/MarginiPage"));
 const SchedaPubblicaPage = lazy(() => import("@/features/pubblicazione/SchedaPubblicaPage"));
+const PiattaformaLayout = lazy(() => import("@/features/piattaforma/PiattaformaLayout"));
+const ConcessionariePage = lazy(() => import("@/features/piattaforma/ConcessionariePage"));
+const NuovaConcessionariaPage = lazy(() => import("@/features/piattaforma/NuovaConcessionariaPage"));
+const ConcessionariaPage = lazy(() => import("@/features/piattaforma/ConcessionariaPage"));
 const ImpostazioniPage = lazy(() => import("@/features/impostazioni/ImpostazioniPage"));
 
 /** Pagine riservate: serve la sessione e un profilo collegato a una concessionaria. */
 function RichiedeAccesso() {
-  const { caricamento, session, senzaProfilo } = useAuth();
+  const { caricamento, session, senzaProfilo, profilo, adminPiattaforma, blocco } = useAuth();
   const location = useLocation();
   if (caricamento) return <PageLoader />;
   if (!session) return <Navigate to={`/accedi?da=${encodeURIComponent(location.pathname)}`} replace />;
+  // Il team Sorpasso senza una concessionaria propria va direttamente al pannello della piattaforma
+  if (!profilo && adminPiattaforma) return <Navigate to="/piattaforma" replace />;
+  if (blocco) return <AccessoBloccato motivo={blocco.motivo} organizzazione={blocco.organizzazione} />;
   if (senzaProfilo) return <Navigate to="/benvenuto" replace />;
   return <AppShell />;
 }
@@ -80,6 +88,20 @@ export const router = creaRouter(
             { path: "/benvenuto", element: <BenvenutoPage /> },
             // Scheda pubblica dell'auto: nessun login, nessun dato interno
             { path: "/v/:token", element: <SchedaPubblicaPage /> },
+          ],
+        },
+        {
+          // Amministrazione della piattaforma (team Sorpasso): layout e controllo d'accesso propri
+          path: "/piattaforma",
+          element: (
+            <Suspense fallback={<PageLoader />}>
+              <PiattaformaLayout />
+            </Suspense>
+          ),
+          children: [
+            { index: true, element: <ConcessionariePage /> },
+            { path: "nuova", element: <NuovaConcessionariaPage /> },
+            { path: ":id", element: <ConcessionariaPage /> },
           ],
         },
         {

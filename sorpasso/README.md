@@ -121,6 +121,31 @@ sorpasso/
 | `/report` | Fonti, venditori, mesi, conversione, motivi di perdita |
 | `/impostazioni` | Profilo, azienda, utenti e ruoli, soglie e automazioni, template messaggi |
 
+## Amministrazione della piattaforma (`/piattaforma`)
+
+Pannello del team Sorpasso per gestire tutte le concessionarie clienti:
+
+- **Concessionarie**: elenco con stato (attiva, in prova con giorni rimanenti, sospesa, disdetta), piano, titolare,
+  utenti, auto, lead degli ultimi 30 giorni, ultimo accesso; filtri e ricerca.
+- **Nuova concessionaria**: azienda, piano (Start, Pro, Dealer AI), prova gratuita o attiva, limite utenti, titolare.
+  Accesso del titolare con **invito email** oppure **password temporanea** mostrata una sola volta.
+- **Scheda**: piano e prova (prolunga +7/+14/+30 giorni), anagrafica e referente, note interne; utenti con ruolo,
+  disattivazione, reinvio invito, **link di accesso** e **password temporanea** da inviare a mano; **sospensione** con
+  motivo e riattivazione; **registro** di ogni azione del team.
+
+Regole nel database: con concessionaria sospesa/disdetta o prova scaduta `mia_org()` non restituisce nulla, quindi
+le policy RLS bloccano tutti i dati (l'app mostra "Accesso sospeso"); una concessionaria non può restare senza titolare;
+gli amministratori della piattaforma vedono anagrafica, utenti e numeri aggregati, non lead, clienti o documenti.
+
+**Primo amministratore** (una volta, dall'editor SQL di Supabase, dopo che l'utente si è registrato o è stato creato in Authentication):
+
+```sql
+insert into public.platform_admins (user_id, nome)
+select id, 'Nome Cognome' from auth.users where email = 'tua@email.it';
+```
+
+Edge Function: `supabase functions deploy piattaforma` (usa `SITE_URL` per i link degli inviti).
+
 ## Regole automatiche (nel database)
 
 | Regola | Dove |

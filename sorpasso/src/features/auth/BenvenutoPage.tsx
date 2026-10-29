@@ -15,7 +15,7 @@ type Valori = z.infer<typeof schema>;
 
 /** Utente con email confermata ma senza concessionaria: completa la creazione. */
 export default function BenvenutoPage() {
-  const { session, profilo, caricamento, ricarica, esci } = useAuth();
+  const { session, profilo, caricamento, ricarica, esci, adminPiattaforma, blocco } = useAuth();
   const navigate = useNavigate();
   const meta = (session?.user.user_metadata ?? {}) as Partial<Record<keyof Valori, string>>;
   const form = useForm<Valori>({
@@ -26,7 +26,9 @@ export default function BenvenutoPage() {
 
   if (caricamento) return <PageLoader />;
   if (!session) return <Navigate to="/accedi" replace />;
-  if (profilo) return <Navigate to="/" replace />;
+  if (profilo || blocco) return <Navigate to="/" replace />;
+  // Il team Sorpasso non crea una concessionaria propria: va al pannello della piattaforma
+  if (adminPiattaforma) return <Navigate to="/piattaforma" replace />;
 
   const onSubmit = form.handleSubmit(async (v) => {
     try {

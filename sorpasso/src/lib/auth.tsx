@@ -4,6 +4,18 @@ import { supabase } from "@/lib/supabase";
 import { queryClient } from "@/lib/query";
 import type { Organization, Profile, Ruolo } from "@/types/db";
 
+/** Perché un utente collegato non può entrare nella sua concessionaria. */
+export type MotivoBlocco = "sospesa" | "disdetta" | "prova_scaduta" | "utente_disattivato";
+
+interface StatoAccesso {
+  admin_piattaforma: boolean;
+  ha_profilo: boolean;
+  profilo_attivo: boolean;
+  stato_organizzazione: "prova" | "attiva" | "sospesa" | "disdetta" | null;
+  prova_scaduta: boolean | null;
+  nome_organizzazione: string | null;
+}
+
 interface AuthState {
   /** true finché non sappiamo se l'utente è collegato. */
   caricamento: boolean;
@@ -12,6 +24,10 @@ interface AuthState {
   organizzazione: Organization | null;
   /** Utente collegato ma senza concessionaria: va completato l'onboarding. */
   senzaProfilo: boolean;
+  /** Amministratore della piattaforma (team Sorpasso): accede a /piattaforma. */
+  adminPiattaforma: boolean;
+  /** Concessionaria sospesa/disdetta/prova scaduta o utente disattivato. */
+  blocco: { motivo: MotivoBlocco; organizzazione: string | null } | null;
   ricarica: () => Promise<void>;
   esci: () => Promise<void>;
 }
@@ -23,19 +39,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profilo, setProfilo] = useState<Profile | null>(null);
   const [organizzazione, setOrganizzazione] = useState<Organization | null>(null);
   const [caricamento, setCaricamento] = useState(true);
+  const [accesso, setAccesso] = useState<StatoAccesso | null>(null);
+  // Dopo un login la sessione arriva prima del profilo: finché non è caricato non si decide nulla
+  const [caricandoProfilo, setCaricandoProfilo] = useState(false);
 
   const caricaProfilo = useCallback(async (s: Session | null) => {
     if (!s) {
       setProfilo(null);
       setOrganizzazione(null);
+      setAccesso(null);
       return;
     }
-    const { data } = await supabase
-      .from("profiles")
-      .select("*, organizations(*)")
-      .eq("user_id", s.user.id)
-      .maybeSingle();
-    if (data && data.attivo) {
+    const [{ data }, { data: stato }] = await Promise.all([
+      supabase.from("profiles").select("*, organizations(*)").eq("user_id", s.user.id).maybeSingle(),
+      supabase.rpc("stato_mio_accesso"),
+    ]);
+    setAccesso((stato as StatoAccesso | null) ?? null);
+    // Con la concessionaria sospesa le policy nascondono l'organizzazione: niente profilo "a metà"
+    if (data && data.attivo && (data as { organizations: Organization | null }).organizations) {
       const { organizations, ...p } = data as Profile & { organizations: Organization };
       setProfilo(p);
       setOrganizzazione(organizations);
@@ -56,8 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((evento, s) => {
       setSession(s);
       if (evento === "SIGNED_IN" || evento === "SIGNED_OUT" || evento === "USER_UPDATED") {
+        setCaricandoProfilo(true);
         // Fuori dal callback: evita blocchi del client auth.
-        setTimeout(() => void caricaProfilo(s), 0);
+        setTimeout(() => void caricaProfilo(s).finally(() => setCaricandoProfilo(false)), 0);
       }
       if (evento === "SIGNED_OUT") queryClient.clear();
     });
@@ -67,19 +89,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [caricaProfilo]);
 
+  const blocco = useMemo<AuthState["blocco"]>(() => {
+    if (!accesso?.ha_profilo) return null;
+    const organizzazione = accesso.nome_organizzazione;
+    if (!accesso.profilo_attivo) return { motivo: "utente_disattivato", organizzazione };
+    if (accesso.stato_organizzazione === "sospesa" || accesso.stato_organizzazione === "disdetta")
+      return { motivo: accesso.stato_organizzazione, organizzazione };
+    if (accesso.prova_scaduta) return { motivo: "prova_scaduta", organizzazione };
+    return null;
+  }, [accesso]);
+  const adminPiattaforma = !!accesso?.admin_piattaforma;
+
   const value = useMemo<AuthState>(
     () => ({
-      caricamento,
+      caricamento: caricamento || caricandoProfilo,
       session,
       profilo,
       organizzazione,
-      senzaProfilo: !!session && !profilo && !caricamento,
+      senzaProfilo: !!session && !profilo && !caricamento && !caricandoProfilo && !blocco && !adminPiattaforma,
+      adminPiattaforma,
+      blocco,
       ricarica: () => caricaProfilo(session),
       esci: async () => {
         await supabase.auth.signOut();
       },
     }),
-    [caricamento, session, profilo, organizzazione, caricaProfilo],
+    [caricamento, caricandoProfilo, session, profilo, organizzazione, caricaProfilo, blocco, adminPiattaforma],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
