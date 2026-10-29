@@ -9,8 +9,12 @@
   --bg: #070b18;          /* fondo pagina: il blu notte del logo portato quasi al nero */
   --bg-2: #0b1530;        /* blu notte del logo: card, riquadri */
   --bg-3: #13204a;        /* blu notte più chiaro: campi, elementi in rilievo */
-  --line: rgb(150 172 255 / 0.10);
-  --line-2: rgb(150 172 255 / 0.20);
+  --line: rgb(150 172 255 / 0.12);
+  --line-2: rgb(150 172 255 / 0.30);
+  /* Superficie per controlli dentro i riquadri blu notte (campi, pulsanti secondari):
+     più chiara del riquadro, così non sembra un buco nero */
+  --surface: #1b2b5f;
+  --surface-hover: #24387a;
   --text: #eef2ff;
   --muted: #9ca8c9;       /* contrasto 8:1 sul fondo */
   --accent: #3d6bff;      /* blu elettrico del logo: pulsanti, evidenze */
@@ -36,6 +40,8 @@
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
   --color-accent-hover: var(--accent-hover);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-accent-soft: var(--accent-soft);
   --color-ok: var(--ok);
   --color-warn: var(--warn);

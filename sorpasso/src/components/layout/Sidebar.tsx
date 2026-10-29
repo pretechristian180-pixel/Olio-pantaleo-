@@ -26,21 +26,21 @@ export function Sidebar() {
             className={({ isActive }) =>
               cn(
                 "relative flex h-12 items-center gap-3 rounded-lg px-3 text-[16px] font-medium transition-colors",
-                isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white",
+                isActive ? "bg-sidebar-surface text-white" : "hover:bg-sidebar-surface/60 hover:text-white",
               )
             }
           >
             {({ isActive }) => (
               <>
-                {isActive && <span className="absolute inset-y-2.5 left-0 w-1 rounded-r bg-accent" aria-hidden />}
-                <Icon className={cn("size-5", isActive && "text-accent")} aria-hidden />
+                {isActive && <span className="absolute inset-y-2.5 left-0 w-1 rounded-r bg-accent-light" aria-hidden />}
+                <Icon className={cn("size-5", isActive && "text-accent-light")} aria-hidden />
                 {label}
               </>
             )}
           </NavLink>
         ))}
       </nav>
-      <div className="m-3 flex items-center gap-3 rounded-lg bg-white/5 p-3">
+      <div className="m-3 flex items-center gap-3 rounded-lg bg-sidebar-surface/70 p-3">
         <Avatar nome={profilo.nome} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[15px] font-semibold text-white">{profilo.nome}</p>
@@ -49,7 +49,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => void esci()}
-          className="flex size-10 items-center justify-center rounded-lg hover:bg-white/10 hover:text-white"
+          className="flex size-10 items-center justify-center rounded-lg hover:bg-sidebar-surface hover:text-white"
           aria-label="Esci"
           title="Esci"
         >

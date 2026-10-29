@@ -10,7 +10,7 @@ export function CookiePolicy() {
         marketing vengono installati solo se dai il consenso dal banner, e puoi cambiare scelta in qualsiasi momento.
       </p>
       <p>
-        <button type="button" onClick={apriPreferenze} className="rounded-full border border-line-2 bg-white/5 px-5 py-2.5 font-semibold text-text hover:bg-white/10">
+        <button type="button" onClick={apriPreferenze} className="rounded-full border border-line-2 bg-surface px-5 py-2.5 font-semibold text-text hover:bg-white/10">
           Modifica le preferenze cookie
         </button>
       </p>

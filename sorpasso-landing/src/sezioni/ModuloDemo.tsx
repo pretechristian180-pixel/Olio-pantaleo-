@@ -193,7 +193,7 @@ export function ModuloDemo() {
 }
 
 const stileInput = (errore?: string) =>
-  `h-12 w-full rounded-xl border bg-bg px-4 text-[16px] text-text placeholder:text-muted/60 focus-visible:border-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20 ${
+  `h-12 w-full rounded-xl border bg-surface px-4 text-[16px] text-text placeholder:text-muted/60 focus-visible:border-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20 ${
     errore ? "border-danger" : "border-line-2"
   }`;
 

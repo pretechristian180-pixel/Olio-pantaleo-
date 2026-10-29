@@ -16,7 +16,7 @@ export function ProvaSociale() {
               )
             ) : (
               <div className="flex size-full flex-col items-center justify-center gap-3 text-muted">
-                <span className="flex size-16 items-center justify-center rounded-full border border-line-2 bg-white/5">
+                <span className="flex size-16 items-center justify-center rounded-full border border-line-2 bg-surface">
                   <svg viewBox="0 0 24 24" className="ml-1 size-7 text-white" aria-hidden>
                     <path d="M7 5v14l12-7z" fill="currentColor" />
                   </svg>

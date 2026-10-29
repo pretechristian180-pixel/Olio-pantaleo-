@@ -24,6 +24,9 @@
   --accent-soft: #ebf1ff;
   --sidebar: #0b1530;
   --sidebar-foreground: #c9d3e6;
+  /* Sui fondi blu notte: riquadri più chiari e blu elettrico schiarito per testi e icone (contrasto ≥ 7:1) */
+  --sidebar-surface: #1b2b5f;
+  --accent-light: #8aa5ff;
   --success: #15803d;
   --success-soft: #ecfdf3;
   --warning: #b45309;
@@ -53,6 +56,8 @@
   --color-accent-soft: var(--accent-soft);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-surface: var(--sidebar-surface);
+  --color-accent-light: var(--accent-light);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);

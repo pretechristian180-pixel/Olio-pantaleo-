@@ -88,7 +88,7 @@ function Cursore({
           type="number"
           inputMode="decimal"
           aria-label={`${etichetta}, valore`}
-          className="w-28 rounded-lg border border-line-2 bg-bg px-3 py-2 text-right font-display text-[18px] font-bold tabular-nums focus-visible:border-accent focus-visible:outline-none"
+          className="w-28 rounded-lg border border-line-2 bg-surface px-3 py-2 text-right font-display text-[18px] font-bold tabular-nums focus-visible:border-accent focus-visible:outline-none"
           value={valore}
           min={min}
           max={max}

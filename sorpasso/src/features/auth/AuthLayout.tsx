@@ -16,12 +16,12 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
         <Logo invert />
         <div className="max-w-md">
           <h2 className="text-3xl font-bold leading-tight text-white">
-            Più auto vendute, <span className="text-accent">meno lead persi.</span>
+            Più auto vendute, <span className="text-accent-light">meno lead persi.</span>
           </h2>
           <ul className="mt-8 space-y-6">
             {BENEFICI.map(({ icon: Icon, titolo, testo }) => (
               <li key={titolo} className="flex gap-4">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-white/10 text-accent">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-sidebar-surface text-accent-light">
                   <Icon className="size-5" aria-hidden />
                 </span>
                 <span>

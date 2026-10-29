@@ -48,7 +48,7 @@ export function ComeFunziona() {
             <h3 className="mt-6 text-[22px] font-bold">{p.titolo}</h3>
             <p className="mt-2 text-muted">{p.testo}</p>
             {i < passaggi.elenco.length - 1 && (
-              <span aria-hidden className="absolute -right-3 top-1/2 z-10 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full border border-line-2 bg-bg text-accent-2 lg:flex">
+              <span aria-hidden className="absolute -right-3 top-1/2 z-10 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full border border-line-2 bg-surface text-accent-2 lg:flex">
                 →
               </span>
             )}

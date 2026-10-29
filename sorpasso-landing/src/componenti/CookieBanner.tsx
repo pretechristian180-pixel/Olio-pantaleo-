@@ -49,10 +49,10 @@ export function CookieBanner() {
         )}
 
         <div className="mt-5 grid grid-cols-2 gap-2.5">
-          <button type="button" onClick={() => scegli(false, false)} className="h-11 rounded-full border border-line-2 bg-white/5 text-[15px] font-semibold hover:bg-white/10">
+          <button type="button" onClick={() => scegli(false, false)} className="h-11 rounded-full border border-line-2 bg-surface text-[15px] font-semibold hover:bg-surface-hover">
             Rifiuta
           </button>
-          <button type="button" onClick={() => scegli(true, true)} className="h-11 rounded-full border border-line-2 bg-white/5 text-[15px] font-semibold hover:bg-white/10">
+          <button type="button" onClick={() => scegli(true, true)} className="h-11 rounded-full border border-line-2 bg-surface text-[15px] font-semibold hover:bg-surface-hover">
             Accetta tutti
           </button>
           {personalizza ? (
