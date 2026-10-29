@@ -14,6 +14,7 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
+import { CATALOGO_OPTIONAL } from "../src/lib/optional.ts";
 
 // ---------- Configurazione ----------
 for (const f of [".env.local", ".env"]) {
@@ -172,6 +173,39 @@ const RICHIESTE = [
   "Cerco un'auto per mia figlia neopatentata.",
 ];
 
+/** Dati tecnici plausibili per l'auto i-esima (deterministici). */
+function schedaTecnica(i: number, alimentazione: string, tipo: string, prezzo: number) {
+  const tutti = CATALOGO_OPTIONAL.flatMap((c) => c.voci);
+  const base = ["ABS", "ESP", "Bluetooth", "Climatizzatore automatico", "Cruise control", "Sensori di parcheggio posteriori", "Volante multifunzione", "Start & Stop"];
+  const extra = tutti.filter((_, k) => (k * 7 + i * 3) % 5 === 0).slice(0, 4 + (i % 6));
+  const suv = /Renegade|Compass|Duster|Q3|X1|Sportage|Tucson|Tonale|T-Roc|Captur|3008|C-HR|Puma|ZS/.test(AUTO[i]![1]);
+  const kw = alimentazione === "elettrica" ? 115 : tra(5, 11) * 10;
+  return {
+    allestimento: scegli(["Business", "Style", "Plus", "Premium", null]),
+    carrozzeria: suv ? "SUV" : prezzo < 15000 ? "City car" : "Hatchback",
+    porte: 5,
+    posti: 5,
+    mese_immatricolazione: (i % 12) + 1,
+    cilindrata: alimentazione === "elettrica" ? null : scegli([999, 1199, 1332, 1461, 1499, 1598, 1968]),
+    potenza_kw: kw,
+    trazione: /4x4|4xe/.test(String(AUTO[i]![2])) ? "integrale" : "anteriore",
+    classe_euro: alimentazione === "elettrica" ? null : AUTO[i]![3] >= 2021 ? "Euro 6d" : "Euro 6d-TEMP",
+    consumo_misto: alimentazione === "elettrica" ? 16.5 : Math.round((4 + rnd() * 2.5) * 10) / 10,
+    emissioni_co2: alimentazione === "elettrica" ? 0 : tra(95, 145),
+    colore_interni: scegli(["Tessuto nero", "Tessuto grigio", "Pelle nera", "Tessuto/similpelle"]),
+    numero_proprietari: tipo === "nuovo" ? 0 : tipo === "km0" ? 1 : tra(1, 2),
+    tagliandi_certificati: tipo !== "nuovo" && rnd() < 0.75,
+    garanzia_mesi: tipo === "nuovo" ? 24 : 12,
+    garanzia_tipo: tipo === "nuovo" ? "Garanzia del costruttore" : "Garanzia concessionaria",
+    neopatentati: kw <= 70,
+    optional: [...new Set([...base, ...extra])],
+    difetti: tipo === "usato" && i % 4 === 0 ? "Piccolo graffio sul paraurti posteriore lato destro." : null,
+    // Nuove e km0 da casa madre in regime ordinario, usato da privati in regime del margine
+    regime_iva: tipo === "usato" && i % 5 !== 0 ? "margine" : "ordinario",
+    sconto_max: Math.round((prezzo * 0.03) / 100) * 100,
+  };
+}
+
 async function main() {
   console.log("1/7 Pulizia dati demo precedenti…");
   await pulisci();
@@ -191,12 +225,17 @@ async function main() {
         soglia_giacenza_giorni: 60,
         tempo_max_risposta_min: 15,
         round_robin_attivo: true,
+        whatsapp: "+39 335 100 2000",
+        costo_giacenza_giorno: 15,
+        margine_obiettivo_pct: 10,
       })
       .select("id")
       .single(),
     "creazione concessionaria",
   );
   const ORG = org.id as string;
+
+  await q(sb.rpc("crea_categorie_predefinite", { p_org: ORG }), "categorie economiche");
 
   const utenti: Record<string, string> = {};
   for (const p of PERSONE) {
@@ -252,21 +291,42 @@ async function main() {
           stato: i === 3 ? "prenotato" : i === 12 || i === 10 ? "in_preparazione" : "disponibile",
           data_ingresso: dataSql(ora - giorni * GIORNO),
           note_interne: giorni > 90 ? "Valutare ulteriore ribasso o pubblicazione su più portali." : null,
+          ...schedaTecnica(i, alimentazione, tipo, prezzo),
         })),
       )
-      .select("id, marca, modello, prezzo_vendita, data_ingresso"),
+      .select("id, marca, modello, prezzo_vendita, data_ingresso, regime_iva"),
     "inserimento auto",
   );
   // Ribasso sulle auto ferme da oltre 60 giorni (genera lo storico prezzo)
   for (const [i, riga] of AUTO.entries()) {
     if (riga[10] > 60) await q(sb.from("vehicles").update({ prezzo_vendita: riga[9] }).eq("id", veicoli[i]!.id), "ribasso prezzo");
   }
-  await q(
-    sb.from("vehicle_costs").insert(
-      AUTO.map((riga, i) => ({ vehicle_id: veicoli[i]!.id, organization_id: ORG, prezzo_acquisto: Math.round((riga[9] * (0.8 + rnd() * 0.08)) / 100) * 100 })),
-    ),
-    "prezzi di acquisto",
-  );
+
+  // Conto economico: acquisto + costi di ripristino tipici
+  const costi: Record<string, unknown>[] = [];
+  for (const [i, riga] of AUTO.entries()) {
+    const v = veicoli[i]!;
+    const ingresso = ora - riga[10] * GIORNO;
+    const giorno = (dopo: number) => dataSql(Math.min(ingresso + dopo * GIORNO, ora));
+    const ordinario = v.regime_iva === "ordinario";
+    const acquisto = Math.round((riga[9] * (ordinario ? 0.72 : 0.8) * (0.97 + rnd() * 0.06)) / 100) * 100;
+    costi.push({
+      organization_id: ORG, vehicle_id: v.id, data: giorno(0), categoria: "Acquisto",
+      descrizione: riga[8] === "usato" && rnd() < 0.4 ? "Valore di permuta riconosciuto" : "Prezzo pagato",
+      fornitore: riga[8] === "usato" ? scegli(["Privato", "Autoplus Srl", "Noleggio Sud SpA"]) : `${riga[0]} Italia`,
+      importo: acquisto, iva_aliquota: ordinario ? 22 : 0,
+    });
+    if (riga[8] !== "nuovo") {
+      costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(1), categoria: "Trasporto", descrizione: "Bisarca", fornitore: "Trasporti Adriatica", importo: tra(12, 25) * 10, iva_aliquota: 22 });
+      costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(3), categoria: "Preparazione e lavaggio", descrizione: "Lucidatura e igienizzazione", fornitore: "Lavaggio Express", importo: tra(8, 18) * 10, iva_aliquota: 22 });
+      if (rnd() < 0.6) costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(4), categoria: "Meccanica", descrizione: scegli(["Tagliando completo", "Sostituzione pastiglie e dischi", "Kit distribuzione"]), fornitore: "Officina Lorusso", importo: tra(18, 75) * 10, iva_aliquota: 22 });
+      if (rnd() < 0.35) costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(5), categoria: "Carrozzeria", descrizione: scegli(["Riparazione paraurti", "Smart repair portiera", "Ritocco graffi"]), fornitore: "Carrozzeria Moderna", importo: tra(15, 60) * 10, iva_aliquota: 22 });
+      if (rnd() < 0.3) costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(5), categoria: "Pneumatici", descrizione: "4 pneumatici nuovi", fornitore: "Gomme Puglia", importo: tra(28, 55) * 10, iva_aliquota: 22 });
+      costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(2), categoria: "Passaggio di proprietà e pratiche", descrizione: "Passaggio a nome concessionaria", fornitore: "Agenzia pratiche auto", importo: tra(18, 32) * 10, iva_aliquota: 0 });
+    }
+    costi.push({ organization_id: ORG, vehicle_id: v.id, data: giorno(6), categoria: "Pubblicità e portali", descrizione: "Annuncio in evidenza AutoScout24", fornitore: "AutoScout24", importo: 39, iva_aliquota: 22 });
+  }
+  await q(sb.from("vehicle_costs").insert(costi), "costi auto");
 
   console.log("4/7 Contatti e lead (40)…");
   // Auto che verranno vendute (indici in AUTO) e auto "nuovo arrivo" con clienti compatibili.
@@ -463,6 +523,11 @@ async function main() {
       "pratica",
     );
     pratiche.push({ id: d.id, lead: l, consegna });
+    // Il prezzo di vendita entra nei ricavi in automatico (trigger); qui gli extra venduti al cliente.
+    const extra: Record<string, unknown>[] = [];
+    if (i % 2 === 0) extra.push({ organization_id: ORG, vehicle_id: l.vehicle, data: dataSql(venduta), categoria: "Provvigione finanziamento", descrizione: "Finanziamento 60 rate", importo: tra(35, 70) * 10, iva_aliquota: 0 });
+    if (i !== 2) extra.push({ organization_id: ORG, vehicle_id: l.vehicle, data: dataSql(venduta), categoria: "Garanzie e assicurazioni", descrizione: "Garanzia estesa 24 mesi", importo: tra(25, 45) * 10, iva_aliquota: 0 });
+    if (extra.length) await q(sb.from("vehicle_revenues").insert(extra), "ricavi extra");
   }
 
   console.log("7/7 Appuntamenti della settimana…");

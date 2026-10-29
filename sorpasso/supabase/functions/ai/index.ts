@@ -1,6 +1,6 @@
 /**
  * Funzioni AI di Sorpasso:
- *   { azione: "descrizione_annuncio", vehicle_id }
+ *   { azione: "descrizione_annuncio", vehicle_id }  → { testo (completa), breve }
  *   { azione: "suggerisci_risposta", lead_id, canale: "whatsapp" | "email" }
  *   { azione: "riassunto_lead", lead_id }
  *
@@ -21,6 +21,7 @@ import {
 import {
   type DatiLead,
   promptDescrizioneAnnuncio,
+  promptDescrizioneBreve,
   promptRiassuntoLead,
   promptSuggerisciRisposta,
 } from "../_shared/prompts.ts";
@@ -132,12 +133,23 @@ Deno.serve(async (req) => {
     const azienda = profilo.organizations.nome;
 
     let testo: string;
+    let extra: Record<string, string> = {};
     switch (azione) {
       case "descrizione_annuncio": {
         if (!body.vehicle_id) throw new ErroreUtente("Auto non indicata");
-        const { data: v } = await sb.from("vehicles").select("*").eq("id", body.vehicle_id).maybeSingle();
+        // Solo campi della scheda tecnica: niente note interne, difetti o dati economici.
+        const { data: v } = await sb
+          .from("vehicles")
+          .select("marca, modello, versione, allestimento, carrozzeria, porte, posti, anno, mese_immatricolazione, km, alimentazione, cilindrata, potenza_kw, cambio, trazione, classe_euro, consumo_misto, emissioni_co2, colore, colore_interni, numero_proprietari, tagliandi_certificati, tipo, garanzia_mesi, garanzia_tipo, neopatentati, optional, optional_extra, prezzo_vendita")
+          .eq("id", body.vehicle_id)
+          .maybeSingle();
         if (!v) throw new ErroreUtente("Auto non trovata o non accessibile", 404);
-        testo = await genera(promptDescrizioneAnnuncio(v, azienda), 1500);
+        const [completa, breve] = await Promise.all([
+          genera(promptDescrizioneAnnuncio(v, azienda), 2000),
+          genera(promptDescrizioneBreve(v, azienda), 800),
+        ]);
+        testo = completa;
+        extra = { breve };
         break;
       }
       case "suggerisci_risposta": {
@@ -166,7 +178,7 @@ Deno.serve(async (req) => {
       esito: "ok",
       dettagli: { durata_ms: Date.now() - inizio, modello: MODELLO },
     });
-    return json({ testo });
+    return json({ testo, ...extra });
   } catch (e) {
     if (orgId) {
       await clientServizio().from("automations_log").insert({

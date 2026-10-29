@@ -43,7 +43,21 @@ supabase secrets set ANTHROPIC_API_KEY=sk-ant-... SITE_URL=https://app.sorpasso.
 # facoltativi: AI_MODEL (default claude-opus-5-5), ALLOWED_ORIGIN (default *)
 supabase functions deploy ai
 supabase functions deploy invita-utente
+supabase functions deploy decodifica-veicolo
+supabase functions deploy scheda-pubblica --no-verify-jwt   # pagina pubblica: chiamata senza login
 ```
+
+**Decodifica targa/telaio (facoltativa).** L'interfaccia `VehicleDecoder` è in
+`supabase/functions/_shared/decoder/`. Provider inclusi:
+
+| Provider | Cosa fa | Configurazione |
+|---|---|---|
+| Nessuno (predefinito) | compilazione a mano | — |
+| `vin_base` | controlla il telaio e riconosce la marca, senza servizi esterni | — |
+| `http` | qualunque servizio di dati veicolo che risponde in JSON | secrets `DECODER_HTTP_URL` (con `{targa}`/`{telaio}`), `DECODER_HTTP_API_KEY`, facoltativo `DECODER_HTTP_HEADER` |
+
+Il titolare sceglie il provider in Impostazioni → Soglie e automazioni. Per un nuovo fornitore basta
+un file nella cartella `decoder/` registrato in `decoder/index.ts`.
 
 La chiave AI vive solo nei secrets di Supabase: il browser chiama la funzione `ai` con il token dell'utente,
 la funzione legge i dati **con i permessi dell'utente** (RLS) e poi interroga il modello.
@@ -77,8 +91,11 @@ sorpasso/
     functions/
       _shared/prompts.ts        ← TUTTI I PROMPT AI (modificabili qui)
       _shared/http.ts           CORS, client Supabase utente/servizio, errori
-      ai/                       descrizione annuncio, suggerisci risposta, riassunto lead
+      _shared/decoder/          interfaccia VehicleDecoder e provider di decodifica targa/telaio
+      ai/                       descrizioni annuncio (completa + breve), suggerisci risposta, riassunto lead
       invita-utente/            invito colleghi (solo titolare)
+      decodifica-veicolo/       compilazione automatica della scheda da targa o telaio
+      scheda-pubblica/          dati della pagina pubblica e lead da "WhatsApp"/"Prenota test drive"
   scripts/seed.ts               dati demo
   src/
     app/router.tsx              rotte, accesso protetto, limiti per ruolo
@@ -95,7 +112,9 @@ sorpasso/
 |---|---|
 | `/` | **Oggi** — lead da contattare (rossi se in ritardo), lead senza prossima azione, follow-up di oggi, appuntamenti, auto ferme; KPI del mese per titolare/responsabile |
 | `/lead`, `/lead/:id`, `/lead/:id/preventivo` | Kanban trascinabile e tabella con filtri · scheda lead con azioni rapide e AI · preventivo con PDF |
-| `/stock`, `/stock/nuovo`, `/stock/:id` | Griglia con badge giacenza · scheda auto con foto, AI annuncio, lead interessati, clienti compatibili, storico prezzo |
+| `/stock`, `/stock/nuovo`, `/stock/:id` | Griglia con badge giacenza · scheda auto a 4 tab: **Scheda tecnica** (dati completi, optional, foto riordinabili, documenti privati), **Conto economico** (costi, ricavi, margine, prezzo minimo), **Pubblicazione** (descrizioni AI, PDF con QR, pagina pubblica), **Interessati** |
+| `/margini` | Margini di tutte le auto, totali del mese, andamento, classifiche, esportazione CSV per il commercialista |
+| `/v/:token` | Pagina pubblica dell'auto (senza login): foto, dati, prezzo, "Scrivici su WhatsApp", "Prenota test drive" |
 | `/agenda` | Settimana per venditore (giorno su telefono) |
 | `/clienti`, `/clienti/:id` | Contatti con storico acquisti, lead, documenti e consensi |
 | `/pratiche`, `/pratiche/:id` | Vendite chiuse con checklist, avanzamento e documenti |
@@ -118,6 +137,20 @@ sorpasso/
 | Vendita chiusa → auto "venduta", lead "vinto", avviso sugli altri lead della stessa auto | trigger `deals_dopo_inserimento` |
 | Punteggio lead 0-100 calcolato da budget, tempistica, fase… | `calcola_punteggio()` |
 
+## Conto economico dell'auto
+
+I calcoli stanno nel database (vista `vehicle_economics`, funzione `calcola_economia`), quindi scheda,
+pagina Margini ed esportazioni danno sempre gli stessi numeri.
+
+- **Regime ordinario:** i costi contano al netto (IVA detraibile), l'IVA sulla vendita è sull'intero prezzo.
+- **Regime del margine:** i costi contano al lordo, l'IVA si calcola solo sulla differenza tra prezzo e costi.
+- **Costo di giacenza** = giorni in stock × costo giornaliero (Impostazioni), mostrato separato.
+- **Prezzo minimo** = prezzo al cliente sotto cui l'auto va in perdita (giacenza inclusa);
+  **prezzo obiettivo** = prezzo per raggiungere il margine obiettivo.
+- Alla chiusura di una pratica il prezzo finale diventa in automatico il ricavo "Prezzo di vendita".
+
+> Le formule sono una semplificazione gestionale: verifica i criteri fiscali con il tuo commercialista.
+
 Ogni automazione scrive in `automations_log` (visibile in Impostazioni → Soglie e automazioni).
 
 ## Ruoli e permessi (RLS)
@@ -127,7 +160,9 @@ Ogni automazione scrive in `automations_log` (visibile in Impostazioni → Sogli
 | Lead, attività, preventivi | tutto | tutto | solo i propri | lettura |
 | Contatti | tutto | tutto | i propri | lettura |
 | Stock | gestione | gestione | lettura + foto | lettura |
-| Prezzo di acquisto / margine | ✓ | ✓ | — | — |
+| Conto economico (costi, ricavi, margini, pagina Margini) | ✓ | ✓ | — | ✓ |
+| Prezzo minimo e prezzo obiettivo | ✓ | ✓ | — (vede listino e sconto massimo) | — |
+| Documenti del veicolo | ✓ | ✓ | — | ✓ |
 | Pratiche e documenti | tutto | tutto | lettura delle proprie | tutto |
 | Utenti, inviti, impostazioni azienda | gestione | lettura | lettura | lettura |
 

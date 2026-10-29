@@ -23,7 +23,25 @@ export interface DatiVeicolo {
   colore?: string | null;
   tipo?: string | null;
   prezzo_vendita?: number | null;
-  note_interne?: string | null;
+  allestimento?: string | null;
+  carrozzeria?: string | null;
+  porte?: number | null;
+  posti?: number | null;
+  mese_immatricolazione?: number | null;
+  cilindrata?: number | null;
+  potenza_kw?: number | null;
+  trazione?: string | null;
+  classe_euro?: string | null;
+  consumo_misto?: number | null;
+  emissioni_co2?: number | null;
+  colore_interni?: string | null;
+  numero_proprietari?: number | null;
+  tagliandi_certificati?: boolean | null;
+  garanzia_mesi?: number | null;
+  garanzia_tipo?: string | null;
+  neopatentati?: boolean | null;
+  optional?: string[] | null;
+  optional_extra?: string | null;
 }
 
 export interface DatiLead {
@@ -53,14 +71,29 @@ const euro = (n?: number | null) =>
   n == null ? "non indicato" : new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 
 function descriviVeicolo(v: DatiVeicolo): string {
+  const tipi: Record<string, string> = { nuovo: "nuova", usato: "usata", km0: "km 0", aziendale: "aziendale" };
   return [
-    `Marca e modello: ${v.marca} ${v.modello}${v.versione ? ` ${v.versione}` : ""}`,
-    v.tipo && `Tipo: ${v.tipo}`,
-    v.anno && `Anno: ${v.anno}`,
+    `Marca e modello: ${v.marca} ${v.modello}${v.versione ? ` ${v.versione}` : ""}${v.allestimento ? ` (allestimento ${v.allestimento})` : ""}`,
+    v.tipo && `Condizione: ${tipi[v.tipo] ?? v.tipo}`,
+    v.carrozzeria && `Carrozzeria: ${v.carrozzeria}${v.porte ? `, ${v.porte} porte` : ""}${v.posti ? `, ${v.posti} posti` : ""}`,
+    v.anno && `Immatricolazione: ${v.mese_immatricolazione ? `${String(v.mese_immatricolazione).padStart(2, "0")}/` : ""}${v.anno}`,
     v.km != null && `Chilometri: ${v.km.toLocaleString("it-IT")}`,
     v.alimentazione && `Alimentazione: ${v.alimentazione}`,
+    v.cilindrata && `Cilindrata: ${v.cilindrata} cm³`,
+    v.potenza_kw && `Potenza: ${v.potenza_kw} kW (${Math.round(v.potenza_kw * 1.35962)} CV)`,
     v.cambio && `Cambio: ${v.cambio}`,
-    v.colore && `Colore: ${v.colore}`,
+    v.trazione && `Trazione: ${v.trazione}`,
+    v.classe_euro && `Classe: ${v.classe_euro}`,
+    v.consumo_misto != null && `Consumo misto: ${v.consumo_misto}${v.alimentazione === "elettrica" ? " kWh/100 km" : " l/100 km"}`,
+    v.emissioni_co2 != null && `Emissioni CO2: ${v.emissioni_co2} g/km`,
+    v.colore && `Colore esterno: ${v.colore}`,
+    v.colore_interni && `Interni: ${v.colore_interni}`,
+    v.numero_proprietari != null && v.tipo !== "nuovo" && `Proprietari precedenti: ${v.numero_proprietari}`,
+    v.tagliandi_certificati && "Tagliandi certificati",
+    v.garanzia_mesi && `Garanzia: ${v.garanzia_mesi} mesi${v.garanzia_tipo ? ` (${v.garanzia_tipo})` : ""}`,
+    v.neopatentati && "Adatta ai neopatentati",
+    v.optional?.length && `Optional ed equipaggiamenti: ${v.optional.join(", ")}`,
+    v.optional_extra && `Altri equipaggiamenti: ${v.optional_extra}`,
     v.prezzo_vendita != null && `Prezzo: ${euro(v.prezzo_vendita)}`,
   ]
     .filter(Boolean)
@@ -85,20 +118,38 @@ Storico attività:
 ${storico}`;
 }
 
-/** "Genera descrizione annuncio" — scheda veicolo. */
+/**
+ * "Genera con AI" — scheda veicolo, versione completa per i portali (AutoScout24, Subito, sito).
+ * Usa SOLO i dati della scheda tecnica: note interne, difetti e costi non vengono passati all'AI.
+ */
 export function promptDescrizioneAnnuncio(v: DatiVeicolo, azienda: string) {
   return {
     system: `Sei un copywriter esperto di annunci auto per concessionarie italiane (AutoScout24, Subito, sito aziendale).
 ${REGOLE_BASE}
 Struttura dell'annuncio:
 1. Una frase d'apertura che presenta l'auto e il suo punto di forza principale.
-2. Un paragrafo breve con i dati chiave (anno, km, alimentazione, cambio) scritti in modo scorrevole.
-3. Un elenco puntato di 3-5 motivi concreti per sceglierla, basati solo sui dati forniti.
-4. Una chiusura con invito a contattare o visitare la concessionaria ${azienda}.
-Lunghezza: 120-180 parole. Niente emoji, niente punti esclamativi multipli, niente MAIUSCOLE.`,
-    user: `Scrivi l'annuncio per questa auto.
-${descriviVeicolo(v)}
-${v.note_interne ? `Note del venditore (usale solo se utili per l'annuncio, non citare difetti o costi interni): ${v.note_interne}` : ""}`,
+2. Un paragrafo con i dati chiave (immatricolazione, km, motore e potenza, cambio, consumi) scritti in modo scorrevole.
+3. Un elenco puntato con gli equipaggiamenti più rilevanti, raggruppati (sicurezza, comfort, multimedia), solo tra quelli forniti.
+4. Una riga su garanzia, tagliandi e proprietari, se presenti nei dati.
+5. Una chiusura con invito a contattare o visitare ${azienda}.
+Lunghezza: 150-230 parole. Niente emoji, niente punti esclamativi multipli, niente MAIUSCOLE.`,
+    user: `Scrivi l'annuncio completo per questa auto.
+${descriviVeicolo(v)}`,
+  };
+}
+
+/** "Genera con AI" — versione breve per social e WhatsApp. */
+export function promptDescrizioneBreve(v: DatiVeicolo, azienda: string) {
+  return {
+    system: `Sei il social media manager della concessionaria ${azienda}.
+${REGOLE_BASE}
+Scrivi un testo breve per un post social o un messaggio WhatsApp:
+- prima riga: marca, modello e il vantaggio principale;
+- 3 righe con i dati chiave, ognuna preceduta da un'emoji pertinente (📅 🛣️ ⛽ ⚙️ 🛡️ 💶);
+- ultima riga: invito a scrivere o passare in salone.
+Massimo 50 parole in tutto. Usa solo i dati forniti.`,
+    user: `Scrivi il testo breve per questa auto.
+${descriviVeicolo(v)}`,
   };
 }
 

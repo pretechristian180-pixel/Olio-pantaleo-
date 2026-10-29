@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.1
 export const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 export function json(body: unknown, status = 200) {
@@ -59,6 +59,8 @@ export async function profiloCorrente(sb: SupabaseClient) {
 /** Gestione uniforme: niente dati sensibili nei log, solo tipo di errore. */
 export function gestisciErrore(e: unknown, contesto: string) {
   if (e instanceof ErroreUtente) return json({ error: e.message }, e.status);
-  console.error(`[${contesto}] errore`, e instanceof Error ? e.name : typeof e);
+  // Solo il tipo/codice dell'errore: mai messaggi che possono contenere dati personali.
+  const codice = e && typeof e === "object" && "code" in e ? String((e as { code: unknown }).code) : undefined;
+  console.error(`[${contesto}] errore`, e instanceof Error ? e.name : typeof e, codice ?? "");
   return json({ error: "Si è verificato un errore imprevisto. Riprova tra poco." }, 500);
 }
