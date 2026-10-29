@@ -30,7 +30,8 @@ export function SetPasswordPage() {
       setBusy(false);
       return setError(friendlyError(error));
     }
-    if (invite) await acceptInvitation();
+    // Vale per il primo accesso da invito e per il link "reinvia" (recupero password)
+    await acceptInvitation();
     passwordSet();
     await refresh();
     navigate("/", { replace: true });

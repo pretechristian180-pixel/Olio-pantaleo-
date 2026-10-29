@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => {
         ...(anteprima
           ? [
               { find: "@/services/api", replacement: src("demo/api.ts") },
+              { find: "@/services/admin", replacement: src("demo/admin.ts") },
               { find: "@/lib/supabase", replacement: src("demo/supabase.ts") },
             ]
           : []),

@@ -46,8 +46,10 @@ export type Database = {
           nome: string;
           piano: E["piano_agenzia"];
           telefono: string | null;
+          attiva: boolean;
         };
         Insert: {
+          attiva?: boolean;
           created_at?: string;
           email?: string | null;
           id?: string;
@@ -160,6 +162,7 @@ export type Database = {
           id: string;
           invitato_da: string | null;
           nome: string | null;
+          ruolo: E["ruolo_utente"];
         };
         Insert: {
           accepted_at?: string | null;
@@ -170,6 +173,7 @@ export type Database = {
           id?: string;
           invitato_da?: string | null;
           nome?: string | null;
+          ruolo?: E["ruolo_utente"];
         };
         Update: Partial<Database["public"]["Tables"]["invitations"]["Insert"]>;
         Relationships: [];
@@ -341,6 +345,54 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       accept_my_invitation: { Args: never; Returns: undefined };
+      is_platform_admin: { Args: never; Returns: boolean };
+      admin_list_agencies: {
+        Args: never;
+        Returns: {
+          id: string;
+          nome: string;
+          piano: E["piano_agenzia"];
+          attiva: boolean;
+          email: string | null;
+          telefono: string | null;
+          indirizzo: string | null;
+          created_at: string;
+          utenti: number;
+          utenti_attivi: number;
+          immobili: number;
+          contatti: number;
+          titolare_nome: string | null;
+          titolare_email: string | null;
+          ultima_attivita: string | null;
+        }[];
+      };
+      admin_agency_users: {
+        Args: { aid: string };
+        Returns: {
+          id: string;
+          nome: string;
+          cognome: string;
+          email: string;
+          ruolo: E["ruolo_utente"];
+          attivo: boolean;
+          created_at: string;
+          ultimo_accesso: string | null;
+          in_attesa: boolean;
+        }[];
+      };
+      admin_update_agency: {
+        Args: {
+          aid: string;
+          p_nome: string;
+          p_piano: E["piano_agenzia"];
+          p_email: string;
+          p_telefono: string;
+          p_indirizzo: string;
+          p_attiva: boolean;
+        };
+        Returns: undefined;
+      };
+      admin_set_user: { Args: { uid: string; p_ruolo: E["ruolo_utente"]; p_attivo: boolean }; Returns: undefined };
       can_edit_contact: { Args: { cid: string }; Returns: boolean };
       can_edit_property: { Args: { pid: string }; Returns: boolean };
       fase_label: { Args: { f: E["fase_trattativa"] }; Returns: string };

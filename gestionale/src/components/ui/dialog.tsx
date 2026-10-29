@@ -45,7 +45,7 @@ function DialogContent({
             Chiudi
           </DialogPrimitive.Close>
         </div>
-        <div className="overflow-y-auto px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:pb-6">
+        <div className="min-h-0 overflow-y-auto px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:pb-6">
           {children}
         </div>
       </DialogPrimitive.Content>

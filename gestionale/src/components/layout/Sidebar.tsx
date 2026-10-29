@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/lib/format";
@@ -8,7 +9,7 @@ import { navItems } from "./nav";
 
 /** Menu laterale (solo desktop): logo, 5 voci, profilo in basso. */
 export function Sidebar() {
-  const { agent, agency } = useAuth();
+  const { agent, agency, isPlatformAdmin } = useAuth();
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-background lg:flex">
       <div className="flex h-18 items-center px-5">
@@ -32,6 +33,15 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+      {isPlatformAdmin && (
+        <Link
+          to="/admin"
+          className="mx-3 flex h-12 items-center gap-3 rounded-lg px-3 text-[16px] font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+        >
+          <ShieldCheck className="size-5" aria-hidden />
+          Pannello admin
+        </Link>
+      )}
       {agent && agency && (
         <Link
           to="/impostazioni"

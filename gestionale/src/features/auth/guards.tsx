@@ -17,16 +17,18 @@ function FullPageLoading() {
 
 /** Le schermate dell'app richiedono un utente collegato con profilo attivo. */
 export function RequireAuth() {
-  const { loading, session, agent, noProfile, mustSetPassword, signOut } = useAuth();
+  const { loading, session, agent, noProfile, isPlatformAdmin, mustSetPassword, signOut } = useAuth();
   const location = useLocation();
   if (loading) return <FullPageLoading />;
   if (!session) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />;
   if (mustSetPassword) return <Navigate to="/imposta-password" replace />;
+  // L'admin della piattaforma senza agenzia va direttamente al pannello admin
+  if ((noProfile || !agent) && isPlatformAdmin) return <Navigate to="/admin" replace />;
   if (noProfile || !agent)
     return (
       <AuthLayout
         title="Account non attivo"
-        subtitle="Non troviamo un profilo attivo collegato a questo account. Se fai parte di un'agenzia, chiedi al titolare di riattivarti."
+        subtitle="Il tuo account o la tua agenzia non sono attivi in questo momento. Se fai parte di un'agenzia, chiedi al titolare di riattivarti; se sei il titolare, contatta Mattonio."
       >
         <Button size="lg" variant="outline" className="w-full" onClick={signOut}>
           <LogOut aria-hidden />
@@ -43,5 +45,24 @@ export function GuestOnly() {
   if (loading) return <FullPageLoading />;
   if (session && mustSetPassword) return <Navigate to="/imposta-password" replace />;
   if (session) return <Navigate to="/" replace />;
+  return <Outlet />;
+}
+
+/** Pannello admin: solo per gli amministratori di Mattonio. */
+export function RequireAdmin() {
+  const { loading, session, isPlatformAdmin, mustSetPassword, signOut } = useAuth();
+  const location = useLocation();
+  if (loading) return <FullPageLoading />;
+  if (!session) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />;
+  if (mustSetPassword) return <Navigate to="/imposta-password" replace />;
+  if (!isPlatformAdmin)
+    return (
+      <AuthLayout title="Area riservata" subtitle="Questa sezione è solo per gli amministratori di Mattonio.">
+        <Button size="lg" variant="outline" className="w-full" onClick={signOut}>
+          <LogOut aria-hidden />
+          Esci
+        </Button>
+      </AuthLayout>
+    );
   return <Outlet />;
 }

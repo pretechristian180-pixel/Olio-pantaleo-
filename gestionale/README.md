@@ -51,6 +51,22 @@ esempio in memoria (`src/demo/`): serve per mostrare l'app dove Supabase non è 
 - **Foto**: bucket privato `property-photos`, percorso `{agency_id}/{property_id}/…`; le foto sono
   ridotte a 1600px e compresse in JPEG prima del caricamento. I loghi stanno nel bucket `agency-logos`.
 
+### Pannello admin della piattaforma (`/admin`)
+
+Per chi gestisce Mattonio: elenco di tutte le agenzie con piano, stato e numeri; creazione di una nuova
+agenzia con invito via email al titolare; modifica di dati e piano; sospensione/riattivazione
+dell'agenzia (gli utenti vengono bloccati, i dati restano); gestione degli utenti di ogni agenzia
+(invito, ruolo titolare/agente, disattivazione, "reinvia invito").
+
+- Gli amministratori sono nella tabella `platform_admins` (per email confermata). Il loro account non
+  appartiene a nessuna agenzia: dopo l'accesso finiscono direttamente nel pannello admin.
+- Letture e modifiche passano da funzioni SQL riservate (`admin_*`, migrazione `20261029140000_admin_piattaforma.sql`);
+  creazione agenzie e inviti dalla Edge Function `supabase/functions/admin-piattaforma`.
+- Ogni agenzia conserva sempre almeno un titolare attivo.
+- Per creare il proprio account admin: Supabase → Authentication → Users → **Add user**, con l'email
+  registrata in `platform_admins`, una password e "Auto Confirm User". Poi si accede da `/accedi`.
+  Per aggiungere un altro admin: `insert into public.platform_admins (email) values ('nome@dominio.it');`
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { authLinkType, supabase } from "@/lib/supabase";
+import { checkPlatformAdmin } from "@/services/admin";
 import { loadSession, setCurrentUser } from "@/services/api";
 import { emitChange } from "@/services/events";
 import type { Agency, Agent } from "@/types/domain";
@@ -12,8 +13,10 @@ interface AuthState {
   agent: Agent | null;
   agency: Agency | null;
   isOwner: boolean;
-  /** Collegato ma senza profilo attivo (account disattivato o non ancora pronto) */
+  /** Collegato ma senza profilo attivo (account o agenzia disattivati, oppure admin della piattaforma) */
   noProfile: boolean;
+  /** Amministratore di Mattonio: può aprire il pannello admin */
+  isPlatformAdmin: boolean;
   /** Arrivato da un link di invito o di recupero: deve scegliere la password */
   mustSetPassword: boolean;
   passwordSet: () => void;
@@ -29,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [agency, setAgency] = useState<Agency | null>(null);
   const [loading, setLoading] = useState(true);
   const [noProfile, setNoProfile] = useState(false);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [mustSetPassword, setMustSetPassword] = useState(authLinkType !== null);
 
   const load = useCallback(async (s: Session | null) => {
@@ -37,10 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAgent(null);
       setAgency(null);
       setNoProfile(false);
+      setIsPlatformAdmin(false);
       setCurrentUser({ userId: "", agencyId: "", isOwner: false });
       setLoading(false);
       return;
     }
+    setIsPlatformAdmin(await checkPlatformAdmin().catch(() => false));
     try {
       const res = await loadSession(s.user.id);
       if (!res || !res.agent.active) {
@@ -79,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       agency,
       isOwner: agent?.role === "titolare",
       noProfile,
+      isPlatformAdmin,
       mustSetPassword,
       passwordSet: () => setMustSetPassword(false),
       refresh: async () => {
@@ -89,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await supabase.auth.signOut();
       },
     }),
-    [loading, session, agent, agency, noProfile, mustSetPassword, load],
+    [loading, session, agent, agency, noProfile, isPlatformAdmin, mustSetPassword, load],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

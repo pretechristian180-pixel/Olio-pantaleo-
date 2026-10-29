@@ -2,7 +2,10 @@ import { createBrowserRouter, createMemoryRouter } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { AgendaPage } from "@/features/agenda/AgendaPage";
 import { ForgotPasswordPage } from "@/features/auth/ForgotPasswordPage";
-import { GuestOnly, RequireAuth } from "@/features/auth/guards";
+import { AdminAgenciesPage } from "@/features/admin/AdminAgenciesPage";
+import { AdminAgencyPage } from "@/features/admin/AdminAgencyPage";
+import { AdminShell } from "@/features/admin/AdminShell";
+import { GuestOnly, RequireAdmin, RequireAuth } from "@/features/auth/guards";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
 import { SetPasswordPage } from "@/features/auth/SetPasswordPage";
@@ -28,6 +31,20 @@ const routes = [
   },
   // Raggiunta dal link di invito o di recupero password (l'utente è già collegato dal link)
   { path: "imposta-password", element: <SetPasswordPage /> },
+  // Pannello admin della piattaforma (solo amministratori di Mattonio)
+  {
+    element: <RequireAdmin />,
+    children: [
+      {
+        path: "admin",
+        element: <AdminShell />,
+        children: [
+          { index: true, element: <AdminAgenciesPage /> },
+          { path: "agenzie/:id", element: <AdminAgencyPage /> },
+        ],
+      },
+    ],
+  },
   {
     element: <RequireAuth />,
     children: [

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Check, ImagePlus, LogOut, Mail, Plus, UserPlus } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Check, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,7 +66,7 @@ export function SettingsPage() {
 /* ---------- Il mio profilo ---------- */
 
 function ProfileSection() {
-  const { agent, session, refresh, signOut } = useAuth();
+  const { agent, session, refresh, signOut, isPlatformAdmin } = useAuth();
   const [firstName, setFirstName] = useState(agent?.firstName ?? "");
   const [lastName, setLastName] = useState(agent?.lastName ?? "");
   const [phone, setPhone] = useState(agent?.phone ?? "");
@@ -159,6 +159,14 @@ function ProfileSection() {
         </CardContent>
       </Card>
 
+      {isPlatformAdmin && (
+        <Button variant="secondary" size="lg" className="w-full" asChild>
+          <Link to="/admin">
+            <ShieldCheck aria-hidden />
+            Apri il pannello admin
+          </Link>
+        </Button>
+      )}
       <Button variant="outline" size="lg" className="w-full" onClick={signOut}>
         <LogOut aria-hidden />
         Esci dall'account
