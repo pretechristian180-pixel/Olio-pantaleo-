@@ -7,7 +7,9 @@ export type ID = string;
 export type ISODate = string;
 
 export type Ruolo = "titolare" | "responsabile_vendite" | "venditore" | "amministrazione";
-export type TipoVeicolo = "nuovo" | "usato" | "km0";
+export type TipoVeicolo = "nuovo" | "usato" | "km0" | "aziendale";
+export type RegimeIva = "ordinario" | "margine";
+export type Trazione = "anteriore" | "posteriore" | "integrale";
 export type StatoVeicolo = "disponibile" | "prenotato" | "venduto" | "in_preparazione";
 export type Alimentazione = "benzina" | "diesel" | "gpl" | "metano" | "ibrida" | "ibrida_plugin" | "elettrica";
 export type Cambio = "manuale" | "automatico";
@@ -27,7 +29,15 @@ export type TipoAttivita = "chiamata" | "whatsapp" | "email" | "nota" | "test_dr
 export type TipoAppuntamento = "test_drive" | "consegna" | "valutazione_permuta" | "officina";
 export type StatoAppuntamento = "programmato" | "completato" | "annullato" | "non_presentato";
 export type StatoPreventivo = "bozza" | "inviato" | "accettato" | "rifiutato";
-export type TipoDocumento = "carta_identita" | "patente" | "codice_fiscale" | "libretto" | "contratto" | "altro";
+export type TipoDocumento =
+  | "carta_identita"
+  | "patente"
+  | "codice_fiscale"
+  | "libretto"
+  | "contratto"
+  | "certificato_proprieta"
+  | "perizia"
+  | "altro";
 export type CanaleMessaggio = "whatsapp" | "email";
 export type StatoVoce = "da_fare" | "in_corso" | "fatto";
 
@@ -44,6 +54,12 @@ export interface Organization {
   soglia_giacenza_giorni: number;
   tempo_max_risposta_min: number;
   round_robin_attivo: boolean;
+  whatsapp: string | null;
+  /** Costo di giacenza al giorno (denaro immobilizzato, piazzale…) */
+  costo_giacenza_giorno: number;
+  margine_obiettivo_pct: number;
+  /** Provider VehicleDecoder: "nessuno" | "vin_base" | "http" */
+  decoder_provider: string;
   created_at: ISODate;
 }
 
@@ -78,6 +94,35 @@ export interface Vehicle {
   data_uscita: string | null;
   descrizione: string | null;
   note_interne: string | null;
+  allestimento: string | null;
+  carrozzeria: string | null;
+  porte: number | null;
+  posti: number | null;
+  mese_immatricolazione: number | null;
+  cilindrata: number | null;
+  potenza_kw: number | null;
+  trazione: Trazione | null;
+  classe_euro: string | null;
+  consumo_misto: number | null;
+  emissioni_co2: number | null;
+  colore_interni: string | null;
+  numero_proprietari: number | null;
+  tagliandi_certificati: boolean;
+  garanzia_mesi: number | null;
+  garanzia_tipo: string | null;
+  neopatentati: boolean;
+  optional: string[];
+  optional_extra: string | null;
+  /** Difetti o danni noti: interno, non va in annunci né pagina pubblica */
+  difetti: string | null;
+  /** Versione breve per social e WhatsApp */
+  descrizione_breve: string | null;
+  regime_iva: RegimeIva;
+  /** Sconto massimo che il venditore può concedere (visibile a tutti) */
+  sconto_max: number | null;
+  /** Pagina pubblica attiva */
+  pubblica: boolean;
+  token_pubblico: string;
   created_at: ISODate;
   updated_at: ISODate;
 }
@@ -88,14 +133,102 @@ export interface VehicleView extends Vehicle {
   oltre_soglia: boolean;
   soglia_giacenza_giorni: number;
   foto_copertina: string | null;
+  numero_foto: number;
   lead_aperti: number;
 }
 
+export type TipoVoceEconomica = "costo" | "ricavo";
+
+export interface CategoriaEconomica {
+  id: ID;
+  organization_id: ID;
+  tipo: TipoVoceEconomica;
+  nome: string;
+  ordine: number;
+  /** "Acquisto" e "Prezzo di vendita": usate nei calcoli, non modificabili */
+  di_sistema: boolean;
+  attiva: boolean;
+}
+
+/** Voce di costo di un'auto. `importo` è l'imponibile (netto IVA). */
 export interface VehicleCost {
+  id: ID;
+  organization_id: ID;
+  vehicle_id: ID;
+  data: string;
+  categoria: string;
+  descrizione: string | null;
+  fornitore: string | null;
+  importo: number;
+  iva_aliquota: number;
+  importo_iva: number;
+  importo_lordo: number;
+  allegato_path: string | null;
+  creato_da: ID | null;
+  created_at: ISODate;
+}
+
+/** Voce di ricavo. `importo` è quanto paga il cliente (IVA compresa se dovuta). */
+export interface VehicleRevenue {
+  id: ID;
+  organization_id: ID;
+  vehicle_id: ID;
+  data: string;
+  categoria: string;
+  descrizione: string | null;
+  importo: number;
+  iva_aliquota: number;
+  deal_id: ID | null;
+  creato_da: ID | null;
+  created_at: ISODate;
+}
+
+/** Riga di vehicle_economics: conto economico calcolato nel database (vedi migrazione 20261030100000). */
+export interface VehicleEconomics {
   vehicle_id: ID;
   organization_id: ID;
-  prezzo_acquisto: number | null;
-  updated_at: ISODate;
+  marca: string;
+  modello: string;
+  versione: string | null;
+  targa: string | null;
+  tipo: TipoVeicolo;
+  stato: StatoVeicolo;
+  regime_iva: RegimeIva;
+  prezzo_listino: number | null;
+  sconto_max: number | null;
+  data_ingresso: string;
+  data_uscita: string | null;
+  giorni_stock: number;
+  costo_giacenza_giorno: number;
+  margine_obiettivo_pct: number;
+  deal_id: ID | null;
+  data_vendita: string | null;
+  venditore_id: ID | null;
+  venditore_nome: string | null;
+  costi_netti: number;
+  costi_iva: number;
+  costi_lordi: number;
+  /** Netti in regime ordinario, lordi nel regime del margine */
+  costi_effettivi: number;
+  costo_acquisto: number;
+  vendita_registrata: number | null;
+  aliquota_vendita: number;
+  altri_ricavi_lordi: number;
+  altri_ricavi_netti: number;
+  venduta: boolean;
+  /** Prezzo di vendita registrato o, se non venduta, prezzo di listino */
+  prezzo_riferimento: number | null;
+  costo_giacenza: number;
+  iva_vendita: number | null;
+  ricavo_vendita_netto: number | null;
+  margine: number | null;
+  margine_pct: number | null;
+  margine_dopo_giacenza: number | null;
+  /** Prezzo al cliente sotto il quale l'auto va in perdita (giacenza inclusa) */
+  prezzo_minimo: number | null;
+  /** Prezzo al cliente per raggiungere il margine obiettivo */
+  prezzo_obiettivo: number | null;
+  semaforo: "verde" | "giallo" | "rosso" | null;
 }
 
 export interface VehiclePhoto {
@@ -266,6 +399,7 @@ export interface Document {
   organization_id: ID;
   contact_id: ID | null;
   deal_id: ID | null;
+  vehicle_id: ID | null;
   tipo: TipoDocumento;
   nome_file: string;
   storage_path: string;

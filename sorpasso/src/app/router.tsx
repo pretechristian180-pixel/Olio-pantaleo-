@@ -28,6 +28,8 @@ const ClienteDetailPage = lazy(() => import("@/features/clienti/ClienteDetailPag
 const PratichePage = lazy(() => import("@/features/pratiche/PratichePage"));
 const PraticaDetailPage = lazy(() => import("@/features/pratiche/PraticaDetailPage"));
 const ReportPage = lazy(() => import("@/features/report/ReportPage"));
+const MarginiPage = lazy(() => import("@/features/economia/MarginiPage"));
+const SchedaPubblicaPage = lazy(() => import("@/features/pubblicazione/SchedaPubblicaPage"));
 const ImpostazioniPage = lazy(() => import("@/features/impostazioni/ImpostazioniPage"));
 
 /** Pagine riservate: serve la sessione e un profilo collegato a una concessionaria. */
@@ -57,6 +59,7 @@ function Pubblica() {
 
 const COMMERCIALE: Ruolo[] = ["titolare", "responsabile_vendite", "venditore"];
 const MANAGER: Ruolo[] = ["titolare", "responsabile_vendite"];
+const ECONOMIA: Ruolo[] = ["titolare", "responsabile_vendite", "amministrazione"];
 
 export const router = createBrowserRouter(
   supabaseNonConfigurato
@@ -71,6 +74,8 @@ export const router = createBrowserRouter(
             { path: "/imposta-password", element: <ImpostaPasswordPage /> },
             { path: "/invito", element: <ImpostaPasswordPage invito /> },
             { path: "/benvenuto", element: <BenvenutoPage /> },
+            // Scheda pubblica dell'auto: nessun login, nessun dato interno
+            { path: "/v/:token", element: <SchedaPubblicaPage /> },
           ],
         },
         {
@@ -89,6 +94,7 @@ export const router = createBrowserRouter(
             { path: "clienti/:id", element: <ClienteDetailPage /> },
             { path: "pratiche", element: <PratichePage /> },
             { path: "pratiche/:id", element: <PraticaDetailPage /> },
+            { path: "margini", element: <SoloRuoli ruoli={ECONOMIA}><MarginiPage /></SoloRuoli> },
             { path: "report", element: <SoloRuoli ruoli={MANAGER}><ReportPage /></SoloRuoli> },
             { path: "impostazioni", element: <ImpostazioniPage /> },
             { path: "*", element: <NotFoundPage /> },

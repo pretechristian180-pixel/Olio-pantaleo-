@@ -15,6 +15,7 @@ import { dataOra } from "@/lib/format";
 import type { Tone } from "@/lib/labels";
 import { supabase } from "@/lib/supabase";
 import type { AutomationLog } from "@/types/db";
+import { DecoderSection } from "./DecoderSection";
 
 const intero = (min: number, max: number, cosa: string) =>
   z
@@ -36,6 +37,8 @@ const TIPI_LOG: Record<string, string> = {
   ai_descrizione_annuncio: "AI · descrizione annuncio",
   ai_suggerisci_risposta: "AI · risposta suggerita",
   ai_riassunto_lead: "AI · riassunto lead",
+  decodifica_veicolo: "Decodifica targa/telaio",
+  lead_da_scheda_pubblica: "Lead dalla scheda online dell'auto",
 };
 const ESITI: Record<AutomationLog["esito"], { label: string; tone: Tone }> = {
   ok: { label: "Ok", tone: "green" },
@@ -126,6 +129,8 @@ export function SoglieTab() {
           )}
         </form>
       </Section>
+
+      <DecoderSection />
 
       <Section title="Ultime automazioni eseguite" bodyClassName="p-0">
         {log.isError ? (

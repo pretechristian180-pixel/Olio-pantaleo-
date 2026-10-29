@@ -4,6 +4,7 @@ import type {
   Cambio,
   ChecklistVoce,
   FonteLead,
+  RegimeIva,
   Ruolo,
   StatoAppuntamento,
   StatoLead,
@@ -88,7 +89,19 @@ export const STATI_VEICOLO: Record<StatoVeicolo, { label: string; tone: Tone }> 
   in_preparazione: { label: "In preparazione", tone: "blue" },
 };
 
-export const TIPI_VEICOLO: Record<TipoVeicolo, string> = { nuovo: "Nuovo", usato: "Usato", km0: "Km 0" };
+export const TIPI_VEICOLO: Record<TipoVeicolo, string> = { nuovo: "Nuovo", usato: "Usato", km0: "Km 0", aziendale: "Aziendale" };
+
+export const REGIMI_IVA: Record<RegimeIva, { label: string; spiegazione: string }> = {
+  ordinario: { label: "IVA ordinaria", spiegazione: "IVA sull'intero prezzo; l'IVA sui costi si detrae." },
+  margine: { label: "Regime del margine", spiegazione: "IVA solo sul margine (usato da privati); l'IVA sui costi non si detrae." },
+};
+
+/** Semaforo margine rispetto all'obiettivo. */
+export const SEMAFORO: Record<"verde" | "giallo" | "rosso", { label: string; tone: Tone }> = {
+  verde: { label: "Margine in linea con l'obiettivo", tone: "green" },
+  giallo: { label: "Margine sotto l'obiettivo", tone: "yellow" },
+  rosso: { label: "In perdita", tone: "red" },
+};
 
 export const ALIMENTAZIONI: Record<Alimentazione, string> = {
   benzina: "Benzina",
@@ -139,8 +152,13 @@ export const TIPI_DOCUMENTO: Record<TipoDocumento, string> = {
   codice_fiscale: "Codice fiscale",
   libretto: "Libretto",
   contratto: "Contratto",
+  certificato_proprieta: "Certificato di proprietà",
+  perizia: "Perizia",
   altro: "Altro",
 };
+
+/** Documenti che si caricano sulla scheda veicolo (sezione privata). */
+export const TIPI_DOCUMENTO_VEICOLO: TipoDocumento[] = ["libretto", "certificato_proprieta", "perizia", "altro"];
 
 export const CHECKLIST: { voce: ChecklistVoce; label: string }[] = [
   { voce: "contratto", label: "Contratto firmato" },
