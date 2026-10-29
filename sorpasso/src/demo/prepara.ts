@@ -38,6 +38,10 @@ function spostaOrologio() {
   globalThis.Date = DataDemo as DateConstructor;
 }
 
+/** Identificativo finto: crypto.randomUUID esiste solo nelle pagine https, la demo deve girare ovunque. */
+const idFinto = () =>
+  "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/x/g, () => Math.floor(Math.random() * 16).toString(16));
+
 const json = (corpo: unknown, status = 200, extra: Record<string, string> = {}) =>
   new Response(corpo === undefined ? null : JSON.stringify(corpo), {
     status,
@@ -77,6 +81,16 @@ async function rispondi(dati: Record<string, Registrazione>, req: Request): Prom
       });
     return json({ testo: "Buongiorno, grazie per l'interesse! Nella versione reale qui trova una bozza scritta dall'AI sulla base dello storico del cliente." });
   }
+  if (url.pathname.startsWith("/functions/v1/piattaforma")) {
+    // Pannello della piattaforma: credenziali d'esempio (nella demo non si crea nessun account)
+    const b = JSON.parse(corpo || "{}");
+    const password = "Demo-7kQp-x4Rt";
+    if (b.azione === "crea_concessionaria" || b.azione === "aggiungi_utente")
+      return json({ organization_id: null, user_id: idFinto(), password: b.accesso === "password" ? password : null });
+    if (b.azione === "link_accesso") return json({ link: "https://app.sorpasso.ai/imposta-password#esempio-di-link-monouso" });
+    if (b.azione === "nuova_password") return json({ password });
+    return json({ ok: true });
+  }
   if (url.pathname.startsWith("/functions/v1/")) return json({ ok: true, eseguiti: 0, provider: [], dati: null });
   if (url.pathname.startsWith("/storage/v1/")) return json(url.pathname.includes("/sign/") && corpo?.includes("paths") ? [] : {});
 
@@ -95,7 +109,7 @@ async function rispondi(dati: Record<string, Registrazione>, req: Request): Prom
   }
   if (url.pathname.startsWith("/rest/v1/rpc/")) return json(null);
   const b = corpo ? JSON.parse(corpo) : {};
-  const conId = (x: Record<string, unknown>) => ({ id: url.searchParams.get("id")?.replace(/^eq\./, "") ?? crypto.randomUUID(), ...x });
+  const conId = (x: Record<string, unknown>) => ({ id: url.searchParams.get("id")?.replace(/^eq\./, "") ?? idFinto(), ...x });
   const righe = (Array.isArray(b) ? b : [b]).map(conId);
   if (metodo === "DELETE") return json(oggetto ? righe[0] : [], 200);
   return json(oggetto ? righe[0] : righe, metodo === "POST" ? 201 : 200);

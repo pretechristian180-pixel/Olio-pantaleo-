@@ -15,6 +15,7 @@ import { Segmented } from "@/components/ui/segmented";
 import { mostraErrore } from "@/lib/errors";
 import { emailOpzionale, telefonoOpzionale, testoObbligatorio } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { DEMO } from "@/demo/config";
 import { CredenzialiDialog, type Credenziali } from "./CredenzialiDialog";
 import { PIANI, useCreaConcessionaria, type ModoAccesso, type Piano } from "./api";
 
@@ -69,11 +70,13 @@ export default function NuovaConcessionariaPage() {
         titolare: { nome: v.titolare_nome, email: v.titolare_email, telefono: v.titolare_telefono },
         accesso,
       });
+      // Nella demo non viene creato nulla: si torna all'elenco
+      const dopo = DEMO || !r.organization_id ? "/piattaforma" : `/piattaforma/${r.organization_id}`;
       if (r.password) {
-        setCredenziali({ titolo: "Concessionaria creata", email: v.titolare_email, password: r.password, orgId: r.organization_id });
+        setCredenziali({ titolo: "Concessionaria creata", email: v.titolare_email, password: r.password, orgId: dopo });
       } else {
         toast.success("Concessionaria creata", { description: `Invito inviato a ${v.titolare_email}` });
-        navigate(`/piattaforma/${r.organization_id}`);
+        navigate(dopo);
       }
     } catch (e) {
       mostraErrore(e, "Non sono riuscito a creare la concessionaria.");
@@ -190,9 +193,9 @@ export default function NuovaConcessionariaPage() {
       <CredenzialiDialog
         dati={credenziali}
         onClose={() => {
-          const id = credenziali?.orgId;
+          const dopo = credenziali?.orgId;
           setCredenziali(null);
-          if (id) navigate(`/piattaforma/${id}`);
+          if (dopo) navigate(dopo);
         }}
       />
     </div>
