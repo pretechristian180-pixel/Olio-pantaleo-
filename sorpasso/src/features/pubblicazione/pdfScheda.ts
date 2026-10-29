@@ -4,7 +4,7 @@
  */
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
-import { supabase, BUCKET_FOTO } from "@/lib/supabase";
+import { firmaFoto } from "@/lib/storage";
 import { TIPI_VEICOLO } from "@/lib/labels";
 import { datiChiave, optionalRaggruppati } from "./datiAuto";
 import type { Organization, VehicleView } from "@/types/db";
@@ -130,8 +130,8 @@ export async function generaSchedaPdf(v: VehicleView, org: Organization, link: s
   const fotoY = y - fotoH;
   page.drawRectangle({ x: M, y: fotoY, width: fotoW, height: fotoH, color: rgb(0.93, 0.95, 0.99) });
   if (v.foto_copertina) {
-    const { data } = await supabase.storage.from(BUCKET_FOTO).createSignedUrl(v.foto_copertina, 300);
-    const bytes = data?.signedUrl ? await immagineInBytes(data.signedUrl, "image/jpeg", 1400) : null;
+    const [firmata] = await firmaFoto([v.foto_copertina], 300).catch(() => []);
+    const bytes = firmata?.signedUrl ? await immagineInBytes(firmata.signedUrl, "image/jpeg", 1400) : null;
     if (bytes) {
       const foto = await pdf.embedJpg(bytes);
       disegnaContenuta(page, foto, M, fotoY, fotoW, fotoH);

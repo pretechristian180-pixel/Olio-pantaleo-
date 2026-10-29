@@ -25,7 +25,8 @@ import { mostraErrore } from "@/lib/errors";
 import { euro, km, relativo } from "@/lib/format";
 import { ALIMENTAZIONI, AZIONI_MANUALI, CAMBI, MODALITA_PORTALE, STATI_ANNUNCIO } from "@/lib/labels";
 import { aNumero, numeroIt } from "@/lib/schemas";
-import { BUCKET_FOTO, supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
+import { firmaFoto } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import type { ControlloQualita, Portal, SyncJob, VehicleListing, VehicleView } from "@/types/db";
 import { copia } from "./api";
@@ -453,8 +454,7 @@ function ManualeBox({ veicolo, portale, annuncio }: { veicolo: VehicleView; port
         return;
       }
       const limite = foto.slice(0, portale.foto_max);
-      const { data: firmati, error: e2 } = await supabase.storage.from(BUCKET_FOTO).createSignedUrls(limite.map((f) => f.storage_path), 600);
-      if (e2) throw e2;
+      const firmati = await firmaFoto(limite.map((f) => f.storage_path), 600);
       const file: Record<string, Uint8Array> = {};
       let n = 0;
       for (const f of firmati ?? []) {

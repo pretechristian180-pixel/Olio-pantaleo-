@@ -1,10 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase, BUCKET_DOCUMENTI, BUCKET_FOTO } from "@/lib/supabase";
+import { DEMO } from "@/demo/config";
 
 /** Percorso di un file nello Storage: sempre sotto la cartella dell'organizzazione. */
 export function percorsoFile(orgId: string, cartella: string, nomeFile: string) {
   const est = nomeFile.includes(".") ? nomeFile.split(".").pop()!.toLowerCase() : "bin";
   return `${orgId}/${cartella}/${crypto.randomUUID()}.${est}`;
+}
+
+/**
+ * URL firmati per le foto dei veicoli (il bucket è privato).
+ * Nella demo le foto sono file pubblicati accanto alla pagina: il percorso diventa un URL relativo.
+ */
+export async function firmaFoto(paths: string[], secondi = 3600): Promise<{ path: string; signedUrl: string | null }[]> {
+  if (DEMO) return paths.map((p) => ({ path: p, signedUrl: new URL(p, document.baseURI).href }));
+  const { data, error } = await supabase.storage.from(BUCKET_FOTO).createSignedUrls(paths, secondi);
+  if (error) throw error;
+  return data.map((d) => ({ path: d.path ?? "", signedUrl: d.signedUrl }));
 }
 
 /** URL firmati (validi 1 ora) per un elenco di foto: i bucket sono privati. */
@@ -15,9 +27,8 @@ export function useFotoUrls(paths: (string | null | undefined)[]) {
     enabled: validi.length > 0,
     staleTime: 50 * 60_000,
     queryFn: async () => {
-      const { data, error } = await supabase.storage.from(BUCKET_FOTO).createSignedUrls(validi, 3600);
-      if (error) throw error;
-      return Object.fromEntries(data.filter((d) => d.signedUrl).map((d) => [d.path!, d.signedUrl]));
+      const data = await firmaFoto(validi, 3600);
+      return Object.fromEntries(data.filter((d) => d.signedUrl).map((d) => [d.path, d.signedUrl!]));
     },
   });
 }
