@@ -56,7 +56,7 @@ export function CookieBanner() {
             Accetta tutti
           </button>
           {personalizza ? (
-            <button type="button" onClick={() => scegli(stat, mkt)} className="col-span-2 h-11 rounded-full bg-accent text-[15px] font-semibold text-white hover:bg-accent-2">
+            <button type="button" onClick={() => scegli(stat, mkt)} className="col-span-2 h-11 rounded-full bg-accent text-[15px] font-semibold text-white hover:bg-accent-hover">
               Salva le mie scelte
             </button>
           ) : (

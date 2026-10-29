@@ -11,7 +11,7 @@ export function Pacchetti() {
             key={p.nome}
             className={`rivela relative flex flex-col rounded-3xl border p-7 ${
               p.evidenziato
-                ? "border-accent bg-[linear-gradient(180deg,rgb(47_107_255/0.18),var(--bg-2)_45%)] shadow-[0_20px_60px_-20px_rgb(47_107_255/0.55)] lg:-my-4 lg:py-11"
+                ? "border-accent bg-[linear-gradient(180deg,rgb(61_107_255/0.18),var(--bg-2)_45%)] shadow-[0_20px_60px_-20px_rgb(61_107_255/0.55)] lg:-my-4 lg:py-11"
                 : "border-line bg-bg-2"
             }`}
           >

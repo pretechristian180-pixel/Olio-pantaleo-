@@ -20,7 +20,7 @@ export function Mockup() {
           <span className="ml-3 text-[11px] font-medium text-[#5b6578]">Sorpasso AI · Oggi</span>
         </div>
         <div className="flex gap-3">
-          <div className="hidden w-24 shrink-0 space-y-1.5 rounded-xl bg-[#0b1630] p-2.5 sm:block">
+          <div className="hidden w-24 shrink-0 space-y-1.5 rounded-xl bg-[#0b1530] p-2.5 sm:block">
             {["Oggi", "Lead", "Stock", "Agenda", "Report"].map((v, i) => (
               <div key={v} className={`rounded-md px-2 py-1 text-[10px] font-medium ${i === 0 ? "bg-white/10 text-white" : "text-[#c9d3e6]"}`}>
                 {v}
@@ -55,7 +55,7 @@ export function Mockup() {
                     <p className="truncate text-[9.5px] text-[#5b6578]">{a}</p>
                     <p className={`text-[9.5px] font-medium ${rosso ? "text-[#dc2626]" : "text-[#5b6578]"}`}>{t}</p>
                   </div>
-                  <span className="shrink-0 rounded-md bg-[#2f6bff] px-2 py-1 text-[9.5px] font-semibold text-white">Chiama</span>
+                  <span className="shrink-0 rounded-md bg-[#3d6bff] px-2 py-1 text-[9.5px] font-semibold text-white">Chiama</span>
                 </div>
               ))}
             </div>
@@ -71,10 +71,10 @@ export function Mockup() {
       </div>
 
       {/* Telefono con WhatsApp */}
-      <div aria-hidden className="absolute bottom-0 right-0 w-[218px] rounded-[30px] border border-line-2 bg-[#0b0d12] p-2 shadow-[0_30px_70px_-15px_rgb(0_0_0/0.85)] sm:w-[236px]">
+      <div aria-hidden className="absolute bottom-0 right-0 w-[218px] rounded-[30px] border border-line-2 bg-[#050812] p-2 shadow-[0_30px_70px_-15px_rgb(0_0_0/0.85)] sm:w-[236px]">
         <div className="overflow-hidden rounded-[23px] bg-[#0b141a]">
           <div className="flex items-center gap-2 bg-[#1f2c34] px-3 py-2.5">
-            <span className="flex size-7 items-center justify-center rounded-full bg-[#2f6bff] text-[10px] font-bold text-white">AL</span>
+            <span className="flex size-7 items-center justify-center rounded-full bg-[#3d6bff] text-[10px] font-bold text-white">AL</span>
             <div>
               <p className="text-[11px] font-semibold text-white">Autosalone Levante</p>
               <p className="text-[9px] text-[#8696a0]">online</p>
@@ -91,7 +91,7 @@ export function Mockup() {
               Fatto ✅ Test drive fissato sabato alle 10:30 con Marco. Le mando la posizione del salone.
             </Bolla>
             <div className="anim flex justify-center pt-1 opacity-0 [animation:entra_.5s_ease_3.6s_forwards]">
-              <span className="rounded-full bg-[#2f6bff]/20 px-2 py-0.5 text-[9px] font-semibold text-[#8fb0ff]">
+              <span className="rounded-full bg-[#3d6bff]/20 px-2 py-0.5 text-[9px] font-semibold text-[#8aa5ff]">
                 Risposto in 42 secondi · in agenda
               </span>
             </div>

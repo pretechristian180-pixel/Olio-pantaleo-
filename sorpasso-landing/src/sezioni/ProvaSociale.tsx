@@ -7,7 +7,7 @@ export function ProvaSociale() {
     <Sezione id="caso-pilota" occhiello="Prova sociale" titolo={provaSociale.titolo}>
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="rivela overflow-hidden rounded-2xl border border-line bg-bg-2">
-          <div className="relative aspect-video bg-[radial-gradient(circle_at_30%_30%,rgb(47_107_255/0.25),transparent_60%)]">
+          <div className="relative aspect-video bg-[radial-gradient(circle_at_30%_30%,rgb(61_107_255/0.25),transparent_60%)]">
             {t.videoUrl ? (
               /\.mp4($|\?)/.test(t.videoUrl) ? (
                 <video src={t.videoUrl} controls preload="none" className="size-full object-cover" />

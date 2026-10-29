@@ -27,7 +27,7 @@ export function Hero() {
             <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-muted">
               {hero.rassicurazioni.map((r) => (
                 <li key={r} className="flex items-center gap-1.5">
-                  <svg viewBox="0 0 20 20" className="size-4 text-ok" aria-hidden>
+                  <svg viewBox="0 0 20 20" className="size-4 text-accent-2" aria-hidden>
                     <path d="m5 10 3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   {r}

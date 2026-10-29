@@ -36,7 +36,7 @@ export function Calcolatore() {
           <Cursore etichetta="Margine medio per auto" valore={margine} min={300} max={8000} passo={100} onChange={setMargine} formato={(v) => euro(v)} />
         </div>
 
-        <div className="relative flex flex-col justify-center overflow-hidden bg-[radial-gradient(circle_at_70%_20%,rgb(47_107_255/0.35),transparent_60%)] p-6 sm:p-10 lg:border-l lg:border-line-2">
+        <div className="relative flex flex-col justify-center overflow-hidden bg-[radial-gradient(circle_at_70%_20%,rgb(61_107_255/0.35),transparent_60%)] p-6 sm:p-10 lg:border-l lg:border-line-2">
           <p className="text-[16px] font-medium text-muted">Margine in più in un anno</p>
           <p className="mt-2 font-display text-[52px] font-extrabold leading-none tracking-tight text-white tabular-nums sm:text-[72px]" aria-live="polite">
             {euro(margineInPiu)}
