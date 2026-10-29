@@ -179,7 +179,7 @@ export function NewPropertyPage() {
           <>
             <p className="text-[17px] text-muted-foreground">Aggiungi qualche foto. Puoi farle anche adesso con il telefono.</p>
             <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-input bg-muted/50 px-6 py-10 text-center transition-colors hover:border-primary hover:bg-primary-soft/40">
-              <span className="flex size-14 items-center justify-center rounded-full bg-primary-soft text-primary">
+              <span className="flex size-14 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
                 <ImagePlus className="size-7" aria-hidden />
               </span>
               <span className="text-[17px] font-semibold">Scegli o scatta le foto</span>

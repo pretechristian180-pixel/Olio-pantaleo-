@@ -1,13 +1,15 @@
 import { APP_NAME } from "@/config/app";
 
+/** Logo Mattonio: i tre mattoni e il nome in minuscolo. */
 export function Logo() {
   return (
-    <span className="flex items-center gap-2.5">
-      <svg viewBox="0 0 32 32" className="size-9 shrink-0" aria-hidden>
-        <rect width="32" height="32" rx="9" fill="#2563EB" />
-        <path d="M8 15.5 16 9l8 6.5V24a1 1 0 0 1-1 1h-4.5v-5.5h-5V25H9a1 1 0 0 1-1-1z" fill="#fff" />
+    <span className="flex items-center gap-2.5 text-foreground">
+      <svg viewBox="0 0 120 64" className="h-[19px] w-9 shrink-0" aria-hidden>
+        <rect x="33" y="0" width="54" height="28" rx="5" fill="#C4532F" />
+        <rect x="4" y="36" width="54" height="28" rx="5" fill="currentColor" />
+        <rect x="62" y="36" width="54" height="28" rx="5" fill="currentColor" />
       </svg>
-      <span className="text-lg font-bold tracking-tight">{APP_NAME}</span>
+      <span className="text-[19px] font-extrabold leading-none tracking-[-0.03em]">{APP_NAME.toLowerCase()}</span>
     </span>
   );
 }

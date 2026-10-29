@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { initials } from "@/lib/format";
 
-const palette = ["bg-blue-100 text-blue-800", "bg-emerald-100 text-emerald-800", "bg-amber-100 text-amber-800", "bg-violet-100 text-violet-800", "bg-rose-100 text-rose-800", "bg-teal-100 text-teal-800"];
+const palette = ["bg-[#f8e9e3] text-[#a8432a]", "bg-emerald-100 text-emerald-800", "bg-amber-100 text-amber-800", "bg-[#e8ebf0] text-[#16202e]", "bg-rose-100 text-rose-800", "bg-teal-100 text-teal-800"];
 
 export function Avatar({
   person,

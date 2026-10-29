@@ -30,12 +30,12 @@ export function Segmented<T extends string>({
             onClick={() => onChange(o.value)}
             className={cn(
               "flex h-11 flex-1 items-center justify-center gap-1.5 rounded-md px-3 text-[15px] font-medium transition-colors",
-              active ? "bg-background text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
+              active ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {o.label}
             {o.count !== undefined && (
-              <span className={cn("text-sm tabular-nums", active ? "text-primary" : "text-muted-foreground")}>
+              <span className={cn("text-sm tabular-nums", active ? "text-primary-strong" : "text-muted-foreground")}>
                 {o.count}
               </span>
             )}

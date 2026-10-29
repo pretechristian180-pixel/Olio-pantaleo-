@@ -36,7 +36,7 @@ export const DealCard = forwardRef<HTMLDivElement, Props>(function DealCard(
         {d.contact && <Avatar person={d.contact} size="sm" className={cn(nextLabel ? "" : "hidden 2xl:inline-flex")} />}
         <div className="min-w-0">
           {d.contact ? (
-            <Link to={`/contatti/${d.contact.id}`} className="block text-[17px] font-semibold leading-snug hover:text-primary">
+            <Link to={`/contatti/${d.contact.id}`} className="block text-[17px] font-semibold leading-snug hover:text-primary-strong">
               {fullName(d.contact)}
             </Link>
           ) : (
@@ -60,7 +60,7 @@ export const DealCard = forwardRef<HTMLDivElement, Props>(function DealCard(
         <button
           type="button"
           onClick={onNext}
-          className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary-soft text-[15px] font-semibold text-primary hover:bg-primary/10"
+          className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary-soft text-[15px] font-semibold text-primary-strong hover:bg-primary/10"
         >
           Sposta in {nextLabel}
           <ArrowRight className="size-5" aria-hidden />

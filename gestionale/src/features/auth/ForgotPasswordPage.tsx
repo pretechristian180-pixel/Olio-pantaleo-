@@ -31,7 +31,7 @@ export function ForgotPasswordPage() {
       title="Recupera la password"
       subtitle="Ti mandiamo un link per sceglierne una nuova."
       footer={
-        <Link to="/accedi" className="font-semibold text-primary hover:underline">
+        <Link to="/accedi" className="font-semibold text-primary-strong hover:underline">
           Torna all'accesso
         </Link>
       }

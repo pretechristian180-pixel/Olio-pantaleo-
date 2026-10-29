@@ -133,7 +133,7 @@ function ColumnHeader({ label, deals }: { label: string; deals: DealWithRefs[] }
     <div className="mb-3 px-1">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-semibold">{label}</h2>
-        <span className="flex size-7 items-center justify-center rounded-full bg-background text-sm font-semibold tabular-nums">
+        <span className="flex size-7 items-center justify-center rounded-full bg-card text-sm font-semibold tabular-nums">
           {deals.length}
         </span>
       </div>

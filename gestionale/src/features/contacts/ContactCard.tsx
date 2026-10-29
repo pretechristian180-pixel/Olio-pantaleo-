@@ -14,7 +14,7 @@ export function ContactCard({ contact: c }: { contact: Contact & { lastActivity?
         <Avatar person={c} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="text-[17px] font-semibold group-hover:text-primary">{fullName(c)}</p>
+            <p className="text-[17px] font-semibold group-hover:text-primary-strong">{fullName(c)}</p>
             <TemperatureBadge value={c.temperature} />
           </div>
           <p className="mt-0.5 text-muted-foreground">

@@ -9,7 +9,7 @@ export function StatCard({
   value,
   label,
   to,
-  tone = "blue",
+  tone = "brand",
   icon,
 }: {
   value: number;

@@ -126,7 +126,7 @@ export function NewContactPage() {
                 onClick={() => setTemperature(t)}
                 className={cn(
                   "flex h-14 flex-col items-center justify-center rounded-lg border text-[15px] font-medium",
-                  temperature === t ? "border-primary bg-primary-soft text-primary" : "border-input hover:bg-muted",
+                  temperature === t ? "border-primary bg-primary-soft text-primary-strong" : "border-input hover:bg-muted",
                 )}
               >
                 <span className="flex items-center gap-1.5">

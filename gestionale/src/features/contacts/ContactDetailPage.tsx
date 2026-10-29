@@ -106,7 +106,7 @@ export function ContactDetailPage() {
                   const { icon: Icon, label } = activityIcon[a.kind];
                   return (
                     <li key={a.id} className="relative flex gap-4">
-                      <span className="z-10 flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-primary">
+                      <span className="z-10 flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-primary-strong">
                         <Icon className="size-5" aria-hidden />
                       </span>
                       <div className="pt-1.5">

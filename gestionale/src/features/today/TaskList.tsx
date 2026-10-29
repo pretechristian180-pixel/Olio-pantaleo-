@@ -52,7 +52,7 @@ export function TaskList({
             {t.contact && !t.done && (
               <Link
                 to={`/contatti/${t.contact.id}`}
-                className="flex shrink-0 items-center gap-0.5 px-4 text-[15px] font-medium text-primary hover:bg-primary-soft/50"
+                className="flex shrink-0 items-center gap-0.5 px-4 text-[15px] font-medium text-primary-strong hover:bg-primary-soft/50"
               >
                 Apri
                 <ChevronRight className="size-4" aria-hidden />

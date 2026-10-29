@@ -2,28 +2,32 @@
 @import "@fontsource-variable/inter";
 
 /*
- * Design token (stile shadcn/ui). Un solo colore principale: blu #2563EB.
- * Verde = esito positivo, arancione = avviso, rosso = solo errori.
+ * Design token (stile shadcn/ui) con i colori del marchio Mattonio:
+ * mattone #C4532F per pulsanti ed elementi attivi, blu notte #16202E per i testi,
+ * avorio #F6F4F0 come sfondo, bianco per le card, grigio #4A5361 per i testi secondari.
+ * Verde = esito positivo, ocra = avviso, cremisi = solo errori (distinto dal mattone).
  */
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --muted: #f6f7f9;
-  --muted-foreground: #5f6670;
+  --background: #f6f4f0;
+  --foreground: #16202e;
+  --muted: #eeeae3;
+  --muted-foreground: #4a5361;
   --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --border: #e8eaee;
-  --input: #d9dce2;
-  --primary: #2563eb;
+  --card-foreground: #16202e;
+  --border: #e4ded4;
+  --input: #d3ccc0;
+  --primary: #c4532f;
   --primary-foreground: #ffffff;
-  --primary-soft: #eef3fe;
-  --success: #15803d;
-  --success-soft: #ecfdf3;
-  --warning: #c2570c;
-  --warning-soft: #fff4e8;
-  --destructive: #dc2626;
-  --destructive-soft: #fef2f2;
-  --ring: #2563eb;
+  /* Mattone più scuro per testi e link: leggibile anche in piccolo su avorio e bianco */
+  --primary-strong: #a8432a;
+  --primary-soft: #f8e9e3;
+  --success: #1f7a43;
+  --success-soft: #e8f4ec;
+  --warning: #8a6100;
+  --warning-soft: #fbf1d3;
+  --destructive: #be123c;
+  --destructive-soft: #fff1f3;
+  --ring: #c4532f;
   --radius: 12px;
 }
 
@@ -41,6 +45,7 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-soft: var(--primary-soft);
+  --color-primary-strong: var(--primary-strong);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
@@ -54,8 +59,8 @@
   --radius-lg: var(--radius);
   --radius-xl: 16px;
 
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.03);
-  --shadow-raised: 0 4px 16px rgb(16 24 40 / 0.08);
+  --shadow-card: 0 1px 2px rgb(22 32 46 / 0.05), 0 2px 6px rgb(22 32 46 / 0.03);
+  --shadow-raised: 0 6px 20px rgb(22 32 46 / 0.10);
 }
 
 @layer base {

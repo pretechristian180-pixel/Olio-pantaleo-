@@ -108,7 +108,7 @@ function ProfileSection() {
       <Card>
         <CardHeader>
           <CardTitle>Dati personali</CardTitle>
-          <Badge tone={agent.role === "titolare" ? "blue" : "gray"}>{agent.role === "titolare" ? "Titolare" : "Agente"}</Badge>
+          <Badge tone={agent.role === "titolare" ? "brand" : "gray"}>{agent.role === "titolare" ? "Titolare" : "Agente"}</Badge>
         </CardHeader>
         <CardContent>
           <form onSubmit={save} className="space-y-5" noValidate>
@@ -221,7 +221,7 @@ function AgencySection() {
     <Card>
       <CardHeader>
         <CardTitle>Dati dell'agenzia</CardTitle>
-        <Badge tone="blue" dot={false}>
+        <Badge tone="navy" dot={false}>
           Piano {planLabel[agency.plan]}
         </Badge>
       </CardHeader>
@@ -352,7 +352,7 @@ function UsersSection() {
                 <ul className="divide-y">
                   {data.invitations.map((i) => (
                     <li key={i.id} className="flex flex-wrap items-center gap-3 py-3">
-                      <span className="flex size-9 items-center justify-center rounded-full bg-primary-soft text-primary">
+                      <span className="flex size-9 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
                         <Mail className="size-4" aria-hidden />
                       </span>
                       <div className="min-w-0 flex-1">

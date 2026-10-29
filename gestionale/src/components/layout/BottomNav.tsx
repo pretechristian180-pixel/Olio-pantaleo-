@@ -15,7 +15,7 @@ export function BottomNav({ onAdd }: { onAdd: () => void }) {
       className={({ isActive }) =>
         cn(
           "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 pt-1 text-[12px] font-medium leading-none transition-colors",
-          isActive ? "text-primary" : "text-muted-foreground",
+          isActive ? "text-primary-strong" : "text-muted-foreground",
         )
       }
     >
@@ -46,7 +46,7 @@ export function BottomNav({ onAdd }: { onAdd: () => void }) {
           >
             <Plus className="size-7" strokeWidth={2.5} aria-hidden />
           </button>
-          <span className="mt-1 text-[12px] font-medium leading-none text-primary">Aggiungi</span>
+          <span className="mt-1 text-[12px] font-medium leading-none text-primary-strong">Aggiungi</span>
         </div>
         {right.map(item)}
       </div>

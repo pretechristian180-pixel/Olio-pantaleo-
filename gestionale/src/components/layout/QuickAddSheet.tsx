@@ -43,7 +43,7 @@ export function QuickAddSheet({ open, onOpenChange }: { open: boolean; onOpenCha
               }}
               className="flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary-soft/40"
             >
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
                 <Icon className="size-6" aria-hidden />
               </span>
               <span className="flex-1">

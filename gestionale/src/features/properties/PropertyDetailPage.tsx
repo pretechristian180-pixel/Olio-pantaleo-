@@ -124,7 +124,7 @@ export function PropertyDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <span className="flex size-12 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                <span className="flex size-12 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
                   <Users className="size-6" aria-hidden />
                 </span>
                 <p className="text-[17px]">
@@ -136,7 +136,7 @@ export function PropertyDetailPage() {
                 <ul className="mt-4 divide-y border-t">
                   {matchingBuyers.map((c) => (
                     <li key={c.id}>
-                      <Link to={`/contatti/${c.id}`} className="flex items-center gap-3 py-3 hover:text-primary">
+                      <Link to={`/contatti/${c.id}`} className="flex items-center gap-3 py-3 hover:text-primary-strong">
                         <Avatar person={c} size="sm" />
                         <span className="flex-1 font-medium">{fullName(c)}</span>
                         <TemperatureBadge value={c.temperature} />
@@ -157,7 +157,7 @@ export function PropertyDetailPage() {
                 <CardTitle>Proprietario</CardTitle>
               </CardHeader>
               <CardContent>
-                <Link to={`/contatti/${owner.id}`} className="flex items-center gap-3 hover:text-primary">
+                <Link to={`/contatti/${owner.id}`} className="flex items-center gap-3 hover:text-primary-strong">
                   <Avatar person={owner} />
                   <span>
                     <span className="block text-[17px] font-semibold">{fullName(owner)}</span>

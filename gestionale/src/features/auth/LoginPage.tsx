@@ -34,7 +34,7 @@ export function LoginPage() {
       footer={
         <>
           Nuova agenzia?{" "}
-          <Link to="/registrati" className="font-semibold text-primary hover:underline">
+          <Link to="/registrati" className="font-semibold text-primary-strong hover:underline">
             Registrati
           </Link>
         </>
@@ -53,7 +53,7 @@ export function LoginPage() {
           {busy ? "Accesso in corso…" : "Accedi"}
         </Button>
         <p className="text-center">
-          <Link to="/password-dimenticata" className="inline-flex h-11 items-center px-2 font-medium text-primary hover:underline">
+          <Link to="/password-dimenticata" className="inline-flex h-11 items-center px-2 font-medium text-primary-strong hover:underline">
             Ho dimenticato la password
           </Link>
         </p>

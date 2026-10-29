@@ -162,7 +162,7 @@ function WeekStrip({ day, onPick }: { day: Date; onPick: (d: Date) => void }) {
             )}
           >
             {weekdayShort(d)}
-            <span className={cn("text-lg font-bold leading-tight", !selected && isSameDay(d, today) && "text-primary")}>
+            <span className={cn("text-lg font-bold leading-tight", !selected && isSameDay(d, today) && "text-primary-strong")}>
               {d.getDate()}
             </span>
           </button>
@@ -206,9 +206,9 @@ function DayView({ day, items, onFree }: { day: Date; items: AppointmentWithRefs
         className="group flex h-14 w-full items-center gap-4 rounded-lg border border-dashed border-border px-4 text-left transition-colors hover:border-primary hover:bg-primary-soft/50 disabled:opacity-40"
       >
         <span className="w-14 text-[17px] font-semibold tabular-nums text-muted-foreground">{String(h).padStart(2, "0")}:00</span>
-        <span className="flex-1 text-muted-foreground group-hover:text-primary">Libero</span>
+        <span className="flex-1 text-muted-foreground group-hover:text-primary-strong">Libero</span>
         {!past && (
-          <span className="flex items-center gap-1 text-[15px] font-medium text-primary">
+          <span className="flex items-center gap-1 text-[15px] font-medium text-primary-strong">
             <Plus className="size-4" aria-hidden />
             Aggiungi
           </span>
@@ -238,8 +238,8 @@ function WeekList({ weekStart, items, onAdd }: { weekStart: Date; items: Appoint
         return (
           <section key={d.toISOString()}>
             <div className="mb-2 flex items-center justify-between">
-              <h3 className={cn("text-[17px] font-semibold", isSameDay(d, new Date()) && "text-primary")}>{formatLongDate(d)}</h3>
-              <button type="button" onClick={() => onAdd(d)} className="flex h-11 items-center gap-1 px-2 text-[15px] font-medium text-primary">
+              <h3 className={cn("text-[17px] font-semibold", isSameDay(d, new Date()) && "text-primary-strong")}>{formatLongDate(d)}</h3>
+              <button type="button" onClick={() => onAdd(d)} className="flex h-11 items-center gap-1 px-2 text-[15px] font-medium text-primary-strong">
                 <Plus className="size-4" aria-hidden />
                 Aggiungi
               </button>
@@ -324,7 +324,7 @@ function WeekGrid({
                     className="group block w-full border-b border-border/70 text-left hover:bg-primary-soft/60"
                     style={{ height: HOUR_PX }}
                   >
-                    <span className="hidden px-2 pt-1 text-sm font-medium text-primary group-hover:block">+ Aggiungi</span>
+                    <span className="hidden px-2 pt-1 text-sm font-medium text-primary-strong group-hover:block">+ Aggiungi</span>
                   </button>
                 );
               })}

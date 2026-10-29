@@ -113,7 +113,7 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
               aria-pressed={kind === k}
               className={cn(
                 "flex h-12 items-center justify-center gap-2 rounded-lg border text-[15px] font-medium transition-colors",
-                kind === k ? "border-primary bg-primary-soft text-primary" : "border-input hover:bg-muted",
+                kind === k ? "border-primary bg-primary-soft text-primary-strong" : "border-input hover:bg-muted",
               )}
             >
               <span className={cn("size-2.5 rounded-full", toneClasses[appointmentKind[k].tone].dot)} aria-hidden />

@@ -9,7 +9,7 @@ import type {
   Temperature,
 } from "@/types/domain";
 
-export type Tone = "blue" | "green" | "orange" | "red" | "gray" | "violet" | "teal" | "amber" | "sky";
+export type Tone = "brand" | "navy" | "green" | "orange" | "red" | "gray" | "violet" | "teal" | "amber" | "sky";
 
 export const statusLabel: Record<PropertyStatus, { label: string; tone: Tone }> = {
   disponibile: { label: "Disponibile", tone: "green" },
@@ -47,9 +47,9 @@ export const sourceLabel: Record<ContactSource, string> = {
 };
 
 export const temperatureLabel: Record<Temperature, { label: string; tone: Tone; hint: string }> = {
-  // Il rosso è riservato agli errori: per la temperatura usiamo arancione, giallo e azzurro.
-  caldo: { label: "Caldo", tone: "orange", hint: "Pronto a comprare" },
-  tiepido: { label: "Tiepido", tone: "amber", hint: "Interessato, da seguire" },
+  // Il rosso è riservato agli errori: per la temperatura usiamo mattone, ocra e azzurro.
+  caldo: { label: "Caldo", tone: "brand", hint: "Pronto a comprare" },
+  tiepido: { label: "Tiepido", tone: "orange", hint: "Interessato, da seguire" },
   freddo: { label: "Freddo", tone: "sky", hint: "Si sta solo guardando intorno" },
 };
 
@@ -62,15 +62,16 @@ export const stages: { id: DealStage; label: string }[] = [
 ];
 
 export const appointmentKind: Record<AppointmentKind, { label: string; tone: Tone }> = {
-  visita: { label: "Visita", tone: "blue" },
-  valutazione: { label: "Valutazione", tone: "violet" },
+  visita: { label: "Visita", tone: "brand" },
+  valutazione: { label: "Valutazione", tone: "navy" },
   firma: { label: "Firma", tone: "teal" },
   altro: { label: "Altro", tone: "gray" },
 };
 
 /** Classi Tailwind per ogni tono (sfondo tenue + testo + pallino) */
 export const toneClasses: Record<Tone, { soft: string; dot: string; bar: string }> = {
-  blue: { soft: "bg-primary-soft text-primary", dot: "bg-primary", bar: "border-l-primary" },
+  brand: { soft: "bg-primary-soft text-primary-strong", dot: "bg-primary", bar: "border-l-primary" },
+  navy: { soft: "bg-[#e8ebf0] text-foreground", dot: "bg-foreground", bar: "border-l-foreground" },
   green: { soft: "bg-success-soft text-success", dot: "bg-success", bar: "border-l-success" },
   orange: { soft: "bg-warning-soft text-warning", dot: "bg-warning", bar: "border-l-warning" },
   red: { soft: "bg-destructive-soft text-destructive", dot: "bg-destructive", bar: "border-l-destructive" },

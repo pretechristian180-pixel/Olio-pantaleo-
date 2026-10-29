@@ -68,8 +68,8 @@ export function TodayPage() {
         ) : (
           <>
             <StatCard value={data.appointments.length} label="appuntamenti oggi" to="/agenda" icon={<CalendarCheck />} />
-            <StatCard value={data.newLeads} label="nuovi contatti da richiamare" to="/contatti" tone="orange" icon={<PhoneCall />} />
-            <StatCard value={data.expiringMandates} label="incarichi in scadenza" to="/immobili" tone="amber" icon={<FileClock />} />
+            <StatCard value={data.newLeads} label="nuovi contatti da richiamare" to="/contatti" tone="brand" icon={<PhoneCall />} />
+            <StatCard value={data.expiringMandates} label="incarichi in scadenza" to="/immobili" tone="orange" icon={<FileClock />} />
           </>
         )}
       </div>
