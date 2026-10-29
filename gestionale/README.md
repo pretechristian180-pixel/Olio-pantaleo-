@@ -15,7 +15,11 @@ cp .env.example .env.local   # URL e chiave pubblicabile del progetto Supabase "
 npm install
 npm run dev        # http://localhost:3000
 npm run build      # controllo dei tipi + build di produzione
+npm run anteprima  # dist-anteprima/mattonio.html: anteprima in un file unico con dati di esempio
 ```
+
+L'anteprima usa lo stesso codice dell'app, ma sostituisce il collegamento a Supabase con dati di
+esempio in memoria (`src/demo/`): serve per mostrare l'app dove Supabase non è raggiungibile.
 
 ## Backend: Supabase
 

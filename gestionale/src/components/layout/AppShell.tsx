@@ -30,6 +30,11 @@ export function AppShell() {
       <div className="min-h-dvh bg-background">
         <Sidebar />
         <div className="lg:pl-60">
+          {import.meta.env.MODE === "anteprima" && (
+            <div className="bg-warning-soft px-4 py-2 text-center text-[15px] text-warning">
+              Anteprima con dati di esempio: le modifiche si perdono ricaricando la pagina.
+            </div>
+          )}
           <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
             <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:h-18 lg:px-8">
               <div className="lg:hidden">

@@ -3,12 +3,27 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-// Porta 3000: è l'indirizzo predefinito (Site URL) dei link nelle email di Supabase Auth
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  server: { port: 3000 },
-  preview: { port: 3000 },
-  resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
-  },
+// Porta 3000: è l'indirizzo predefinito (Site URL) dei link nelle email di Supabase Auth.
+// `--mode anteprima` crea la pagina di anteprima pubblicata: stesso codice dell'app,
+// ma dati di esempio in memoria al posto di Supabase (vedi src/demo) e file unico autocontenuto.
+export default defineConfig(({ mode }) => {
+  const anteprima = mode === "anteprima";
+  const src = (p: string) => path.resolve(__dirname, "./src", p);
+  return {
+    plugins: [react(), tailwindcss()],
+    server: { port: 3000 },
+    preview: { port: 3000 },
+    resolve: {
+      alias: [
+        ...(anteprima
+          ? [
+              { find: "@/services/api", replacement: src("demo/api.ts") },
+              { find: "@/lib/supabase", replacement: src("demo/supabase.ts") },
+            ]
+          : []),
+        { find: "@", replacement: src("") },
+      ],
+    },
+    build: anteprima ? { outDir: "dist-anteprima", assetsInlineLimit: 100_000_000, cssCodeSplit: false } : undefined,
+  };
 });

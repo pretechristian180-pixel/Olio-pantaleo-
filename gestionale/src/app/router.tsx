@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, createMemoryRouter } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { AgendaPage } from "@/features/agenda/AgendaPage";
 import { ForgotPasswordPage } from "@/features/auth/ForgotPasswordPage";
@@ -17,7 +17,7 @@ import { SettingsPage } from "@/features/settings/SettingsPage";
 import { TodayPage } from "@/features/today/TodayPage";
 import { NotFoundPage } from "./NotFoundPage";
 
-export const router = createBrowserRouter([
+const routes = [
   {
     element: <GuestOnly />,
     children: [
@@ -49,4 +49,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+];
+
+// Nell'anteprima pubblicata l'indirizzo della pagina non si può cambiare: la navigazione resta in memoria
+export const router = import.meta.env.MODE === "anteprima" ? createMemoryRouter(routes) : createBrowserRouter(routes);
