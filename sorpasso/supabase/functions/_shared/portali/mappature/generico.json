@@ -1,0 +1,10 @@
+{
+  "_nota": "Valori interni di Sorpasso → valori per i feed generici (sito, Automobile.it, altri). Modificare solo la colonna di destra.",
+  "alimentazione": { "benzina": "Benzina", "diesel": "Diesel", "gpl": "GPL", "metano": "Metano", "ibrida": "Ibrida", "ibrida_plugin": "Ibrida plug-in", "elettrica": "Elettrica" },
+  "cambio": { "manuale": "Manuale", "automatico": "Automatico" },
+  "trazione": { "anteriore": "Anteriore", "posteriore": "Posteriore", "integrale": "Integrale" },
+  "tipo": { "nuovo": "Nuovo", "usato": "Usato", "km0": "Km 0", "aziendale": "Aziendale" },
+  "carrozzeria": {},
+  "marca": {},
+  "optional": {}
+}

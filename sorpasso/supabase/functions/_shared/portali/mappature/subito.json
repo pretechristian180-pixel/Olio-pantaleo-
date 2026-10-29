@@ -1,0 +1,10 @@
+{
+  "_nota": "Subito (categoria Auto). Struttura pronta: i codici ufficiali vanno inseriti quando Subito fornisce le specifiche di import/API per concessionarie. Le voci non mappate vengono inviate come testo.",
+  "alimentazione": { "benzina": "1", "diesel": "2", "gpl": "3", "metano": "4", "ibrida": "6", "ibrida_plugin": "6", "elettrica": "5" },
+  "cambio": { "manuale": "1", "automatico": "2" },
+  "trazione": {},
+  "tipo": { "nuovo": "nuovo", "usato": "usato", "km0": "km0", "aziendale": "aziendale" },
+  "carrozzeria": { "City car": "1", "Berlina": "2", "Hatchback": "2", "Station wagon": "3", "SUV": "4", "Crossover": "4", "Monovolume": "5", "Coupé": "6", "Cabrio": "7", "Pick-up": "8", "Furgone": "9" },
+  "marca": {},
+  "optional": {}
+}

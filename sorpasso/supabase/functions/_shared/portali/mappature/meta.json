@@ -1,0 +1,10 @@
+{
+  "_nota": "Catalogo veicoli Meta (Facebook/Instagram). Valori secondo la specifica del feed 'vehicles' di Meta Commerce Manager: verificare sulla documentazione aggiornata.",
+  "alimentazione": { "benzina": "GASOLINE", "diesel": "DIESEL", "gpl": "OTHER", "metano": "OTHER", "ibrida": "HYBRID", "ibrida_plugin": "PLUGIN_HYBRID", "elettrica": "ELECTRIC" },
+  "cambio": { "manuale": "MANUAL", "automatico": "AUTOMATIC" },
+  "trazione": { "anteriore": "FWD", "posteriore": "RWD", "integrale": "AWD" },
+  "tipo": { "nuovo": "NEW", "usato": "USED", "km0": "USED", "aziendale": "USED" },
+  "carrozzeria": { "City car": "SMALL_CAR", "Berlina": "SEDAN", "Hatchback": "HATCHBACK", "Station wagon": "WAGON", "SUV": "SUV", "Crossover": "CROSSOVER", "Monovolume": "MINIVAN", "Coupé": "COUPE", "Cabrio": "CONVERTIBLE", "Pick-up": "TRUCK", "Furgone": "VAN" },
+  "marca": {},
+  "optional": {}
+}

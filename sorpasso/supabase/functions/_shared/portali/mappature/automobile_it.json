@@ -1,0 +1,10 @@
+{
+  "_nota": "Mappatura per il feed di Automobile.it. I codici vanno verificati con le specifiche di import fornite da Automobile.it al momento dell'attivazione.",
+  "alimentazione": { "benzina": "Benzina", "diesel": "Diesel", "gpl": "GPL", "metano": "Metano", "ibrida": "Ibrida", "ibrida_plugin": "Ibrida Plug-in", "elettrica": "Elettrica" },
+  "cambio": { "manuale": "Manuale", "automatico": "Automatico" },
+  "trazione": { "anteriore": "Anteriore", "posteriore": "Posteriore", "integrale": "Integrale" },
+  "tipo": { "nuovo": "Nuovo", "usato": "Usato", "km0": "Km 0", "aziendale": "Aziendale" },
+  "carrozzeria": { "City car": "City car", "Berlina": "Berlina", "Hatchback": "Berlina", "Station wagon": "Station wagon", "SUV": "SUV/Fuoristrada", "Crossover": "SUV/Fuoristrada", "Monovolume": "Monovolume", "Coupé": "Coupé", "Cabrio": "Cabrio", "Pick-up": "Pick-up", "Furgone": "Furgone" },
+  "marca": {},
+  "optional": {}
+}

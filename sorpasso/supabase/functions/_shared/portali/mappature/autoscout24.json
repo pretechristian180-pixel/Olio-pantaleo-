@@ -1,0 +1,10 @@
+{
+  "_nota": "AutoScout24 usa codici propri per marche, modelli, alimentazione, carrozzeria ed equipaggiamenti. I valori qui sotto sono la struttura pronta: sostituirli con i codici ufficiali della documentazione partner (Listing/Import API) quando l'accesso viene abilitato. Le marche non presenti vengono inviate come testo.",
+  "alimentazione": { "benzina": "B", "diesel": "D", "gpl": "L", "metano": "C", "ibrida": "2", "ibrida_plugin": "3", "elettrica": "E" },
+  "cambio": { "manuale": "M", "automatico": "A" },
+  "trazione": { "anteriore": "F", "posteriore": "R", "integrale": "4" },
+  "tipo": { "nuovo": "N", "usato": "U", "km0": "S", "aziendale": "J" },
+  "carrozzeria": { "City car": "1", "Berlina": "6", "Hatchback": "1", "Station wagon": "5", "SUV": "4", "Crossover": "4", "Monovolume": "12", "Coupé": "3", "Cabrio": "2", "Pick-up": "13", "Furgone": "13" },
+  "marca": { "Fiat": "28", "Volkswagen": "74", "Peugeot": "55", "Toyota": "70", "Jeep": "38", "Renault": "60", "Dacia": "16396", "Audi": "9", "BMW": "13", "Ford": "29", "Kia": "39", "Hyundai": "33", "Lancia": "43", "Alfa Romeo": "6", "Citroën": "21", "MG": "51" },
+  "optional": { "ABS": "1", "ESP": "42", "Navigatore": "23", "Climatizzatore automatico": "30", "Cruise control": "5", "Sensori di parcheggio posteriori": "40", "Cerchi in lega": "15", "Bluetooth": "125", "Apple CarPlay": "180", "Android Auto": "181", "Fari LED": "153", "Tetto panoramico": "157", "Gancio traino": "20" }
+}
