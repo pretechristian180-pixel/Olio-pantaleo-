@@ -1,23 +1,6 @@
 -- Indici che coprono le chiavi esterne composte (colonna, agency_id),
 -- usati sia nei filtri sia nelle cancellazioni a cascata.
-drop index if exists public.contacts_agente_id_idx;
-drop index if exists public.properties_agente_id_idx;
-drop index if exists public.properties_owner_id_idx;
-drop index if exists public.property_photos_property_id_ordine_idx;
-drop index if exists public.deals_agente_id_idx;
-drop index if exists public.deals_contact_id_idx;
-drop index if exists public.deals_property_id_idx;
-drop index if exists public.appointments_agente_id_idx;
-drop index if exists public.appointments_contact_id_idx;
-drop index if exists public.appointments_property_id_idx;
-drop index if exists public.activities_contact_id_created_at_idx;
-drop index if exists public.activities_property_id_idx;
-drop index if exists public.activities_deal_id_idx;
-drop index if exists public.activities_utente_id_idx;
-drop index if exists public.tasks_assegnato_a_completato_idx;
-drop index if exists public.tasks_contact_id_idx;
-drop index if exists public.tasks_property_id_idx;
-
+-- Gli indici su una sola colonna creati nella migrazione precedente restano.
 create index contacts_agente_idx on public.contacts (agente_id, agency_id);
 create index properties_agente_idx on public.properties (agente_id, agency_id);
 create index properties_owner_idx on public.properties (owner_id, agency_id);
