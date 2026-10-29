@@ -3,3 +3,7 @@ dist
 .env
 .env.local
 *.tsbuildinfo
+src/demo/registrazioni.json
+dist-demo
+scripts/demo/registrazioni.json
+scripts/demo/meta.json

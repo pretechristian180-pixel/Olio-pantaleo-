@@ -1,3 +1,5 @@
+// Deve restare il primo import: nella demo prepara orologio e dati prima di tutto il resto.
+import "@/demo/prepara";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";

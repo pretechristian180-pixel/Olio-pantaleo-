@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { createBrowserRouter, Navigate, Outlet, useLocation } from "react-router-dom";
+import { createBrowserRouter, createMemoryRouter, Navigate, Outlet, useLocation } from "react-router-dom";
+import { DEMO } from "@/demo/config";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageLoader } from "@/components/shared/States";
 import { useAuth } from "@/lib/auth";
@@ -61,7 +62,10 @@ const COMMERCIALE: Ruolo[] = ["titolare", "responsabile_vendite", "venditore"];
 const MANAGER: Ruolo[] = ["titolare", "responsabile_vendite"];
 const ECONOMIA: Ruolo[] = ["titolare", "responsabile_vendite", "amministrazione"];
 
-export const router = createBrowserRouter(
+// Nella demo il percorso dell'indirizzo non è utilizzabile: navigazione tutta in memoria.
+const creaRouter = DEMO ? createMemoryRouter : createBrowserRouter;
+
+export const router = creaRouter(
   supabaseNonConfigurato
     ? [{ path: "*", element: <ConfigurazioneMancante /> }]
     : [
