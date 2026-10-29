@@ -164,7 +164,7 @@ function SchedaPortale({ portale, modificabile }: { portale: PortaleOrg; modific
           </Field>
         </div>
 
-        {conApi && !apiAttiva.isLoading && !apiAttiva.data && (
+        {conApi && portale.modalita === "api" && !apiAttiva.isLoading && !apiAttiva.data && (
           <p className="rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">
             Il collegamento diretto con {portale.portals.nome} si attiva quando la concessionaria viene abilitata come partner dati
             del portale. Nel frattempo usa il file automatico (se disponibile) o la modalità manuale assistita.

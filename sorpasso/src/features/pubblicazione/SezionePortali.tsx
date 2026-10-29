@@ -273,10 +273,13 @@ function RigaPortale({
               </Badge>
             )}
           </p>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {modalita ? MODALITA_PORTALE[modalita].label : "—"}
-            {annuncio?.ultimo_sync_at && ` · aggiornato ${relativo(annuncio.ultimo_sync_at)}`}
-          </p>
+          {(modalita || annuncio?.ultimo_sync_at) && (
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {[modalita && MODALITA_PORTALE[modalita].label, annuncio?.ultimo_sync_at && `aggiornato ${relativo(annuncio.ultimo_sync_at)}`]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
         </div>
         {modificabile && (
           <Switch
