@@ -152,6 +152,14 @@ const FASI: [string, number][] = [
   ["vinto", 4],
   ["perso", 3],
 ];
+const PERMUTE = [
+  { marca: "Fiat", modello: "Punto" },
+  { marca: "Opel", modello: "Corsa" },
+  { marca: "Ford", modello: "Fiesta" },
+  { marca: "Renault", modello: "Clio" },
+];
+/** Quanti giorni fa sono state chiuse le 4 vendite demo. */
+const GIORNI_VENDITA = [12, 9, 4, 6];
 const MOTIVI_PERSO = ["Prezzo troppo alto", "Ha comprato altrove", "Valutazione permuta bassa"];
 const RICHIESTE = [
   "Vorrei sapere se l'auto è ancora disponibile e se accettate permuta.",
@@ -278,7 +286,7 @@ async function main() {
       // Quando è arrivato il lead: i nuovi oggi, gli altri nelle ultime settimane.
       let creato: number;
       if (stato === "nuovo") creato = ora - [4, 9, 27, 55, 140, 210][k]! * MIN;
-      else if (stato === "vinto") creato = ora - tra(25, 55) * GIORNO;
+      else if (stato === "vinto") creato = ora - (GIORNI_VENDITA[k]! + tra(8, 14)) * GIORNO;
       else if (stato === "perso") creato = ora - tra(20, 70) * GIORNO;
       else creato = ora - tra(1, 30) * GIORNO - tra(0, 8) * 60 * MIN;
 
@@ -339,14 +347,14 @@ async function main() {
             modello_interesse: stato === "perso" && k === 0 ? "Golf" : null,
             budget: rnd() < 0.75 ? Math.round((budgetBase * (0.9 + rnd() * 0.15)) / 500) * 500 : null,
             permuta,
-            permuta_dati: permuta ? { marca: scegli(["Fiat", "Opel", "Ford", "Renault"]), modello: scegli(["Punto", "Corsa", "Fiesta", "Clio"]), anno: tra(2008, 2016), km: tra(90, 210) * 1000 } : null,
+            permuta_dati: permuta ? { ...scegli(PERMUTE), anno: tra(2008, 2016), km: tra(90, 210) * 1000 } : null,
             finanziamento: rnd() < 0.45,
             tempistica: scegli(tempistiche),
             assegnato_a: venditore,
             creato_da: venditore,
             prossima_azione_at: prossima ? iso(prossima) : null,
             prossima_azione_nota: prossima ? (stato === "nuovo" ? "Primo contatto" : scegli(["Richiamare per conferma", "Inviare foto aggiuntive", "Sentire per permuta", "Follow-up preventivo", "Proporre test drive"])) : null,
-            chiuso_at: stato === "vinto" ? iso(creato + tra(8, 20) * GIORNO) : stato === "perso" ? iso(creato + tra(5, 15) * GIORNO) : null,
+            chiuso_at: stato === "vinto" ? iso(ora - GIORNI_VENDITA[k]! * GIORNO) : stato === "perso" ? iso(creato + tra(5, 15) * GIORNO) : null,
             created_at: iso(creato),
           })
           .select("id")
@@ -433,7 +441,7 @@ async function main() {
   const pratiche: { id: string; lead: (typeof vinti)[number]; consegna: number | null }[] = [];
   for (const [i, l] of vinti.entries()) {
     const v = veicoli.find((x) => x.id === l.vehicle)!;
-    const venduta = ora - [40, 9, 4, 6][i]! * GIORNO;
+    const venduta = ora - GIORNI_VENDITA[i]! * GIORNO;
     // Una già consegnata, due da consegnare a breve, una ancora senza data.
     const consegna = i === 0 ? venduta + 7 * GIORNO : i === 1 ? alle(1, 11) : i === 3 ? alle(3, 11) : null;
     const d = await q(

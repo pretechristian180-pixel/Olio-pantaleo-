@@ -46,7 +46,7 @@ export function BottomNav({ onAdd }: { onAdd?: () => void }) {
             >
               <Plus className="size-7" strokeWidth={2.5} aria-hidden />
             </button>
-            <span className="mt-1 text-[12px] font-medium leading-none text-accent">Lead</span>
+            <span className="mt-1 text-[12px] font-medium leading-none text-accent">Nuovo</span>
           </div>
         )}
         {voci.slice(meta).map(item)}
