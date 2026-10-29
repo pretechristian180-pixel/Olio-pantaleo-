@@ -23,7 +23,7 @@ caso pilota). Per la testimonianza video compila `provaSociale.testimonianza.vid
 file .mp4).
 
 Da aggiornare anche in `index.html`: dominio in `canonical` e `og:url`/`og:image`, dati del JSON-LD.
-L'immagine di condivisione è `public/og-image.png` (sorgente modificabile: `public/og-image.svg`).
+L'immagine di condivisione è `public/og-image.png` (1200×630, con il logo ufficiale). Loghi: `public/logo-chiaro.png` (fondi scuri) e `public/logo-scuro.png` (fondi chiari); favicon ricavata dalla «S» del logo.
 
 ## Variabili d'ambiente
 

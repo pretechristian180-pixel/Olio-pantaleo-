@@ -1,13 +1,17 @@
-export function Logo({ className = "" }: { className?: string }) {
+/**
+ * Logo ufficiale Sorpasso AI. Su fondo scuro la versione chiara (testo bianco, "S" e "AI" blu elettrico);
+ * public/logo-scuro.png è la versione per fondi chiari.
+ */
+export function Logo({ className = "", altezza = 36 }: { className?: string; altezza?: number }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <svg viewBox="0 0 32 32" className="size-8 shrink-0" aria-hidden>
-        <rect width="32" height="32" rx="8" fill="#0b1630" stroke="#2f6bff" strokeOpacity=".45" />
-        <path d="M8 21l7-10h4l-4 6h7l-7 10h-4l4-6z" fill="#3d7bff" />
-      </svg>
-      <span className="font-display text-[19px] font-extrabold tracking-tight text-white">
-        Sorpasso<span className="text-accent-2"> AI</span>
-      </span>
-    </span>
+    <img
+      src="/logo-chiaro.png"
+      alt="Sorpasso AI"
+      width={Math.round(altezza * 5.3)}
+      height={altezza}
+      className={`block h-auto shrink-0 ${className}`}
+      style={{ height: altezza, width: "auto" }}
+      decoding="async"
+    />
   );
 }
