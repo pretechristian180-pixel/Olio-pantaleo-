@@ -119,6 +119,7 @@ function SchedaPortale({ portale, modificabile }: { portale: PortaleOrg; modific
         <Switch
           id={`attivo-${portale.portal_id}`}
           checked={portale.attivo}
+          disabled={!modificabile}
           onChange={(v) => modificabile && salva({ id: portale.id, attivo: v }, v ? `${portale.portals.nome} attivato` : `${portale.portals.nome} disattivato`)}
           label={portale.attivo ? "Attivo" : "Spento"}
         />

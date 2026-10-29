@@ -78,15 +78,24 @@ function Switch({
   label,
   description,
   id,
+  disabled,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
   description?: string;
   id?: string;
+  /** Sola lettura: visibile ma non modificabile (es. ruolo senza permesso) */
+  disabled?: boolean;
 }) {
   return (
-    <label htmlFor={id} className="flex min-h-12 cursor-pointer items-center justify-between gap-4 rounded-lg border bg-background px-4 py-3">
+    <label
+      htmlFor={id}
+      className={cn(
+        "flex min-h-12 items-center justify-between gap-4 rounded-lg border bg-background px-4 py-3",
+        disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+      )}
+    >
       <span>
         <span className="block text-[15px] font-medium">{label}</span>
         {description && <span className="block text-sm text-muted-foreground">{description}</span>}
@@ -97,6 +106,7 @@ function Switch({
           type="checkbox"
           role="switch"
           className="peer sr-only"
+          disabled={disabled}
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
         />
