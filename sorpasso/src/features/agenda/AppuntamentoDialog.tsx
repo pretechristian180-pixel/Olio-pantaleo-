@@ -79,6 +79,7 @@ export default function AppuntamentoDialog({
   const form = useForm<Valori>({ resolver: zodResolver(schema) });
   const err = form.formState.errors;
 
+  // Il form si inizializza solo all'apertura: un nuovo oggetto `iniziale` non cancella ciò che l'utente sta scrivendo.
   useEffect(() => {
     if (!open) return;
     const durataMin = appuntamento
@@ -95,7 +96,8 @@ export default function AppuntamentoDialog({
       stato: appuntamento?.stato ?? "programmato",
       note: appuntamento?.note ?? "",
     });
-  }, [open, appuntamento, iniziale, userId, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, appuntamento?.id]);
 
   const onSubmit = form.handleSubmit(async (v) => {
     const inizio = new Date(v.inizio);

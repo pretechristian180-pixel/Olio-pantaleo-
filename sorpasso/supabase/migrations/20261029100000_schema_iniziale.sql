@@ -610,7 +610,8 @@ as $$
 $$;
 revoke execute on function public.avanza_lead(uuid, public.stato_lead) from public, anon, authenticated;
 
--- Test drive fissato: compare nello storico, diventa la prossima azione, il lead avanza.
+-- Appuntamento su un lead: compare nello storico e diventa la prossima azione;
+-- un test drive fa avanzare il lead, una consegna aggiorna la data nella pratica.
 create or replace function public.appointments_dopo_inserimento()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
@@ -627,6 +628,10 @@ begin
     where id = new.lead_id and (prossima_azione_at is null or prossima_azione_at < now() or prossima_azione_at > new.inizio);
     if new.tipo = 'test_drive' then
       perform public.avanza_lead(new.lead_id, 'test_drive');
+    end if;
+    -- Consegna fissata in agenda: la data finisce anche nella pratica.
+    if new.tipo = 'consegna' then
+      update public.deals set data_consegna = (new.inizio at time zone 'Europe/Rome')::date where lead_id = new.lead_id;
     end if;
   end if;
   return null;

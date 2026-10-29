@@ -144,3 +144,36 @@ export async function cercaContattoPerTelefono(tel: string): Promise<Pick<Contac
   const { data } = await supabase.from("contacts").select("id, nome, cognome, telefono").ilike("telefono", `%${cifre.slice(-6)}%`).limit(5);
   return (data ?? []).filter((c) => (c.telefono ?? "").replace(/\D/g, "").endsWith(cifre));
 }
+
+/** Chiude la vendita: crea la pratica. Il trigger porta il lead a "vinto" e l'auto a "venduto". */
+export function useChiudiVendita() {
+  const invalida = useInvalidaLead();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (d: { lead_id: string; vehicle_id: string; prezzo_finale: number }) =>
+      ok(await supabase.from("deals").insert(d).select("id").single()) as { id: string },
+    onSuccess: () => {
+      void invalida();
+      void qc.invalidateQueries({ queryKey: qk.pratiche });
+    },
+  });
+}
+
+/** Aggiorna dati del contatto collegato al lead (es. email). */
+export function useAggiornaContatto() {
+  const invalida = useInvalidaLead();
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: Partial<Contact> & { id: string }) =>
+      ok(await supabase.from("contacts").update(patch).eq("id", id).select("id").single()),
+    onSuccess: () => invalida(),
+  });
+}
+
+export function useCreaPreventivo() {
+  const invalida = useInvalidaLead();
+  return useMutation({
+    mutationFn: async (q: Omit<Quote, "id" | "organization_id" | "totale" | "saldo" | "pdf_path" | "creato_da" | "created_at">) =>
+      ok(await supabase.from("quotes").insert(q).select("*").single()) as Quote,
+    onSuccess: () => invalida(),
+  });
+}
