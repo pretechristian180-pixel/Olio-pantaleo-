@@ -17,6 +17,11 @@ import { NewPropertyPage } from "@/features/properties/NewPropertyPage";
 import { PropertiesPage } from "@/features/properties/PropertiesPage";
 import { PropertyDetailPage } from "@/features/properties/PropertyDetailPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
+import { NewVideoPage } from "@/features/studio/NewVideoPage";
+import { PublicApprovalPage } from "@/features/studio/PublicApprovalPage";
+import { StudioPage } from "@/features/studio/StudioPage";
+import { StudioSettingsPage } from "@/features/studio/StudioSettingsPage";
+import { VideoPage } from "@/features/studio/VideoPage";
 import { TodayPage } from "@/features/today/TodayPage";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -31,6 +36,8 @@ const routes = [
   },
   // Raggiunta dal link di invito o di recupero password (l'utente è già collegato dal link)
   { path: "imposta-password", element: <SetPasswordPage /> },
+  // Approvazione di un video dal link WhatsApp: pubblica, protetta dal token monouso
+  { path: "approva/:token", element: <PublicApprovalPage /> },
   // Pannello admin della piattaforma (solo amministratori di Mattonio)
   {
     element: <RequireAdmin />,
@@ -61,6 +68,11 @@ const routes = [
           { path: "trattative", element: <DealsPage /> },
           { path: "agenda", element: <AgendaPage /> },
           { path: "impostazioni", element: <SettingsPage /> },
+          { path: "studio", element: <StudioPage /> },
+          { path: "studio/nuovo/:propertyId", element: <NewVideoPage /> },
+          { path: "studio/video/:id", element: <VideoPage /> },
+          { path: "studio/video/:id/modifica", element: <NewVideoPage /> },
+          { path: "studio/impostazioni", element: <StudioSettingsPage /> },
           { path: "*", element: <NotFoundPage /> },
         ],
       },

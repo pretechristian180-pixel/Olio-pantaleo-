@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { CalendarPlus, ChevronRight, Eye, MapPin, MessageSquare, Timer, Users } from "lucide-react";
+import { CalendarPlus, ChevronRight, Clapperboard, Eye, MapPin, MessageSquare, Timer, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -102,10 +102,18 @@ export function PropertyDetailPage() {
             {p.address}, {p.city}
           </p>
 
-          <Button size="lg" className="mt-6 w-full sm:w-auto" onClick={() => openAppointment({ propertyId: p.id, kind: "visita" })}>
-            <CalendarPlus aria-hidden />
-            Fissa una visita
-          </Button>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" className="w-full sm:w-auto" onClick={() => openAppointment({ propertyId: p.id, kind: "visita" })}>
+              <CalendarPlus aria-hidden />
+              Fissa una visita
+            </Button>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+              <Link to={`/studio/nuovo/${p.id}`}>
+                <Clapperboard aria-hidden />
+                Crea video social
+              </Link>
+            </Button>
+          </div>
 
           <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {facts.map((f) => (

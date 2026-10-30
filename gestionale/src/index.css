@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/manrope";
 
 /*
  * Design token (stile shadcn/ui) con i colori del marchio Mattonio:
@@ -32,7 +32,7 @@
 }
 
 @theme inline {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -107,4 +107,30 @@
 @keyframes sheet-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
+}
+
+/* ---------- Studio: movimenti di camera sulle foto reali (nessun contenuto generato) ---------- */
+@keyframes kb-zoom-in {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.18); }
+}
+@keyframes kb-zoom-out {
+  from { transform: scale(1.2); }
+  to { transform: scale(1.04); }
+}
+@keyframes kb-pan-left {
+  from { transform: scale(1.18) translateX(5%); }
+  to { transform: scale(1.18) translateX(-5%); }
+}
+@keyframes kb-pan-right {
+  from { transform: scale(1.18) translateX(-5%); }
+  to { transform: scale(1.18) translateX(5%); }
+}
+@keyframes kb-parallax {
+  from { transform: scale(1.14) translate(-2%, 2%); }
+  to { transform: scale(1.22) translate(2%, -2%); }
+}
+@keyframes avatar-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1.5%) scale(1.01); }
 }

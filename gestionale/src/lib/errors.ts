@@ -25,6 +25,9 @@ export function friendlyError(err: unknown): string {
   if (msg.includes("invalid email") || code === "email_address_invalid") return "Controlla l'indirizzo email.";
   if (msg.includes("jwt expired") || msg.includes("session") && msg.includes("missing"))
     return "La sessione è scaduta. Accedi di nuovo.";
+  // Messaggi già scritti in italiano dalle funzioni del database (es. limiti e controlli di Studio)
+  if (["23514", "42501", "P0001", "P0002"].includes(code) && e?.message && /[àèéìòù]|\b(il|la|non|solo|prima|serve)\b/i.test(e.message))
+    return e.message;
   if (code === "42501" || msg.includes("row-level security") || msg.includes("permission denied") || code === "NOT_ALLOWED")
     return "Non hai il permesso per questa modifica: puoi cambiare solo ciò che è assegnato a te.";
   if (code === "23505") return "Esiste già un elemento uguale.";

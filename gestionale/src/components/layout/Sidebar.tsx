@@ -1,15 +1,18 @@
 import { Link, NavLink } from "react-router-dom";
-import { ShieldCheck } from "lucide-react";
+import { Clapperboard, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/lib/format";
 import { useAuth } from "@/features/auth/AuthProvider";
+import { useQuery } from "@/hooks/useQuery";
+import { countToApprove } from "@/services/studio";
 import { Logo } from "./Logo";
 import { navItems } from "./nav";
 
 /** Menu laterale (solo desktop): logo, 5 voci, profilo in basso. */
 export function Sidebar() {
   const { agent, agency, isPlatformAdmin } = useAuth();
+  const { data: toApprove } = useQuery(() => (agent ? countToApprove() : Promise.resolve(0)), [agent?.id]);
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-background lg:flex">
       <div className="flex h-18 items-center px-5">
@@ -33,6 +36,26 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+      {/* Studio: fuori dalle 5 voci principali, con il numero di video da approvare */}
+      {agent && (
+        <NavLink
+          to="/studio"
+          className={({ isActive }) =>
+            cn(
+              "mx-3 flex h-12 items-center gap-3 rounded-lg px-3 text-[16px] font-medium transition-colors",
+              isActive ? "bg-primary-soft text-primary-strong" : "text-foreground/80 hover:bg-muted hover:text-foreground",
+            )
+          }
+        >
+          <Clapperboard className="size-5" aria-hidden />
+          Studio video
+          {!!toApprove && (
+            <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-sm font-semibold tabular-nums text-white" aria-label={`${toApprove} da approvare`}>
+              {toApprove}
+            </span>
+          )}
+        </NavLink>
+      )}
       {isPlatformAdmin && (
         <Link
           to="/admin"

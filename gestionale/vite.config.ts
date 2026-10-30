@@ -19,12 +19,21 @@ export default defineConfig(({ mode }) => {
           ? [
               { find: "@/services/api", replacement: src("demo/api.ts") },
               { find: "@/services/admin", replacement: src("demo/admin.ts") },
+              { find: "@/services/studio", replacement: src("demo/studio.ts") },
               { find: "@/lib/supabase", replacement: src("demo/supabase.ts") },
             ]
           : []),
         { find: "@", replacement: src("") },
       ],
     },
-    build: anteprima ? { outDir: "dist-anteprima", assetsInlineLimit: 100_000_000, cssCodeSplit: false } : undefined,
+    build: anteprima
+      ? {
+          outDir: "dist-anteprima",
+          assetsInlineLimit: 100_000_000,
+          cssCodeSplit: false,
+          // Un solo file JS: anche i moduli caricati al bisogno (es. il PDF del consenso) finiscono nella pagina
+          rolldownOptions: { output: { codeSplitting: false } },
+        }
+      : undefined,
   };
 });

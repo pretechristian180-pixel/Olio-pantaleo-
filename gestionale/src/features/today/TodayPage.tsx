@@ -1,4 +1,5 @@
-import { CalendarCheck, CalendarPlus, FileClock, PhoneCall } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +13,7 @@ import { formatLongDate } from "@/lib/format";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { friendlyError } from "@/lib/errors";
 import { getToday, toggleTask } from "@/services/api";
+import { countToApprove } from "@/services/studio";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { TaskList } from "./TaskList";
 
@@ -74,6 +76,8 @@ export function TodayPage() {
         )}
       </div>
 
+      <StudioCard />
+
       <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-8">
         <section>
           <SectionTitle
@@ -128,6 +132,41 @@ export function TodayPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+/** Studio: i video da approvare in evidenza; altrimenti un accesso rapido (su telefono non è nel menu) */
+function StudioCard() {
+  const { data } = useQuery(countToApprove);
+  if (data === undefined) return null;
+  const pending = data > 0;
+  return (
+    <Link
+      to="/studio"
+      className={
+        pending
+          ? "mt-4 flex items-center gap-4 rounded-lg border border-primary/40 bg-primary-soft p-4 shadow-card sm:mt-6"
+          : "mt-4 flex items-center gap-4 rounded-lg border bg-card p-4 shadow-card hover:border-primary/40 sm:mt-6 lg:hidden"
+      }
+    >
+      <span className="relative flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+        <Clapperboard className="size-6" aria-hidden />
+        {pending && (
+          <span className="absolute -right-2 -top-2 flex min-w-6 items-center justify-center rounded-full bg-foreground px-1.5 text-sm font-bold tabular-nums text-white ring-2 ring-background">
+            {data}
+          </span>
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[17px] font-semibold">
+          {pending ? (data === 1 ? "1 video da approvare" : `${data} video da approvare`) : "Studio video social"}
+        </span>
+        <span className="block text-[15px] text-muted-foreground">
+          {pending ? "Guardalo e decidi: approva, chiedi modifiche o scarta." : "Crea un Reel di un immobile con il tuo avatar."}
+        </span>
+      </span>
+      <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+    </Link>
   );
 }
 

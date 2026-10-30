@@ -67,11 +67,34 @@ dell'agenzia (gli utenti vengono bloccati, i dati restano); gestione degli utent
   registrata in `platform_admins`, una password e "Auto Confirm User". Poi si accede da `/accedi`.
   Per aggiungere un altro admin: `insert into public.platform_admins (email) values ('nome@dominio.it');`
 
+### Studio: video social degli immobili (`/studio`) — Fase 1
+
+Reel verticali 9:16 con l'avatar AI del titolare (inizio e chiusura) e, nel mezzo, **solo le foto
+reali dell'immobile** animate con movimenti di camera (zoom lento, panoramica, parallasse leggera).
+Nessun modello che genera o modifica gli ambienti: l'unica parte generata è l'avatar.
+
+- Creazione in 3 passi (`/studio/nuovo/:immobile`): foto in ordine (trascinamento, avvisi sotto 5 foto
+  o a bassa risoluzione) → testo proposto dall'AI (Edge Function `studio-script`, solo dati della scheda,
+  modificabile, "Rigenera") → riepilogo e "Genera video".
+- Approvazione (`/studio/video/:id`): "Approva e programma", "Chiedi modifiche" (con nota), "Scarta".
+  Solo il titolare o l'approvatore scelto nel brand; ogni decisione in `video_approvals` e `activities`.
+- Link WhatsApp monouso (7 giorni) che apre `/approva/:token` senza login: Edge Function
+  `studio-approvazione`; nel database c'è solo l'impronta SHA-256 del token.
+- Calendario settimanale/mensile con trascinamento per cambiare giorno ai post non ancora pubblicati.
+- Impostazioni Studio (`/studio/impostazioni`): avatar (video di training, consenso firmato con PDF,
+  revoca), stile/brand, account social, utilizzo del mese.
+- **Fase 1**: la generazione è simulata (`studio_tick` completa i lavori dopo pochi secondi e il player
+  mostra un'anteprima nel browser). Fase 2: HeyGen + servizio di rendering. Fase 3: pubblicazione sui social.
+- Controlli lato server (migrazione `20261030090000_studio_fase1.sql`): niente generazione senza avatar
+  con consenso valido; limite di generazioni ogni 24 ore per piano (`plan_limits`, modificabile senza
+  codice); niente post senza un'approvazione con esito "approvato".
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app
    (per lo sviluppo `http://localhost:3000`, già predefinito) e, tra i Redirect URL,
    `<indirizzo app>/imposta-password` e `<indirizzo app>/`.
+   Le pagine `/approva/...` dei link WhatsApp usano lo stesso indirizzo dell'app.
 2. **Authentication → Emails → SMTP**: collega un servizio email (es. Resend, Brevo, Postmark) e
    imposta come nome del mittente **Mattonio**. Senza SMTP Supabase invia le email (conferma
    registrazione, inviti, recupero password) solo agli indirizzi dei membri del team Supabase, con un
@@ -85,6 +108,12 @@ dell'agenzia (gli utenti vengono bloccati, i dati restano); gestione degli utent
    | Invite user | `invito.html` |
    | Reset password | `recupero.html` |
    | Change email address | `cambio-email.html` |
+
+4. **Edge Functions → Secrets**: `ANTHROPIC_API_KEY` per i testi AI di Studio (senza chiave si usa un
+   testo di base costruito con i dati della scheda).
+5. **Testo del consenso avatar**, dopo la revisione legale:
+   `insert into public.consent_templates (versione, testo, attivo) values ('1.0', '…testo…', true);`
+   (per una nuova versione: prima `update public.consent_templates set attivo = false where attivo;`).
 
 ## Struttura
 

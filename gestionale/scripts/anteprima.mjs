@@ -8,7 +8,8 @@ const files = readdirSync(dir);
 const css = files.filter((f) => f.endsWith(".css")).map((f) => readFileSync(join(dir, f), "utf8")).join("\n");
 const js = files.filter((f) => f.endsWith(".js")).map((f) => readFileSync(join(dir, f), "utf8")).join("\n");
 
-const html = `<title>Mattonio</title>
+const html = `<meta charset="utf-8">
+<title>Mattonio</title>
 <meta name="theme-color" content="#ffffff">
 <style>${css.replace(/<\/style/gi, "<\\/style")}</style>
 <div id="root"></div>
