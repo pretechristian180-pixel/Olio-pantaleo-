@@ -380,6 +380,25 @@ export async function createProperty(input: NewProperty) {
   return wait({ property, failedPhotos: 0 }, 600);
 }
 
+export async function addPropertyPhotos(propertyId: ID, files: File[]) {
+  const p = db.properties.find((x) => x.id === propertyId);
+  if (p) {
+    const real = p.photos.filter((ph) => ph.url);
+    p.photos = [...(real.length ? p.photos : []), ...files.map((f, i) => ({ id: newId(`${propertyId}_f${i}`), url: URL.createObjectURL(f), scene: "esterno" as const }))];
+  }
+  emitChange();
+  return wait({ failed: 0 }, 500);
+}
+
+/** Usate solo dai dati di esempio delle Acquisizioni (src/demo/acquisitions.ts) */
+export const demoDb = {
+  contacts: () => db.contacts,
+  addContact: (c: Contact) => db.contacts.push(c),
+  addProperty: (p: Property) => db.properties.push(p),
+  addActivity: (contactId: ID, text: string) => addActivity(contactId, "nota", text),
+  newId,
+};
+
 /* ---------- Contatti ---------- */
 
 export async function listContacts(): Promise<ContactWithLast[]> {

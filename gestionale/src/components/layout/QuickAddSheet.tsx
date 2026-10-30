@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { CalendarPlus, ChevronRight, House, UserPlus } from "lucide-react";
+import { CalendarPlus, ChevronRight, House, KeyRound, UserPlus } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAppointmentDialog } from "@/features/agenda/AppointmentDialog";
 
-/** Foglio del pulsante "+": tre scelte grandi e chiare. */
+/** Foglio del pulsante "+": quattro scelte grandi e chiare. */
 export function QuickAddSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const navigate = useNavigate();
   const { openAppointment } = useAppointmentDialog();
@@ -14,6 +14,12 @@ export function QuickAddSheet({ open, onOpenChange }: { open: boolean; onOpenCha
       hint: "Foto, dati, prezzo e proprietario",
       icon: House,
       run: () => navigate("/immobili/nuovo"),
+    },
+    {
+      label: "Una segnalazione",
+      hint: "Un proprietario che forse vende: indirizzo, nome, telefono",
+      icon: KeyRound,
+      run: () => navigate("/trattative/acquisizioni?nuova=1"),
     },
     {
       label: "Un contatto",

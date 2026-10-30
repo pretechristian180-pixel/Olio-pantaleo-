@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
               { find: "@/services/api", replacement: src("demo/api.ts") },
               { find: "@/services/admin", replacement: src("demo/admin.ts") },
               { find: "@/services/studio", replacement: src("demo/studio.ts") },
+              { find: "@/services/acquisitions", replacement: src("demo/acquisitions.ts") },
               { find: "@/lib/supabase", replacement: src("demo/supabase.ts") },
             ]
           : []),

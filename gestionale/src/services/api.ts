@@ -593,6 +593,29 @@ export async function createProperty(input: NewProperty) {
   return { property: toProperty(row, new Map()), failedPhotos };
 }
 
+/** Aggiunge foto a un immobile esistente (es. appena nato da un'acquisizione). Restituisce quante non sono andate. */
+export async function addPropertyPhotos(propertyId: ID, files: File[]) {
+  const row = ok(await supabase.from("properties").select("agency_id, property_photos(ordine)").eq("id", propertyId).single()) as unknown as {
+    agency_id: string;
+    property_photos: { ordine: number }[];
+  };
+  let next = Math.max(-1, ...row.property_photos.map((p) => p.ordine)) + 1;
+  let failed = 0;
+  for (const file of files) {
+    try {
+      const blob = await compressImage(file);
+      const path = `${row.agency_id}/${propertyId}/${crypto.randomUUID()}.jpg`;
+      const up = await supabase.storage.from(PHOTO_BUCKET).upload(path, blob, { contentType: "image/jpeg" });
+      if (up.error) throw up.error;
+      ok(await supabase.from("property_photos").insert({ property_id: propertyId, url: path, ordine: next++ }));
+    } catch {
+      failed++;
+    }
+  }
+  emitChange();
+  return { failed };
+}
+
 /* =====================================================================
  * Contatti
  * ===================================================================== */

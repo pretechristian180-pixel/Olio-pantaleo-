@@ -89,6 +89,23 @@ Nessun modello che genera o modifica gli ambienti: l'unica parte generata è l'a
   con consenso valido; limite di generazioni ogni 24 ore per piano (`plan_limits`, modificabile senza
   codice); niente post senza un'approvazione con esito "approvato".
 
+### Acquisizioni (`/trattative/acquisizioni`)
+
+Seconda pipeline accanto alle Vendite (voce di menu **Pipeline**, schede Vendite / Acquisizioni): serve
+a trovare il proprietario e ottenere l'incarico.
+
+- Fasi: segnalazione → primo contatto → valutazione fissata → valutazione fatta → proposta di incarico →
+  incarico firmato (oppure persa, con motivo obbligatorio). Le card mostrano indirizzo, proprietario,
+  prezzo e giorni nella fase (in arancio oltre 14 giorni).
+- Inserimento rapido con 3 campi (anche dal pulsante "+"): indirizzo, nome e telefono del proprietario.
+  Stesso telefono (anche con +39) = stesso contatto.
+- "Incarico firmato" crea l'immobile con i dati raccolti, collega il proprietario e apre `/immobili/:id/foto`.
+- In OGGI la card "Acquisizioni da seguire" (prossima azione scaduta o di oggi); in fondo alla pagina
+  le statistiche del mese.
+- Tabella `acquisitions` (migrazione `20261101090000_acquisizioni.sql`): l'agente vede e modifica solo
+  le proprie, il titolare tutte. Fase, motivo di perdita e immobile collegato cambiano solo con la funzione
+  `acquisition_set_phase()`, che fa i controlli lato server. Ogni cambio finisce nelle attività del proprietario.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app

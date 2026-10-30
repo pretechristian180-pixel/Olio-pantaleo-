@@ -12,10 +12,13 @@ import { SetPasswordPage } from "@/features/auth/SetPasswordPage";
 import { ContactDetailPage } from "@/features/contacts/ContactDetailPage";
 import { ContactsPage } from "@/features/contacts/ContactsPage";
 import { NewContactPage } from "@/features/contacts/NewContactPage";
+import { AcquisitionDetailPage } from "@/features/acquisitions/AcquisitionDetailPage";
+import { AcquisitionsPage } from "@/features/acquisitions/AcquisitionsPage";
 import { DealsPage } from "@/features/deals/DealsPage";
 import { NewPropertyPage } from "@/features/properties/NewPropertyPage";
 import { PropertiesPage } from "@/features/properties/PropertiesPage";
 import { PropertyDetailPage } from "@/features/properties/PropertyDetailPage";
+import { PropertyPhotosPage } from "@/features/properties/PropertyPhotosPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { NewVideoPage } from "@/features/studio/NewVideoPage";
 import { PublicApprovalPage } from "@/features/studio/PublicApprovalPage";
@@ -62,10 +65,13 @@ const routes = [
           { path: "immobili", element: <PropertiesPage /> },
           { path: "immobili/nuovo", element: <NewPropertyPage /> },
           { path: "immobili/:id", element: <PropertyDetailPage /> },
+          { path: "immobili/:id/foto", element: <PropertyPhotosPage /> },
           { path: "contatti", element: <ContactsPage /> },
           { path: "contatti/nuovo", element: <NewContactPage /> },
           { path: "contatti/:id", element: <ContactDetailPage /> },
           { path: "trattative", element: <DealsPage /> },
+          { path: "trattative/acquisizioni", element: <AcquisitionsPage /> },
+          { path: "trattative/acquisizioni/:id", element: <AcquisitionDetailPage /> },
           { path: "agenda", element: <AgendaPage /> },
           { path: "impostazioni", element: <SettingsPage /> },
           { path: "studio", element: <StudioPage /> },

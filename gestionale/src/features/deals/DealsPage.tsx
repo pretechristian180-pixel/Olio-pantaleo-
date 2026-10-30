@@ -28,6 +28,7 @@ import { formatShortPrice, fullName } from "@/lib/format";
 import { createDeal, listDeals, moveDeal, pickerOptions, type DealWithRefs } from "@/services/api";
 import type { DealStage } from "@/types/domain";
 import { DealCard } from "./DealCard";
+import { PipelineTabs } from "./PipelineTabs";
 
 export function DealsPage() {
   const { data, loading, error, reload } = useQuery(listDeals);
@@ -84,8 +85,9 @@ export function DealsPage() {
 
   return (
     <div>
+      <PipelineTabs />
       <PageHeader
-        title="Trattative"
+        title="Vendite"
         subtitle={isDesktop ? "Trascina una card per spostarla nella fase successiva" : "Scorri di lato per vedere tutte le fasi"}
         action={addButton}
       />

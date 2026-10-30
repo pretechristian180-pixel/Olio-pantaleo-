@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, PhoneCall } from "lucide-react";
+import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, KeyRound, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +14,7 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { friendlyError } from "@/lib/errors";
 import { getToday, toggleTask } from "@/services/api";
 import { countToApprove } from "@/services/studio";
+import { acquisitionsToFollow } from "@/services/acquisitions";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { TaskList } from "./TaskList";
 
@@ -77,6 +78,7 @@ export function TodayPage() {
       </div>
 
       <StudioCard />
+      <AcquisitionsCard />
 
       <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-8">
         <section>
@@ -167,6 +169,48 @@ function StudioCard() {
       </span>
       <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
     </Link>
+  );
+}
+
+/** Acquisizioni con la prossima azione scaduta o di oggi */
+function AcquisitionsCard() {
+  const { data } = useQuery(acquisitionsToFollow);
+  if (!data?.length) return null;
+  const today = new Date().toLocaleDateString("sv-SE");
+  return (
+    <section className="mt-4 rounded-lg border bg-card shadow-card sm:mt-6">
+      <div className="flex items-center justify-between gap-3 px-4 pt-4">
+        <h2 className="flex items-center gap-2 text-[17px] font-semibold">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+            <KeyRound className="size-5" aria-hidden />
+          </span>
+          Acquisizioni da seguire
+          <span className="rounded-full bg-primary px-2 py-0.5 text-sm font-bold tabular-nums text-white">{data.length}</span>
+        </h2>
+        <Link to="/trattative/acquisizioni" className="shrink-0 text-[15px] font-semibold text-primary-strong">
+          Vedi tutte
+        </Link>
+      </div>
+      <ul className="mt-2 divide-y">
+        {data.slice(0, 4).map((a) => (
+          <li key={a.id}>
+            <Link to={`/trattative/acquisizioni/${a.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/60">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-semibold">{a.address}</span>
+                <span className="block truncate text-[15px] text-muted-foreground">
+                  {a.nextAction || "Da seguire"}
+                  {a.owner ? ` · ${a.owner.firstName} ${a.owner.lastName}`.trimEnd() : ""}
+                </span>
+              </span>
+              <span className={a.nextActionDate! < today ? "shrink-0 text-sm font-semibold text-warning" : "shrink-0 text-sm font-semibold text-primary-strong"}>
+                {a.nextActionDate! < today ? "In ritardo" : "Oggi"}
+              </span>
+              <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

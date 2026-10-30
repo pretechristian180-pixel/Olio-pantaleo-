@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { CalendarPlus, ChevronRight, Clapperboard, Eye, MapPin, MessageSquare, Timer, Users } from "lucide-react";
+import { CalendarPlus, Camera, ChevronRight, Clapperboard, Eye, MapPin, MessageSquare, Timer, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,6 +107,14 @@ export function PropertyDetailPage() {
               <CalendarPlus aria-hidden />
               Fissa una visita
             </Button>
+            {data.canEdit && (
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link to={`/immobili/${p.id}/foto`}>
+                  <Camera aria-hidden />
+                  Aggiungi foto
+                </Link>
+              </Button>
+            )}
             <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
               <Link to={`/studio/nuovo/${p.id}`}>
                 <Clapperboard aria-hidden />
