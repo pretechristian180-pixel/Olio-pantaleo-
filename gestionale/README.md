@@ -119,6 +119,23 @@ a trovare il proprietario e ottenere l'incarico.
 - Scheda visita (`visit_feedback`): "Com'è andata la visita?" sugli appuntamenti passati.
 - In OGGI: "Documenti da sistemare". L'analisi completa delle richieste è in `docs/analisi-funzionalita.md`.
 
+### Automazioni (`/impostazioni/automazioni`)
+
+"Quando succede X, aspetta Y, fai Z", con 15 ricette pronte create per ogni agenzia (10 già accese).
+- Tabelle: `automations`, `automation_runs`, `message_templates`, `opt_outs`, `messaging_settings`
+  (migrazioni `20261103090000`–`20261103093000`).
+- I trigger sulle tabelle creano le esecuzioni; `automation_sweep()` crea quelle a calendario (scadenze,
+  compleanni, inattività, report ogni 15 giorni, festività). La Edge Function `automazioni` gira ogni 5 minuti
+  (pg_cron, segreto nel Vault) e invia.
+- Prima di ogni invio (`automation_prepare`): contatto escluso → saltata; evento cambiato → annullata; niente
+  invii 21:00–8:30 né la domenica; al massimo 1 messaggio automatico al giorno per contatto; consenso per i
+  messaggi promozionali. Ogni esecuzione finisce nelle attività del contatto.
+- WhatsApp solo con l'API ufficiale (Cloud API) e modelli approvati da Meta; altrimenti email (Resend);
+  altrimenti una cosa da fare per l'agente. Codice dei fornitori in `supabase/functions/automazioni/providers.ts`.
+- Risposte WhatsApp e "STOP": Edge Function `whatsapp-webhook`. Questionario dopo la visita (`/questionario/:token`)
+  e disiscrizione dalle email (`/disiscrizione/:token`): Edge Function `automazioni-pubblico`.
+- I contatti con `importato = true` non ricevono il benvenuto.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app
@@ -144,6 +161,11 @@ a trovare il proprietario e ottenere l'incarico.
 5. **Testo del consenso avatar**, dopo la revisione legale:
    `insert into public.consent_templates (versione, testo, attivo) values ('1.0', '…testo…', true);`
    (per una nuova versione: prima `update public.consent_templates set attivo = false where attivo;`).
+
+6. **Automazioni** (Edge Functions → Secrets): `APP_URL` (indirizzo dell'app, per i link di questionario e
+   disiscrizione), `RESEND_API_KEY` e `EMAIL_FROM` (email), `WHATSAPP_TOKEN`, `WHATSAPP_WABA_ID`,
+   `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (WhatsApp). Webhook su Meta:
+   `https://bwpgpsrcddlngpskyajr.supabase.co/functions/v1/whatsapp-webhook`.
 
 ## Struttura
 

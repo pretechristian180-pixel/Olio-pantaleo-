@@ -14,6 +14,7 @@ import { contactRoleLabel, contractLabel, seekerRoles, sourceLabel, temperatureL
 import { DocumentsCard } from "@/features/records/DocumentsCard";
 import { FeedbackSummaryCard } from "@/features/records/VisitFeedback";
 import { EditContactButton, RequestsCard } from "./ContactEditing";
+import { ExcludeToggle } from "@/features/automations/ExcludeToggle";
 import { formatPrice, formatRelative, formatTime, fullName } from "@/lib/format";
 import { getContact } from "@/services/api";
 import type { ActivityKind, Property } from "@/types/domain";
@@ -101,6 +102,7 @@ export function ContactDetailPage() {
       )}
 
       <ContactActions contact={c} className="mt-6 sm:max-w-xl" />
+      <ExcludeToggle contactId={c.id} canEdit={data.canEdit} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
         <div className="space-y-6">

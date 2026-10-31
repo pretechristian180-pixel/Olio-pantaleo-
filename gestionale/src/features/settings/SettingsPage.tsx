@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus } from "lucide-react";
+import { Check, ChevronRight, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -159,6 +159,19 @@ function ProfileSection() {
         </CardContent>
       </Card>
 
+      <Link
+        to="/impostazioni/automazioni"
+        className="flex items-center gap-4 rounded-lg border bg-card p-4 shadow-card hover:border-primary/40"
+      >
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+          <Zap className="size-6" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[17px] font-semibold">Automazioni</span>
+          <span className="block text-muted-foreground">Messaggi e promemoria che partono da soli: già accesi</span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+      </Link>
       {isPlatformAdmin && (
         <Button variant="secondary" size="lg" className="w-full" asChild>
           <Link to="/admin">

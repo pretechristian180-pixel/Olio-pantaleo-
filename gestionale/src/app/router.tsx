@@ -21,6 +21,8 @@ import { PropertiesPage } from "@/features/properties/PropertiesPage";
 import { PropertyDetailPage } from "@/features/properties/PropertyDetailPage";
 import { PropertyPhotosPage } from "@/features/properties/PropertyPhotosPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
+import { AutomationsPage } from "@/features/automations/AutomationsPage";
+import { QuestionnairePage, UnsubscribePage } from "@/features/automations/PublicPages";
 import { NewVideoPage } from "@/features/studio/NewVideoPage";
 import { PublicApprovalPage } from "@/features/studio/PublicApprovalPage";
 import { StudioPage } from "@/features/studio/StudioPage";
@@ -42,6 +44,9 @@ const routes = [
   { path: "imposta-password", element: <SetPasswordPage /> },
   // Approvazione di un video dal link WhatsApp: pubblica, protetta dal token monouso
   { path: "approva/:token", element: <PublicApprovalPage /> },
+  // Link nei messaggi automatici: questionario dopo la visita e disiscrizione dalle email
+  { path: "questionario/:token", element: <QuestionnairePage /> },
+  { path: "disiscrizione/:token", element: <UnsubscribePage /> },
   // Pannello admin della piattaforma (solo amministratori di Mattonio)
   {
     element: <RequireAdmin />,
@@ -76,6 +81,7 @@ const routes = [
           { path: "trattative/acquisizioni/:id", element: <AcquisitionDetailPage /> },
           { path: "agenda", element: <AgendaPage /> },
           { path: "impostazioni", element: <SettingsPage /> },
+          { path: "impostazioni/automazioni", element: <AutomationsPage /> },
           { path: "studio", element: <StudioPage /> },
           { path: "studio/nuovo/:propertyId", element: <NewVideoPage /> },
           { path: "studio/video/:id", element: <VideoPage /> },
