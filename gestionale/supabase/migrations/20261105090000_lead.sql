@@ -36,7 +36,7 @@ create table public.lead_sources (
   pagina_id text not null unique,
   nome text not null,
   instagram boolean not null default false,
-  stato text not null default 'collegata' check (stato in ('collegata', 'da_ricollegare')),
+  stato text not null default 'collegata' check (stato in ('collegata', 'da_ricollegare', 'scollegata')),
   collegata_at timestamptz not null default now()
 );
 create index on public.lead_sources (agency_id);
@@ -94,7 +94,8 @@ create policy "lead: titolare tutti, agente i propri" on public.leads for select
   using (agency_id = (select public.get_my_agency_id()) and ((select public.is_titolare()) or agente_id = (select auth.uid())));
 
 -- Scritture solo dalle funzioni qui sotto
-revoke insert, update, delete on public.lead_settings, public.lead_sources, public.leads from authenticated, anon;
+-- Nessuna policy di insert/update/delete: con RLS attiva le scritture passano solo dalle funzioni qui sotto
+revoke insert, update on public.lead_settings, public.lead_sources, public.leads from authenticated, anon;
 revoke all on public.lead_settings, public.lead_sources, public.leads from anon;
 
 -- ---------- Punteggio di qualità (0-100) con i motivi ----------
@@ -442,15 +443,16 @@ returns void language sql security definer set search_path = '' as $$
   update public.lead_sources set stato = 'da_ricollegare' where pagina_id = p_pagina
 $$;
 
--- Scollega una pagina (titolare): via anche il token dal Vault
+-- Scollega una pagina (titolare): il token nel Vault viene svuotato e la pagina non riceve più lead
 create or replace function public.lead_meta_scollega(p_id uuid)
 returns void language plpgsql security definer set search_path = '' as $$
-declare s public.lead_sources;
+declare s public.lead_sources; sid uuid;
 begin
   select * into s from public.lead_sources where id = p_id and agency_id = public.get_my_agency_id();
   if s.id is null or not public.is_titolare() then raise exception 'Pagina non trovata' using errcode = 'P0002'; end if;
-  delete from vault.secrets where name = 'meta_pagina_' || s.pagina_id;
-  delete from public.lead_sources where id = s.id;
+  select id into sid from vault.secrets where name = 'meta_pagina_' || s.pagina_id;
+  if sid is not null then perform vault.update_secret(sid, 'scollegata'); end if;
+  update public.lead_sources set stato = 'scollegata' where id = s.id;
 end $$;
 
 -- ---------- Permessi delle funzioni ----------
