@@ -31,6 +31,7 @@ export function proposalLink(contact: Contact, p: Property, agentFirstName: stri
 export function evaluateMatch(p: Property, s: SearchCriteria): { score: number; reasons: string[] } | null {
   let score = 45;
   const reasons: string[] = [];
+  if (s.active === false) return null;
   if (s.contract && s.contract !== p.contract) return null;
   if (s.budgetMax != null && p.price > s.budgetMax * 1.1) return null;
   if (s.sqmMin != null && p.sqm != null && p.sqm < s.sqmMin * 0.9) return null;
@@ -76,6 +77,20 @@ export function evaluateMatch(p: Property, s: SearchCriteria): { score: number; 
     } else {
       score -= 15;
       reasons.push("Tipo diverso");
+    }
+  }
+  const wanted = (s.features ?? []).map((f) => f.trim().toLowerCase()).filter(Boolean);
+  if (wanted.length) {
+    const has = (p.features ?? []).map((f) => f.trim().toLowerCase());
+    const present = wanted.filter((f) => has.includes(f));
+    const missing = wanted.filter((f) => !has.includes(f));
+    if (present.length) {
+      score += Math.min(12, 4 * present.length);
+      reasons.push(`Ha ${present.join(", ")}`);
+    }
+    if (missing.length) {
+      score -= Math.min(12, 3 * missing.length);
+      reasons.push(`Senza ${missing.join(", ")}`);
     }
   }
   return { score: Math.max(0, Math.min(100, score)), reasons };

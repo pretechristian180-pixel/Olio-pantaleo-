@@ -9,12 +9,15 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { useQuery } from "@/hooks/useQuery";
 import { listContacts } from "@/services/api";
 import type { ContactRole } from "@/types/domain";
+import { ownerRoles, seekerRoles } from "@/lib/labels";
+import { cn } from "@/lib/utils";
 import { ContactCard, ContactCardSkeleton } from "./ContactCard";
 
-type Tab = Exclude<ContactRole, "entrambi"> | "tutti";
+type Tab = "acquirente" | "proprietario" | "tutti";
 
-/** Chi è sia acquirente sia proprietario compare in entrambe le schede */
-const inTab = (role: ContactRole, tab: Tab) => tab === "tutti" || role === tab || role === "entrambi";
+/** Acquirenti = chi cerca casa (anche in affitto); Proprietari = chi vende o affitta. "Entrambi" compare in tutte e due. */
+const inTab = (role: ContactRole, tab: Tab) =>
+  tab === "tutti" || (tab === "acquirente" ? seekerRoles.includes(role) : ownerRoles.includes(role));
 
 export function ContactsPage() {
   const [params, setParams] = useSearchParams();
@@ -26,7 +29,9 @@ export function ContactsPage() {
     setParams(t === "acquirente" ? {} : { tipo: t }, { replace: true });
   }
 
-  const items = data?.filter((c) => inTab(c.role, tab)) ?? [];
+  const [tag, setTag] = useState<string | null>(null);
+  const tags = [...new Set((data ?? []).flatMap((c) => c.tags ?? []))].sort();
+  const items = data?.filter((c) => inTab(c.role, tab) && (!tag || c.tags?.includes(tag))) ?? [];
   const count = (r: Tab) => data?.filter((c) => inTab(c.role, r)).length;
 
   const addButton = (
@@ -46,13 +51,32 @@ export function ContactsPage() {
         label="Tipo di contatto"
         value={tab}
         onChange={setTab}
-        className="mb-6 sm:max-w-md"
+        className={cn(tags.length ? "mb-3" : "mb-6", "sm:max-w-md")}
         options={[
           { value: "acquirente", label: "Acquirenti", count: count("acquirente") },
           { value: "proprietario", label: "Proprietari", count: count("proprietario") },
           { value: "tutti", label: "Tutti", count: count("tutti") },
         ]}
       />
+
+      {tags.length > 0 && (
+        <div className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 scrollbar-none" role="group" aria-label="Filtra per etichetta">
+          {tags.map((t) => (
+            <button
+              key={t}
+              type="button"
+              aria-pressed={tag === t}
+              onClick={() => setTag(tag === t ? null : t)}
+              className={cn(
+                "h-10 shrink-0 rounded-full border px-4 text-[15px] font-medium",
+                tag === t ? "border-primary bg-primary text-white" : "bg-card text-foreground/80",
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
 
       {error ? (
         <ErrorState message={error} onRetry={reload} />

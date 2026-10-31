@@ -67,6 +67,10 @@ export interface Property {
   ownerId: ID | null;
   mandateStart: string | null;
   mandateEnd: string | null;
+  /** Caratteristiche (balcone, box auto, ascensore…) */
+  features?: string[];
+  lat?: number | null;
+  lng?: number | null;
   /** Tinta dell'illustrazione mostrata quando non ci sono foto */
   tint: number;
   createdAt: string;
@@ -85,6 +89,14 @@ export type Temperature = Enums<"temperatura_contatto">;
 export type ContactSource = Enums<"fonte_contatto">;
 
 export interface SearchCriteria {
+  /** Assente nei dati vecchi o non ancora salvati */
+  id?: ID;
+  /** Nome facoltativo, es. "Casa al mare" */
+  name?: string;
+  /** Caratteristiche desiderate (balcone, box auto…) */
+  features?: string[];
+  active?: boolean;
+  notes?: string;
   zones: string[];
   budgetMin: number | null;
   budgetMax: number | null;
@@ -115,7 +127,13 @@ export interface Contact {
   temperature: Temperature;
   source: ContactSource | null;
   notes?: string;
+  /** Prima richiesta attiva (compatibilità con le schermate esistenti) */
   search?: SearchCriteria;
+  /** Tutte le richieste del cliente */
+  searches?: SearchCriteria[];
+  tags?: string[];
+  birthday?: string | null;
+  marketingConsent?: boolean;
   createdAt: string;
 }
 

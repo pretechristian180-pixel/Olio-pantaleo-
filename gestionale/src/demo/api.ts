@@ -5,6 +5,8 @@
  * Le modifiche restano finché non si ricarica la pagina.
  */
 import type {
+  ContactPatch,
+  PropertyPatch,
   AppointmentWithRefs,
   ContactDetail,
   ContactWithLast,
@@ -34,6 +36,7 @@ import type {
   MatchStatus,
   Property,
   PropertyKind,
+  SearchCriteria,
   Task,
   Zone,
 } from "@/types/domain";
@@ -101,6 +104,7 @@ const db = {
       ownerId: p.ownerId,
       mandateStart: p.createdAt.slice(0, 10),
       mandateEnd: ["p3", "p8"].includes(p.id) ? addDays(new Date(), p.id === "p3" ? 3 : 12).toISOString().slice(0, 10) : null,
+      features: p.id === "p1" ? ["balcone", "ascensore", "aria condizionata", "doppi servizi", "ristrutturato"] : p.id === "p2" ? ["terrazzo", "vista mare"] : [],
       tint: p.tint,
       createdAt: p.createdAt,
     }),
@@ -118,8 +122,11 @@ const db = {
       temperature: c.temperature,
       source: c.role === "acquirente" ? "portale" : null,
       search: c.search
-        ? { zones: c.search.zones, budgetMin: null, budgetMax: c.search.budgetMax, sqmMin: c.search.sqmMin, roomsMin: null, contract: c.search.contract, kind: null }
+        ? { id: `sc_${c.id}`, active: true, features: [], zones: c.search.zones, budgetMin: null, budgetMax: c.search.budgetMax, sqmMin: c.search.sqmMin, roomsMin: null, contract: c.search.contract, kind: null }
         : undefined,
+      tags: c.role === "acquirente" ? ["prima casa"] : [],
+      birthday: null,
+      marketingConsent: false,
       createdAt: c.createdAt,
     }),
   ),
@@ -141,6 +148,8 @@ const db = {
   ),
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+db.contacts.forEach((c) => (c.searches = c.search ? [c.search] : []));
 
 const findContact = (id?: ID | null) => db.contacts.find((c) => c.id === id);
 const findProperty = (id?: ID | null) => db.properties.find((p) => p.id === id);
@@ -285,10 +294,14 @@ function currentMatches(): Match[] {
   const out: Match[] = [];
   for (const p of db.properties) {
     for (const c of db.contacts) {
-      if (c.role === "proprietario" || !c.search || c.id === p.ownerId) continue;
+      const searches = (c.searches ?? (c.search ? [c.search] : [])).filter((x) => x.active !== false);
+      if (!["acquirente", "entrambi", "inquilino"].includes(c.role) || !searches.length || c.id === p.ownerId) continue;
       const key = `${p.id}|${c.id}`;
       const state = matchState.get(key);
-      const evaluation = p.status === "disponibile" ? evaluateMatch(p, c.search) : null;
+      const evaluation =
+        p.status === "disponibile"
+          ? searches.map((sc) => evaluateMatch(p, sc)).filter((e): e is NonNullable<typeof e> => !!e).sort((a, b) => b.score - a.score)[0] ?? null
+          : null;
       if (!evaluation && !state) continue;
       const st = state ?? { id: `m_${p.id}_${c.id}`, status: "da_proporre" as const, proposedAt: null };
       out.push({ id: st.id, propertyId: p.id, contactId: c.id, score: evaluation?.score ?? 50, reasons: evaluation?.reasons ?? [], status: st.status, proposedAt: st.proposedAt });
@@ -399,6 +412,70 @@ export const demoDb = {
   newId,
 };
 
+export async function updateContact(id: ID, p: ContactPatch) {
+  const c = findContact(id);
+  if (c)
+    Object.assign(c, {
+      firstName: p.firstName.trim(),
+      lastName: p.lastName.trim(),
+      phone: p.phone.trim(),
+      email: p.email.trim() || undefined,
+      role: p.role,
+      temperature: p.temperature,
+      source: p.source,
+      tags: [...new Set(p.tags.map((t) => t.trim().toLowerCase()).filter(Boolean))],
+      birthday: p.birthday,
+      marketingConsent: p.marketingConsent,
+      notes: p.notes.trim() || undefined,
+    });
+  emitChange();
+  return wait(undefined);
+}
+
+export async function saveSearch(contactId: ID, sc: SearchCriteria) {
+  const c = findContact(contactId);
+  if (!c) return;
+  const list = c.searches ?? [];
+  if (sc.id) {
+    const i = list.findIndex((x) => x.id === sc.id);
+    if (i >= 0) list[i] = { ...sc };
+  } else list.push({ ...sc, id: newId("sc"), active: sc.active ?? true });
+  c.searches = list;
+  c.search = list.find((x) => x.active !== false);
+  emitChange();
+  return wait(undefined);
+}
+
+export async function deleteSearch(id: ID) {
+  for (const c of db.contacts) {
+    if (c.searches?.some((x) => x.id === id)) {
+      c.searches = c.searches.filter((x) => x.id !== id);
+      c.search = c.searches.find((x) => x.active !== false);
+    }
+  }
+  emitChange();
+  return wait(undefined);
+}
+
+export async function updateProperty(id: ID, p: PropertyPatch) {
+  const pr = findProperty(id);
+  if (pr)
+    Object.assign(pr, {
+      price: p.price,
+      status: p.status,
+      sqm: p.sqm,
+      rooms: p.rooms,
+      bathrooms: p.bathrooms,
+      description: p.description,
+      features: p.features,
+      floor: p.floor || undefined,
+      energyClass: p.energyClass || undefined,
+      mandateEnd: p.mandateEnd,
+    });
+  emitChange();
+  return wait(undefined);
+}
+
 /* ---------- Contatti ---------- */
 
 export async function listContacts(): Promise<ContactWithLast[]> {
@@ -462,6 +539,12 @@ export async function listDeals(): Promise<DealWithRefs[]> {
       .filter((d) => d.stage !== "persa")
       .map((d) => ({ ...d, contact: findContact(d.contactId), property: findProperty(d.propertyId), canEdit: true })),
   );
+}
+
+export async function getDeal(id: ID): Promise<DealWithRefs | null> {
+  const d = db.deals.find((x) => x.id === id);
+  if (!d) return wait(null);
+  return wait({ ...d, contact: findContact(d.contactId), property: findProperty(d.propertyId), canEdit: true });
 }
 
 export async function moveDeal(id: ID, stage: DealStage) {

@@ -14,6 +14,7 @@ export type Tone = "brand" | "navy" | "green" | "orange" | "red" | "gray" | "vio
 export const statusLabel: Record<PropertyStatus, { label: string; tone: Tone }> = {
   disponibile: { label: "Disponibile", tone: "green" },
   in_trattativa: { label: "In trattativa", tone: "orange" },
+  sospeso: { label: "Sospeso", tone: "amber" },
   venduto: { label: "Venduto", tone: "gray" },
   affittato: { label: "Affittato", tone: "gray" },
   ritirato: { label: "Ritirato", tone: "gray" },
@@ -36,7 +37,34 @@ export const contactRoleLabel: Record<ContactRole, string> = {
   acquirente: "Acquirente",
   proprietario: "Proprietario",
   entrambi: "Acquirente e proprietario",
+  locatore: "Locatore (affitta)",
+  inquilino: "Inquilino (cerca in affitto)",
+  collaboratore: "Collaboratore",
+  altro: "Altro",
 };
+
+/** Chi cerca casa: per loro valgono le richieste e il matching */
+export const seekerRoles: ContactRole[] = ["acquirente", "entrambi", "inquilino"];
+/** Chi ha un immobile da vendere o affittare */
+export const ownerRoles: ContactRole[] = ["proprietario", "entrambi", "locatore"];
+
+/** Caratteristiche di immobili e richieste: stessa lista, così il matching le confronta */
+export const featureOptions = [
+  "balcone",
+  "terrazzo",
+  "giardino",
+  "box auto",
+  "posto auto",
+  "cantina",
+  "ascensore",
+  "aria condizionata",
+  "riscaldamento autonomo",
+  "doppi servizi",
+  "arredato",
+  "ristrutturato",
+  "piano alto",
+  "vista mare",
+] as const;
 
 export const sourceLabel: Record<ContactSource, string> = {
   portale: "Portale immobiliare",

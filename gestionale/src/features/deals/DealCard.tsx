@@ -56,6 +56,13 @@ export const DealCard = forwardRef<HTMLDivElement, Props>(function DealCard(
       <p className="mt-2 text-xl font-bold tracking-tight">
         {rent ? `${formatPrice(Math.round(d.value / 12), true)}` : formatPrice(d.value)}
       </p>
+      <Link
+        to={`/trattative/vendita/${d.id}`}
+        className="mt-2 inline-flex h-10 items-center text-[15px] font-semibold text-primary-strong hover:underline"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        Documenti e antiriciclaggio
+      </Link>
       {nextLabel && onNext && d.canEdit && (
         <button
           type="button"

@@ -7,6 +7,7 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 import { NotAllowedError } from "@/lib/errors";
 import { daysSince, startOfDay, addDays } from "@/lib/format";
+import { seekerRoles } from "@/lib/labels";
 import { compressImage } from "@/lib/image";
 import { LOGO_BUCKET, PHOTO_BUCKET, supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
@@ -105,6 +106,9 @@ function toProperty(r: PropertyRow, signed: Map<string, string>): Property {
     ownerId: r.owner_id,
     mandateStart: r.data_incarico,
     mandateEnd: r.scadenza_incarico,
+    features: r.caratteristiche ?? [],
+    lat: r.lat == null ? null : Number(r.lat),
+    lng: r.lng == null ? null : Number(r.lng),
     tint: tintFor(r.id),
     createdAt: r.created_at,
   };
@@ -112,6 +116,11 @@ function toProperty(r: PropertyRow, signed: Map<string, string>): Property {
 
 function toSearch(sc: Tables<"search_criteria">): SearchCriteria {
   return {
+    id: sc.id,
+    name: sc.nome ?? undefined,
+    features: sc.caratteristiche ?? [],
+    active: sc.attiva ?? true,
+    notes: sc.note ?? undefined,
     zones: sc.zone ?? [],
     budgetMin: sc.budget_min,
     budgetMax: sc.budget_max,
@@ -123,7 +132,9 @@ function toSearch(sc: Tables<"search_criteria">): SearchCriteria {
 }
 
 function toContact(r: ContactRow): Contact {
-  const sc = Array.isArray(r.search_criteria) ? r.search_criteria[0] : r.search_criteria;
+  const all = (Array.isArray(r.search_criteria) ? r.search_criteria : r.search_criteria ? [r.search_criteria] : [])
+    .map(toSearch)
+    .sort((a, b) => Number(b.active) - Number(a.active));
   return {
     id: r.id,
     agencyId: r.agency_id,
@@ -136,7 +147,11 @@ function toContact(r: ContactRow): Contact {
     temperature: r.temperatura,
     source: r.fonte,
     notes: r.note ?? undefined,
-    search: sc ? toSearch(sc) : undefined,
+    search: all.find((x) => x.active),
+    searches: all,
+    tags: r.etichette ?? [],
+    birthday: r.data_nascita,
+    marketingConsent: r.consenso_marketing,
     createdAt: r.created_at,
   };
 }
@@ -718,7 +733,7 @@ export async function createContact(input: NewContact) {
       .select("*")
       .single(),
   );
-  if (input.search && input.role !== "proprietario") {
+  if (input.search && seekerRoles.includes(input.role)) {
     ok(
       await supabase.from("search_criteria").insert({
         contact_id: row.id,
@@ -731,6 +746,109 @@ export async function createContact(input: NewContact) {
   }
   emitChange();
   return toContact(row);
+}
+
+export interface ContactPatch {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  role: ContactRole;
+  temperature: Temperature;
+  source: ContactSource | null;
+  tags: string[];
+  birthday: string | null;
+  marketingConsent: boolean;
+  notes: string;
+}
+
+export async function updateContact(id: ID, p: ContactPatch) {
+  const rows = ok(
+    await supabase
+      .from("contacts")
+      .update({
+        nome: p.firstName.trim(),
+        cognome: p.lastName.trim(),
+        telefono: p.phone.trim() || null,
+        email: p.email.trim().toLowerCase() || null,
+        tipo: p.role,
+        temperatura: p.temperature,
+        fonte: p.source,
+        etichette: [...new Set(p.tags.map((t) => t.trim().toLowerCase()).filter(Boolean))],
+        data_nascita: p.birthday || null,
+        consenso_marketing: p.marketingConsent,
+        note: p.notes.trim() || null,
+      })
+      .eq("id", id)
+      .select("id"),
+  );
+  if (!rows.length) throw new NotAllowedError();
+  emitChange();
+}
+
+/** Crea o aggiorna una richiesta del cliente (un cliente può averne più di una) */
+export async function saveSearch(contactId: ID, sc: SearchCriteria) {
+  const cols = {
+    nome: sc.name?.trim() || null,
+    contratto: sc.contract,
+    zone: sc.zones,
+    budget_min: sc.budgetMin,
+    budget_max: sc.budgetMax,
+    mq_min: sc.sqmMin,
+    locali_min: sc.roomsMin,
+    tipo: sc.kind,
+    caratteristiche: sc.features ?? [],
+    attiva: sc.active ?? true,
+    note: sc.notes?.trim() || null,
+  };
+  if (sc.id) {
+    const rows = ok(await supabase.from("search_criteria").update(cols).eq("id", sc.id).select("id"));
+    if (!rows.length) throw new NotAllowedError();
+  } else {
+    ok(await supabase.from("search_criteria").insert({ ...cols, contact_id: contactId }));
+  }
+  emitChange();
+}
+
+export async function deleteSearch(id: ID) {
+  ok(await supabase.from("search_criteria").delete().eq("id", id));
+  emitChange();
+}
+
+export interface PropertyPatch {
+  price: number;
+  status: PropertyStatus;
+  sqm: number | null;
+  rooms: number | null;
+  bathrooms: number | null;
+  description: string;
+  features: string[];
+  floor: string;
+  energyClass: string;
+  mandateEnd: string | null;
+}
+
+export async function updateProperty(id: ID, p: PropertyPatch) {
+  const rows = ok(
+    await supabase
+      .from("properties")
+      .update({
+        prezzo: p.price,
+        stato: p.status,
+        mq: p.sqm,
+        locali: p.rooms,
+        bagni: p.bathrooms,
+        descrizione: p.description.trim() || null,
+        caratteristiche: p.features,
+        piano: p.floor.trim() || null,
+        classe_energetica: p.energyClass.trim() || null,
+        scadenza_incarico: p.mandateEnd,
+      })
+      .eq("id", id)
+      .select("id"),
+  );
+  if (!rows.length) throw new NotAllowedError();
+  emitChange();
 }
 
 /** Registra nella cronologia una chiamata o un messaggio WhatsApp. */
@@ -760,6 +878,21 @@ export async function listDeals(): Promise<DealWithRefs[]> {
     property: r.property ? toProperty(r.property, new Map()) : undefined,
     canEdit: canEdit(r.agente_id),
   }));
+}
+
+export async function getDeal(id: ID): Promise<DealWithRefs | null> {
+  type Row = Tables<"deals"> & { contact: Tables<"contacts"> | null; property: PropertyRow | null };
+  const r = okMaybe(
+    await supabase.from("deals").select("*, contact:contacts(*), property:properties(*, property_photos(id, url, ordine))").eq("id", id).maybeSingle(),
+  ) as unknown as Row | null;
+  if (!r) return null;
+  const [withCover] = r.property ? await propertiesWithCover([r.property]) : [undefined];
+  return {
+    ...toDeal(r),
+    contact: r.contact ? toContact(r.contact) : undefined,
+    property: withCover,
+    canEdit: canEdit(r.agente_id),
+  };
 }
 
 export async function moveDeal(id: ID, stage: DealStage) {

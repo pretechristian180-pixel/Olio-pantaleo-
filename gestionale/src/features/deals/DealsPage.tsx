@@ -21,7 +21,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useQuery } from "@/hooks/useQuery";
-import { stages } from "@/lib/labels";
+import { seekerRoles, stages } from "@/lib/labels";
 import { friendlyError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { formatShortPrice, fullName } from "@/lib/format";
@@ -263,7 +263,7 @@ function NewDealDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
 function NewDealForm({ onDone }: { onDone: () => void }) {
   const options = useQuery(pickerOptions);
   const properties = options.data?.properties ?? [];
-  const buyers = (options.data?.contacts ?? []).filter((c) => c.role !== "proprietario");
+  const buyers = (options.data?.contacts ?? []).filter((c) => seekerRoles.includes(c.role));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [contactId, setContactId] = useState("");

@@ -14,6 +14,7 @@ import { ContactsPage } from "@/features/contacts/ContactsPage";
 import { NewContactPage } from "@/features/contacts/NewContactPage";
 import { AcquisitionDetailPage } from "@/features/acquisitions/AcquisitionDetailPage";
 import { AcquisitionsPage } from "@/features/acquisitions/AcquisitionsPage";
+import { DealDetailPage } from "@/features/deals/DealDetailPage";
 import { DealsPage } from "@/features/deals/DealsPage";
 import { NewPropertyPage } from "@/features/properties/NewPropertyPage";
 import { PropertiesPage } from "@/features/properties/PropertiesPage";
@@ -70,6 +71,7 @@ const routes = [
           { path: "contatti/nuovo", element: <NewContactPage /> },
           { path: "contatti/:id", element: <ContactDetailPage /> },
           { path: "trattative", element: <DealsPage /> },
+          { path: "trattative/vendita/:id", element: <DealDetailPage /> },
           { path: "trattative/acquisizioni", element: <AcquisitionsPage /> },
           { path: "trattative/acquisizioni/:id", element: <AcquisitionDetailPage /> },
           { path: "agenda", element: <AgendaPage /> },

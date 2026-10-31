@@ -106,6 +106,19 @@ a trovare il proprietario e ottenere l'incarico.
   le proprie, il titolare tutte. Fase, motivo di perdita e immobile collegato cambiano solo con la funzione
   `acquisition_set_phase()`, che fa i controlli lato server. Ogni cambio finisce nelle attività del proprietario.
 
+### Schede complete (contatti, richieste, immobili, documenti, visite)
+
+- Contatti: ruoli locatore/inquilino/collaboratore/altro, etichette con filtro, compleanno, consenso alle
+  comunicazioni, modifica della scheda; più richieste per cliente con caratteristiche desiderate (il matching
+  usa la richiesta migliore e le caratteristiche).
+- Immobili: stato "Sospeso", caratteristiche, modifica, link a Google Maps; "Cosa dicono i visitatori".
+- Documenti: tabella `documents` + bucket privato `documenti` ({agency_id}/...), per contatto, immobile,
+  trattativa o acquisizione, con scadenze.
+- Checklist (`checklist_items`): documenti dell'immobile e antiriciclaggio della trattativa
+  (`/trattative/vendita/:id`), voci standard preparate da `checklist_prepare()`, chi e quando ha completato.
+- Scheda visita (`visit_feedback`): "Com'è andata la visita?" sugli appuntamenti passati.
+- In OGGI: "Documenti da sistemare". L'analisi completa delle richieste è in `docs/analisi-funzionalita.md`.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app

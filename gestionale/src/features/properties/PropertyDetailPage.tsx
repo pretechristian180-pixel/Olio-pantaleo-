@@ -18,6 +18,11 @@ import { contractLabel, kindLabel } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatShortDate, fullName } from "@/lib/format";
 import { getProperty } from "@/services/api";
+import { ChecklistCard } from "@/features/records/ChecklistCard";
+import { DocumentsCard } from "@/features/records/DocumentsCard";
+import { FeatureChips } from "@/features/records/FeaturePicker";
+import { FeedbackSummaryCard } from "@/features/records/VisitFeedback";
+import { EditPropertyButton, MapLinks } from "./PropertyEditing";
 
 export function PropertyDetailPage() {
   const { id = "" } = useParams();
@@ -101,12 +106,14 @@ export function PropertyDetailPage() {
             <MapPin className="mt-1 size-4 shrink-0" aria-hidden />
             {p.address}, {p.city}
           </p>
+          <MapLinks property={p} className="mt-3" />
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button size="lg" className="w-full sm:w-auto" onClick={() => openAppointment({ propertyId: p.id, kind: "visita" })}>
               <CalendarPlus aria-hidden />
               Fissa una visita
             </Button>
+            {data.canEdit && <EditPropertyButton property={p} className="w-full sm:w-auto" />}
             {data.canEdit && (
               <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
                 <Link to={`/immobili/${p.id}/foto`}>
@@ -132,10 +139,23 @@ export function PropertyDetailPage() {
             ))}
           </dl>
 
+          {!!p.features?.length && (
+            <>
+              <h2 className="mt-8 text-xl font-semibold">Caratteristiche</h2>
+              <FeatureChips features={p.features} className="mt-3" />
+            </>
+          )}
+
           <h2 className="mt-8 text-xl font-semibold">Descrizione</h2>
           <p className="mt-2 max-w-prose text-[17px] leading-relaxed text-foreground/85">
             {p.description || "Nessuna descrizione inserita."}
           </p>
+
+          <div className="mt-8 space-y-6">
+            <FeedbackSummaryCard propertyId={p.id} />
+            <ChecklistCard recordRef={{ propertyId: p.id }} kind="documenti" canEdit={data.canEdit} />
+            <DocumentsCard recordRef={{ propertyId: p.id }} title="Archivio documenti" canEdit={data.canEdit} />
+          </div>
         </div>
 
         <aside className="space-y-4">

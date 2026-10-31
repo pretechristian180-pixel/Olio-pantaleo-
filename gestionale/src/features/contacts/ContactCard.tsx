@@ -23,6 +23,15 @@ export function ContactCard({ contact: c }: { contact: Contact & { lastActivity?
           </p>
         </div>
       </Link>
+      {!!c.tags?.length && (
+        <ul className="mt-2 flex flex-wrap gap-1.5">
+          {c.tags.map((t) => (
+            <li key={t} className="rounded-full bg-primary-soft px-2.5 py-0.5 text-sm font-medium text-primary-strong">
+              {t}
+            </li>
+          ))}
+        </ul>
+      )}
       {c.lastActivity && (
         <p className="mt-3 rounded-md bg-muted px-3 py-2 text-[15px] text-foreground/80">
           <span className="font-medium text-foreground">{capitalize(formatRelative(c.lastActivity.date))}:</span> {c.lastActivity.text}

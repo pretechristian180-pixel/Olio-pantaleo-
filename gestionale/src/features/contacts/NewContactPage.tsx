@@ -7,7 +7,7 @@ import { Field, Input, Select } from "@/components/ui/input";
 import { Segmented } from "@/components/ui/segmented";
 import { BackLink } from "@/components/shared/BackLink";
 import { friendlyError } from "@/lib/errors";
-import { sourceLabel, temperatureLabel, toneClasses } from "@/lib/labels";
+import { contactRoleLabel, seekerRoles, sourceLabel, temperatureLabel, toneClasses } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/lib/format";
 import { ZoneChips } from "@/features/matching/ZonePicker";
@@ -54,7 +54,7 @@ export function NewContactPage() {
       temperature,
       source: source || null,
       search:
-        role === "acquirente"
+        seekerRoles.includes(role)
           ? { zones, budgetMax: Number(budget) || null, sqmMin: Number(sqm) || null, contract }
           : undefined,
       });
@@ -77,14 +77,26 @@ export function NewContactPage() {
       <div className="mt-6 space-y-5">
         <Segmented
           label="Tipo di contatto"
-          value={role}
-          onChange={setRole}
+          value={role === "acquirente" || role === "proprietario" ? role : "altro"}
+          onChange={(v) => setRole(v === "altro" ? "entrambi" : v)}
           options={[
-            { value: "acquirente", label: "Vuole comprare o affittare" },
-            { value: "proprietario", label: "Vuole vendere" },
+            { value: "acquirente", label: "Cerca casa" },
+            { value: "proprietario", label: "Vende" },
+            { value: "altro", label: "Altro" },
           ]}
           className="[&_button]:text-[14px] sm:[&_button]:text-[15px]"
         />
+        {role !== "acquirente" && role !== "proprietario" && (
+          <Field label="Chi è" htmlFor="nc-role">
+            <Select id="nc-role" value={role} onChange={(e) => setRole(e.target.value as ContactRole)}>
+              {(["entrambi", "locatore", "inquilino", "collaboratore", "altro"] as ContactRole[]).map((r) => (
+                <option key={r} value={r}>
+                  {contactRoleLabel[r]}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Nome" htmlFor="nc-fn">
             <Input id="nc-fn" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={cn(errors.firstName && "border-destructive")} autoComplete="off" />
@@ -138,7 +150,7 @@ export function NewContactPage() {
           <p className="mt-1.5 text-sm text-muted-foreground">{temperatureLabel[temperature].hint}</p>
         </div>
 
-        {role === "acquirente" && (
+        {seekerRoles.includes(role) && (
           <fieldset className="space-y-5 rounded-xl border p-4 sm:p-5">
             <legend className="px-1 text-lg font-semibold">Cosa cerca</legend>
             <Segmented

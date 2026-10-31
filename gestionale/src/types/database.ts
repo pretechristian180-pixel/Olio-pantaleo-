@@ -105,6 +105,10 @@ export type Database = {
           temperatura: E["temperatura_contatto"];
           tipo: E["tipo_contatto"];
           updated_at: string;
+          etichette: string[];
+          data_nascita: string | null;
+          consenso_marketing: boolean;
+          consenso_marketing_at: string | null;
         };
         Insert: {
           agency_id?: string;
@@ -120,6 +124,9 @@ export type Database = {
           temperatura?: E["temperatura_contatto"];
           tipo?: E["tipo_contatto"];
           updated_at?: string;
+          etichette?: string[];
+          data_nascita?: string | null;
+          consenso_marketing?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["contacts"]["Insert"]>;
         Relationships: [];
@@ -228,6 +235,9 @@ export type Database = {
           titolo: string;
           updated_at: string;
           zona: string | null;
+          caratteristiche: string[];
+          lat: number | null;
+          lng: number | null;
         };
         Insert: {
           agency_id?: string;
@@ -252,6 +262,9 @@ export type Database = {
           titolo: string;
           updated_at?: string;
           zona?: string | null;
+          caratteristiche?: string[];
+          lat?: number | null;
+          lng?: number | null;
         };
         Update: Partial<Database["public"]["Tables"]["properties"]["Insert"]>;
         Relationships: [];
@@ -274,6 +287,11 @@ export type Database = {
           mq_min: number | null;
           tipo: E["tipo_immobile"] | null;
           zone: string[];
+          nome: string | null;
+          caratteristiche: string[];
+          attiva: boolean;
+          note: string | null;
+          created_at: string;
         };
         Insert: {
           agency_id?: string;
@@ -286,6 +304,10 @@ export type Database = {
           mq_min?: number | null;
           tipo?: E["tipo_immobile"] | null;
           zone?: string[];
+          nome?: string | null;
+          caratteristiche?: string[];
+          attiva?: boolean;
+          note?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["search_criteria"]["Insert"]>;
         Relationships: [];
@@ -405,12 +427,12 @@ export type Database = {
       origine_task: "manuale" | "automatica";
       piano_agenzia: "start" | "pro" | "elite";
       ruolo_utente: "titolare" | "agente";
-      stato_immobile: "disponibile" | "in_trattativa" | "venduto" | "affittato" | "ritirato";
+      stato_immobile: "disponibile" | "in_trattativa" | "sospeso" | "venduto" | "affittato" | "ritirato";
       stato_match: "da_proporre" | "proposto" | "interessato" | "scartato";
       temperatura_contatto: "caldo" | "tiepido" | "freddo";
       tipo_appuntamento: "visita" | "valutazione" | "firma" | "altro";
       tipo_attivita: "chiamata" | "whatsapp" | "email" | "visita" | "nota" | "cambio_fase";
-      tipo_contatto: "acquirente" | "proprietario" | "entrambi";
+      tipo_contatto: "acquirente" | "proprietario" | "entrambi" | "locatore" | "inquilino" | "collaboratore" | "altro";
       tipo_contratto: "vendita" | "affitto";
       tipo_immobile: "appartamento" | "villa" | "locale" | "terreno" | "altro";
     };

@@ -10,7 +10,10 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { PropertyPhoto } from "@/components/shared/PropertyPhoto";
 import { useQuery } from "@/hooks/useQuery";
-import { contactRoleLabel, contractLabel, sourceLabel, temperatureLabel } from "@/lib/labels";
+import { contactRoleLabel, contractLabel, seekerRoles, sourceLabel, temperatureLabel } from "@/lib/labels";
+import { DocumentsCard } from "@/features/records/DocumentsCard";
+import { FeedbackSummaryCard } from "@/features/records/VisitFeedback";
+import { EditContactButton, RequestsCard } from "./ContactEditing";
 import { formatPrice, formatRelative, formatTime, fullName } from "@/lib/format";
 import { getContact } from "@/services/api";
 import type { ActivityKind, Property } from "@/types/domain";
@@ -53,7 +56,7 @@ export function ContactDetailPage() {
     );
 
   const { contact: c, proposed, owned, matches } = data;
-  const buyer = c.role !== "proprietario";
+  const buyer = seekerRoles.includes(c.role);
 
   return (
     <div>
@@ -70,31 +73,39 @@ export function ContactDetailPage() {
           <p className="mt-1.5 text-[17px]">{c.phone}</p>
           {c.email && <p className="text-muted-foreground">{c.email}</p>}
           {c.source && <p className="text-muted-foreground">Arrivato da: {sourceLabel[c.source]}</p>}
+          {c.birthday && (
+            <p className="text-muted-foreground">
+              Compleanno: {new Date(c.birthday + "T12:00:00").toLocaleDateString("it-IT", { day: "numeric", month: "long" })}
+            </p>
+          )}
+          {!!c.tags?.length && (
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {c.tags.map((t) => (
+                <li key={t} className="rounded-full bg-primary-soft px-2.5 py-0.5 text-sm font-medium text-primary-strong">
+                  {t}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+        {data.canEdit && (
+          <div className="ml-auto hidden sm:block">
+            <EditContactButton contact={c} />
+          </div>
+        )}
       </div>
+      {data.canEdit && (
+        <div className="mt-4 sm:hidden [&>button]:w-full">
+          <EditContactButton contact={c} />
+        </div>
+      )}
 
       <ContactActions contact={c} className="mt-6 sm:max-w-xl" />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
         <div className="space-y-6">
-          {buyer && c.search && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Cosa cerca</CardTitle>
-                <span className="text-muted-foreground">{temperatureLabel[c.temperature].hint}</span>
-              </CardHeader>
-              <CardContent>
-                <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  <Fact label="Zona" value={c.search.zones.join(" · ") || "Qualsiasi"} className="col-span-2 sm:col-span-1" />
-                  <Fact
-                    label={c.search.contract === "affitto" ? "Affitto massimo" : "Budget massimo"}
-                    value={c.search.budgetMax != null ? formatPrice(c.search.budgetMax, c.search.contract === "affitto") : "Non indicato"}
-                  />
-                  <Fact label="Almeno" value={c.search.sqmMin != null ? `${c.search.sqmMin} mq` : "Non indicato"} />
-                </dl>
-              </CardContent>
-            </Card>
-          )}
+          {buyer && <RequestsCard contact={c} canEdit={data.canEdit} hint={temperatureLabel[c.temperature].hint} />}
+          <FeedbackSummaryCard contactId={c.id} />
 
           <Card>
             <CardHeader>
@@ -182,20 +193,13 @@ export function ContactDetailPage() {
               )}
             </CardContent>
           </Card>
+          <DocumentsCard recordRef={{ contactId: c.id }} canEdit={data.canEdit} />
         </aside>
       </div>
     </div>
   );
 }
 
-function Fact({ label, value, className }: { label: string; value: string; className?: string }) {
-  return (
-    <div className={`rounded-lg bg-muted px-4 py-3 ${className ?? ""}`}>
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-[17px] font-semibold">{value}</dd>
-    </div>
-  );
-}
 
 function MiniProperty({ property: p, score }: { property: Property; score?: number }) {
   return (

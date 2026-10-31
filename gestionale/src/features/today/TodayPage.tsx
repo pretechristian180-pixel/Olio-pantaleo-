@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, KeyRound, PhoneCall } from "lucide-react";
+import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, FileWarning, KeyRound, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,12 +9,13 @@ import { StatCard } from "@/components/shared/StatCard";
 import { AppointmentItem } from "@/features/agenda/AppointmentItem";
 import { useAppointmentDialog } from "@/features/agenda/AppointmentDialog";
 import { useQuery } from "@/hooks/useQuery";
-import { formatLongDate } from "@/lib/format";
+import { formatLongDate, formatShortDate } from "@/lib/format";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { friendlyError } from "@/lib/errors";
 import { getToday, toggleTask } from "@/services/api";
 import { countToApprove } from "@/services/studio";
 import { acquisitionsToFollow } from "@/services/acquisitions";
+import { paperworkSummary } from "@/services/records";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { TaskList } from "./TaskList";
 
@@ -79,6 +80,7 @@ export function TodayPage() {
 
       <StudioCard />
       <AcquisitionsCard />
+      <PaperworkCard />
 
       <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-8">
         <section>
@@ -204,6 +206,54 @@ function AcquisitionsCard() {
               </span>
               <span className={a.nextActionDate! < today ? "shrink-0 text-sm font-semibold text-warning" : "shrink-0 text-sm font-semibold text-primary-strong"}>
                 {a.nextActionDate! < today ? "In ritardo" : "Oggi"}
+              </span>
+              <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Documenti obbligatori mancanti sugli immobili attivi e documenti in scadenza */
+function PaperworkCard() {
+  const { data } = useQuery(paperworkSummary);
+  if (!data || (!data.missing.length && !data.expiring.length)) return null;
+  const today = new Date().toLocaleDateString("sv-SE");
+  return (
+    <section className="mt-4 rounded-lg border bg-card shadow-card sm:mt-6">
+      <h2 className="flex items-center gap-2 px-4 pt-4 text-[17px] font-semibold">
+        <span className="flex size-8 items-center justify-center rounded-lg bg-warning-soft text-warning">
+          <FileWarning className="size-5" aria-hidden />
+        </span>
+        Documenti da sistemare
+      </h2>
+      <ul className="mt-2 divide-y">
+        {data.missing.slice(0, 3).map((m) => (
+          <li key={m.propertyId}>
+            <Link to={`/immobili/${m.propertyId}`} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/60">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-semibold">{m.address}</span>
+                <span className="block text-[15px] text-muted-foreground">
+                  {m.count === 1 ? "Manca 1 documento obbligatorio" : `Mancano ${m.count} documenti obbligatori`}
+                </span>
+              </span>
+              <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+            </Link>
+          </li>
+        ))}
+        {data.expiring.slice(0, 3).map((d) => (
+          <li key={d.id}>
+            <Link
+              to={d.propertyId ? `/immobili/${d.propertyId}` : d.contactId ? `/contatti/${d.contactId}` : "/"}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-muted/60"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-semibold">{d.name}</span>
+                <span className={d.expiresOn < today ? "block text-[15px] font-semibold text-destructive" : "block text-[15px] text-warning"}>
+                  {d.expiresOn < today ? "Scaduto" : "In scadenza"} il {formatShortDate(d.expiresOn)}
+                </span>
               </span>
               <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
             </Link>
