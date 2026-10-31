@@ -22,6 +22,7 @@ import { PropertyDetailPage } from "@/features/properties/PropertyDetailPage";
 import { PropertyPhotosPage } from "@/features/properties/PropertyPhotosPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { AutomationsPage } from "@/features/automations/AutomationsPage";
+import { ImportPage } from "@/features/import/ImportPage";
 import { QuestionnairePage, UnsubscribePage } from "@/features/automations/PublicPages";
 import { NewVideoPage } from "@/features/studio/NewVideoPage";
 import { PublicApprovalPage } from "@/features/studio/PublicApprovalPage";
@@ -82,6 +83,7 @@ const routes = [
           { path: "agenda", element: <AgendaPage /> },
           { path: "impostazioni", element: <SettingsPage /> },
           { path: "impostazioni/automazioni", element: <AutomationsPage /> },
+          { path: "impostazioni/importa", element: <ImportPage /> },
           { path: "studio", element: <StudioPage /> },
           { path: "studio/nuovo/:propertyId", element: <NewVideoPage /> },
           { path: "studio/video/:id", element: <VideoPage /> },

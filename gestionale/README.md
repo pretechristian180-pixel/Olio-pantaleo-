@@ -136,6 +136,23 @@ a trovare il proprietario e ottenere l'incarico.
   e disiscrizione dalle email (`/disiscrizione/:token`): Edge Function `automazioni-pubblico`.
 - I contatti con `importato = true` non ricevono il benvenuto.
 
+### Importazione guidata (`/impostazioni/importa`, solo titolare)
+
+Contatti, richieste, immobili, acquisizioni e appuntamenti da Excel (.xlsx) o CSV, fino a 10.000 righe.
+- Tabelle `import_jobs` e `import_rows`, bucket privato `imports` (una cartella per agenzia, file eliminati
+  dopo 30 giorni). Migrazioni `20261104090000`–`20261104091000`.
+- Quattro passi: tipo (ordine consigliato, avviso se mancano i contatti) → file (letto nel browser,
+  `src/lib/spreadsheet.ts`) → colonne (proposte dall'AI con la Edge Function `importazione`, altrimenti
+  riconoscimento automatico in `src/features/import/fields.ts`; le colonne non importate vanno nelle note)
+  → controllo (`import_preview`: prime 20 righe pulite, conteggi di pronte, doppioni ed errori).
+- Pulizia nel database: telefoni in formato internazionale, email minuscole, nomi con la maiuscola,
+  prezzi e metri quadri come numeri. Doppioni = stesso telefono o stessa email: salta, completa i campi
+  vuoti o crea comunque.
+- L'importazione va a blocchi (`import_process`): dall'app finché la pagina è aperta, poi da pg_cron ogni
+  minuto (`import_tick`). Durante l'importazione niente cose da fare né messaggi automatici a pioggia.
+- Riepilogo con Excel delle righe non importate e del motivo; "Annulla importazione" entro 24 ore
+  (`import_undo`) elimina solo le schede create da quel file.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app
@@ -166,6 +183,9 @@ a trovare il proprietario e ottenere l'incarico.
    disiscrizione), `RESEND_API_KEY` e `EMAIL_FROM` (email), `WHATSAPP_TOKEN`, `WHATSAPP_WABA_ID`,
    `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (WhatsApp). Webhook su Meta:
    `https://bwpgpsrcddlngpskyajr.supabase.co/functions/v1/whatsapp-webhook`.
+7. **Importazione guidata**: `ANTHROPIC_API_KEY` (lo stesso di Studio) per l'abbinamento delle colonne con
+   l'AI; senza chiave si usa il riconoscimento automatico. Nessun'altra configurazione: i job programmati
+   `importazioni` e `importazioni-pulizia` sono già attivi.
 
 ## Struttura
 

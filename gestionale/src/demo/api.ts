@@ -407,6 +407,11 @@ export async function addPropertyPhotos(propertyId: ID, files: File[]) {
 export const demoDb = {
   contacts: () => db.contacts,
   addContact: (c: Contact) => db.contacts.push(c),
+  removeContacts: (ids: ID[]) => {
+    db.contacts = db.contacts.filter((c) => !ids.includes(c.id));
+  },
+  agencyId: AG,
+  me: ME,
   addProperty: (p: Property) => db.properties.push(p),
   addActivity: (contactId: ID, text: string) => addActivity(contactId, "nota", text),
   newId,
