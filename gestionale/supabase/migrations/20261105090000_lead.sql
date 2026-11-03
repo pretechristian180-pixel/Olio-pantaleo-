@@ -105,17 +105,17 @@ language plpgsql immutable set search_path = '' as $$
 declare m text := lower(coalesce(p_msg, ''));
 begin
   punteggio := 0; motivi := '{}';
-  if p_tel is not null then punteggio := punteggio + 30; motivi := motivi || 'Ha lasciato il telefono'; end if;
-  if p_email is not null then punteggio := punteggio + 10; motivi := motivi || 'Ha lasciato l''email'; end if;
-  if p_immobile then punteggio := punteggio + 20; motivi := motivi || 'Chiede di un immobile preciso'; end if;
-  if m ~ '(visit|vedere|vederl|appuntament|sopralluog|quando posso|disponibil)' then punteggio := punteggio + 15; motivi := motivi || 'Vuole visitare'; end if;
+  if p_tel is not null then punteggio := punteggio + 30; motivi := array_append(motivi, 'Ha lasciato il telefono'); end if;
+  if p_email is not null then punteggio := punteggio + 10; motivi := array_append(motivi, 'Ha lasciato l''email'); end if;
+  if p_immobile then punteggio := punteggio + 20; motivi := array_append(motivi, 'Chiede di un immobile preciso'); end if;
+  if m ~ '(visit|vedere|vederl|appuntament|sopralluog|quando posso|disponibil)' then punteggio := punteggio + 15; motivi := array_append(motivi, 'Vuole visitare'); end if;
   if m ~ '(mutuo (gia |già )?(approvat|deliberat)|pre.?approvat|contanti|liquidit|subito|urgent|entro (il|fine|giugno|luglio|settembre|dicembre))' then
-    punteggio := punteggio + 15; motivi := motivi || 'Pronto a comprare';
+    punteggio := punteggio + 15; motivi := array_append(motivi, 'Pronto a comprare');
   end if;
-  if m ~ '(vender|vendita della mia|vendo |valutazion|quanto vale|stima)' then punteggio := punteggio + 15; motivi := motivi || 'Vuole vendere: possibile incarico'; end if;
-  if length(m) >= 40 then punteggio := punteggio + 5; motivi := motivi || 'Messaggio dettagliato'; end if;
-  if p_noto then punteggio := punteggio + 5; motivi := motivi || 'Già nei tuoi contatti'; end if;
-  if m ~ '(https?://|www\.)' then punteggio := punteggio - 20; motivi := motivi || 'Contiene link: possibile spam'; end if;
+  if m ~ '(vender|vendita della mia|vendo |valutazion|quanto vale|stima)' then punteggio := punteggio + 15; motivi := array_append(motivi, 'Vuole vendere: possibile incarico'); end if;
+  if length(m) >= 40 then punteggio := punteggio + 5; motivi := array_append(motivi, 'Messaggio dettagliato'); end if;
+  if p_noto then punteggio := punteggio + 5; motivi := array_append(motivi, 'Già nei tuoi contatti'); end if;
+  if m ~ '(https?://|www\.)' then punteggio := punteggio - 20; motivi := array_append(motivi, 'Contiene link: possibile spam'); end if;
   punteggio := greatest(0, least(100, punteggio));
 end $$;
 
@@ -234,7 +234,7 @@ begin
         messaggio = concat_ws(E'\n\n', messaggio, format('[%s, %s] %s', etichetta, to_char(now() at time zone 'Europe/Rome', 'DD/MM HH24:MI'), coalesce(msg, '(senza messaggio)'))),
         property_id = coalesce(property_id, prop),
         punteggio = least(100, punteggio + 10),
-        motivi = case when 'Ha scritto più volte' = any (motivi) then motivi else motivi || 'Ha scritto più volte' end
+        motivi = case when 'Ha scritto più volte' = any (motivi) then motivi else array_append(motivi, 'Ha scritto più volte') end
       where id = esistente.id;
       insert into public.activities (agency_id, contact_id, property_id, tipo, descrizione)
       values (p_agency, cid, prop, 'nota', left(format('Ha scritto di nuovo (%s): %s', etichetta, coalesce(msg, 'senza messaggio')), 500));
