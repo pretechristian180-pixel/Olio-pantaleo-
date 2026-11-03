@@ -36,6 +36,8 @@ export interface Automation {
   recipient: Recipient;
   content: { template?: string; titolo?: string; task_aggiuntivo?: string; questionario?: boolean; temperatura?: string };
   needsConsent: boolean;
+  /** Bloccata dall'admin di Mattonio: il titolare non può accenderla o spegnerla */
+  locked?: boolean;
   runsThisMonth: number;
   template?: MessageTemplate;
 }

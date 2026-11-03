@@ -33,7 +33,7 @@ Legenda: ✅ già presente · 🟡 in parte · 🆕 aggiunto ora (tranche "Sched
 
 ## 6. Report ai proprietari
 - 🟡 Dati già raccolti: visite, trattative, giorni online, e ora le impressioni dei visitatori con offerte e criticità
-- 📅 Report PDF professionale ogni 15 giorni, con invio automatico ⚠️ le visualizzazioni sui portali solo dove il portale le fornisce
+- ✅ Report PDF professionale ogni 15 giorni, con invio automatico (fatto) ⚠️ le visualizzazioni sui portali solo dove il portale le fornisce
 
 ## 7. Report acquirenti dopo le visite
 - 🆕 Scheda "Com'è andata la visita?": come vuole procedere, piaciuto, non piaciuto, giudizio sul prezzo, offerta, criticità, altri immobili, voto. Finisce nella cronologia del cliente, nella scheda immobile ("Cosa dicono i visitatori") e, se vuole fare una proposta, crea la cosa da fare

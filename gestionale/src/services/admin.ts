@@ -122,11 +122,65 @@ async function callAdmin(body: Record<string, unknown>) {
   return data;
 }
 
+export type AutomationPreset = "consigliate" | "solo_promemoria" | "spente";
+
+export interface AdminAutomation {
+  id: ID;
+  name: string;
+  description: string;
+  active: boolean;
+  locked: boolean;
+  recipe: string | null;
+  action: string;
+}
+
+// Funzioni aggiunte dopo la generazione dei tipi del database
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rpc = (name: string, args: Record<string, unknown>) => (supabase.rpc as any)(name, args) as Promise<{ data: any; error: Error | null }>;
+
+/** Automazioni di un'agenzia: interruttore generale e ognuna con acceso/spento e "bloccata" */
+export async function getAgencyAutomations(agencyId: ID): Promise<{ enabled: boolean; automations: AdminAutomation[] }> {
+  const { data, error } = await rpc("admin_agency_automations", { aid: agencyId });
+  if (error) throw error;
+  return {
+    enabled: data?.attive !== false,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    automations: (data?.automazioni ?? []).map((a: any) => ({
+      id: a.id,
+      name: a.nome,
+      description: a.descrizione ?? "",
+      active: a.attiva,
+      locked: a.bloccata,
+      recipe: a.ricetta,
+      action: a.azione,
+    })),
+  };
+}
+
+export async function setAgencyAutomationsEnabled(agencyId: ID, enabled: boolean) {
+  const { error } = await rpc("admin_set_agency_automations", { aid: agencyId, p_attive: enabled });
+  if (error) throw error;
+  emitChange();
+}
+
+export async function setAutomationAdmin(id: ID, active: boolean, locked: boolean) {
+  const { error } = await rpc("admin_set_automation", { p_id: id, p_attiva: active, p_bloccata: locked });
+  if (error) throw error;
+  emitChange();
+}
+
+export async function applyAutomationPreset(agencyId: ID, preset: AutomationPreset) {
+  const { error } = await rpc("admin_apply_automation_preset", { aid: agencyId, p_preset: preset });
+  if (error) throw error;
+  emitChange();
+}
+
 export async function createAgencyAdmin(input: {
   name: string;
   plan: Plan;
   phone: string;
   owner: { firstName: string; lastName: string; email: string };
+  automations?: AutomationPreset;
 }) {
   const res = await callAdmin({
     azione: "crea_agenzia",
@@ -135,7 +189,10 @@ export async function createAgencyAdmin(input: {
     telefono: input.phone,
     titolare: { nome: input.owner.firstName, cognome: input.owner.lastName, email: input.owner.email },
   });
-  return res?.agency_id as string | undefined;
+  const id = res?.agency_id as string | undefined;
+  // Le ricette si installano con l'agenzia: poi si applica la scelta fatta nel modulo
+  if (id && input.automations && input.automations !== "consigliate") await applyAutomationPreset(id, input.automations);
+  return id;
 }
 
 export async function inviteUserAdmin(agencyId: ID, input: { firstName: string; lastName: string; email: string; role: Role }) {

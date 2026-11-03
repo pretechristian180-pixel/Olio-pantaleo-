@@ -53,6 +53,9 @@ const runs: AutomationRun[] = [
 const optOuts: OptOut[] = [{ id: "o1", contactId: "c5", contactName: "Paolo Russo", channel: "tutti", reason: "Escluso dall'agente", createdAt: ago(48) }];
 let settings: MessagingSettings = { whatsappPhoneNumberId: "", replyEmail: "info@immobiliarelevante.it", reviewsLink: "" };
 
+export async function automationsEnabled() {
+  return wait(true, 50);
+}
 export async function listAutomations() {
   return wait(automations.map((a) => ({ ...a, template: a.content.template ? templates.find((t) => t.code === a.content.template) : undefined })));
 }

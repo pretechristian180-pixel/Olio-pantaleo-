@@ -28,6 +28,7 @@ import {
 } from "@/services/admin";
 import type { Plan, Role } from "@/types/domain";
 import { planLabel } from "./AdminAgenciesPage";
+import { AdminAutomationsCard } from "./AdminAutomationsCard";
 
 const errore = (err: unknown) => (err instanceof Error && !("code" in err) ? err.message : friendlyError(err));
 
@@ -70,7 +71,10 @@ export function AdminAgencyPage() {
         {a.active ? <Badge tone="green">Attiva</Badge> : <Badge tone="gray">Sospesa</Badge>}
       </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
-        <UsersCard agencyId={a.id} />
+        <div className="space-y-6">
+          <UsersCard agencyId={a.id} />
+          <AdminAutomationsCard agencyId={a.id} />
+        </div>
         <aside className="space-y-4">
           <AgencyDataCard agency={a} />
           <StatusCard agency={a} />

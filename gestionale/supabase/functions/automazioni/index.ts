@@ -78,8 +78,12 @@ Deno.serve(async (req) => {
 async function esegui(db: any, run: { id: string; tentativi: number }, linkSecret: string) {
   const { data: p, error } = await db.rpc("automation_prepare", { p_run: run.id });
   if (error) throw new Error(error.message);
-  const fine = (stato: string, motivo: string | null, canale: string | null, testo: string | null, extra: string | null = null) =>
-    db.rpc("automation_finish", { p_run: run.id, p_stato: stato, p_motivo: motivo, p_canale: canale, p_testo: testo, p_task_aggiuntivo: extra });
+  let reportId: string | null = null;
+  const fine = async (stato: string, motivo: string | null, canale: string | null, testo: string | null, extra: string | null = null) => {
+    const r = await db.rpc("automation_finish", { p_run: run.id, p_stato: stato, p_motivo: motivo, p_canale: canale, p_testo: testo, p_task_aggiuntivo: extra });
+    if (reportId && stato === "eseguita" && (canale === "email" || canale === "whatsapp")) await db.rpc("report_inviato_auto", { p_report: reportId });
+    return r;
+  };
 
   if (p.esito === "annulla") return fine("annullata", p.motivo, null, null);
   if (p.esito === "salta") return fine("saltata", p.motivo, null, null);
@@ -89,6 +93,23 @@ async function esegui(db: any, run: { id: string; tentativi: number }, linkSecre
   if (p.questionario_appuntamento) {
     const t = `${p.questionario_appuntamento}.${await firma(linkSecret, `q:${p.questionario_appuntamento}`)}`;
     vars.link_questionario = APP_URL ? `${APP_URL}/questionario/${t}` : "rispondi pure a questo messaggio";
+  }
+  // Report PDF per il proprietario: lo prepara la funzione "report-proprietari", qui mettiamo il link nel messaggio
+  if (p.contenuto?.report) {
+    const { data: r } = await db.from("automation_runs").select("entita_tipo, entita_id").eq("id", run.id).single();
+    if (r?.entita_tipo === "property") {
+      const { data: segreto } = await db.rpc("app_secret", { p_name: "automazioni_cron_secret" });
+      const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/report-proprietari`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-automazioni-cron": String(segreto ?? ""), Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
+        body: JSON.stringify({ azione: "automatico", property_id: r.entita_id }),
+        signal: AbortSignal.timeout(40_000),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out.link) throw new Error(`Report non creato: ${out.error ?? res.status}`);
+      reportId = out.id;
+      vars.link_report = out.link;
+    }
   }
   const extra = p.contenuto?.task_aggiuntivo ? compila(p.contenuto.task_aggiuntivo, vars) : null;
 

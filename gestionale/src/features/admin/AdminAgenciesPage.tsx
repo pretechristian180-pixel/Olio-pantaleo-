@@ -14,7 +14,9 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { FormError } from "@/features/auth/AuthLayout";
 import { useQuery } from "@/hooks/useQuery";
 import { formatRelative, formatShortDate } from "@/lib/format";
-import { createAgencyAdmin, listAgencies, type AdminAgency } from "@/services/admin";
+import { createAgencyAdmin, listAgencies, type AdminAgency, type AutomationPreset } from "@/services/admin";
+import { presets } from "./AdminAutomationsCard";
+import { cn } from "@/lib/utils";
 import type { Plan } from "@/types/domain";
 
 export const planLabel: Record<Plan, string> = { start: "Start", pro: "Pro", elite: "Elite" };
@@ -189,6 +191,7 @@ function AgencyCard({ agency: a }: { agency: AdminAgency }) {
 function NewAgencyForm({ onDone }: { onDone: () => void }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", plan: "pro" as Plan, phone: "", firstName: "", lastName: "", email: "" });
+  const [preset, setPreset] = useState<AutomationPreset>("consigliate");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -206,6 +209,7 @@ function NewAgencyForm({ onDone }: { onDone: () => void }) {
         plan: form.plan,
         phone: form.phone.trim(),
         owner: { firstName: form.firstName.trim(), lastName: form.lastName.trim(), email: form.email.trim().toLowerCase() },
+        automations: preset,
       });
       toast.success("Agenzia creata", { description: `Invito inviato a ${form.email.trim()}` });
       onDone();
@@ -248,6 +252,25 @@ function NewAgencyForm({ onDone }: { onDone: () => void }) {
         <Field label="Email" htmlFor="na-email" hint="Riceverà il link per scegliere la password">
           <Input id="na-email" type="email" inputMode="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
         </Field>
+      </fieldset>
+      <fieldset>
+        <legend className="mb-2 text-[17px] font-semibold">Automazioni</legend>
+        <div className="space-y-2" role="radiogroup" aria-label="Automazioni">
+          {presets.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              role="radio"
+              aria-checked={preset === p.id}
+              onClick={() => setPreset(p.id)}
+              className={cn("flex min-h-12 w-full flex-col rounded-lg border px-4 py-2 text-left", preset === p.id ? "border-primary bg-primary-soft text-primary-strong" : "bg-card")}
+            >
+              <span className="font-semibold">{p.label}</span>
+              <span className="text-sm text-muted-foreground">{p.hint}</span>
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">Le puoi cambiare una per una quando vuoi dalla scheda dell'agenzia.</p>
       </fieldset>
       <FormError message={error} />
       <Button type="submit" size="lg" className="w-full" disabled={busy}>

@@ -22,6 +22,7 @@ import { ChecklistCard } from "@/features/records/ChecklistCard";
 import { DocumentsCard } from "@/features/records/DocumentsCard";
 import { FeatureChips } from "@/features/records/FeaturePicker";
 import { FeedbackSummaryCard } from "@/features/records/VisitFeedback";
+import { OwnerReportCard } from "@/features/reports/OwnerReportCard";
 import { EditPropertyButton, MapLinks } from "./PropertyEditing";
 
 export function PropertyDetailPage() {
@@ -232,6 +233,8 @@ export function PropertyDetailPage() {
               </Card>
             )
           )}
+
+          {data.canEdit && <OwnerReportCard propertyId={p.id} address={p.address} owner={owner ?? null} />}
 
           <Card>
             <CardHeader>

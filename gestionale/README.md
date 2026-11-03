@@ -166,6 +166,21 @@ Casella unica delle richieste: modulo del sito, Facebook e Instagram (Lead Ads),
 - Modulo del sito: campo trappola anti-bot, consenso privacy obbligatorio, limite di invii per IP.
 - Facebook/Instagram: collegamento ufficiale Meta (OAuth); i token delle pagine stanno nel Vault.
 
+### Report PDF ai proprietari (scheda immobile → "Report al proprietario")
+
+- Tabella `owner_reports`, bucket privato `report` (migrazione `20261106090000`). `report_dati()` raccoglie per il
+  periodo: visite, impressioni dei visitatori (prezzo, cosa è piaciuto, offerte), acquirenti compatibili, lead,
+  proposte, giorni sul mercato. Nessun nome o recapito dei visitatori finisce nel report.
+- Edge Function `report-proprietari` (PDF con pdf-lib): prepara, link firmato, email con PDF allegato, link pubblico
+  `/report/:token` che registra l'apertura (attività "Ha aperto il report" sul proprietario).
+- Ogni 15 giorni: la ricetta `report_proprietario` delle Automazioni crea il report e manda il link nell'email.
+- Numeri dei portali (visualizzazioni, contatti, preferiti): li inserisce l'agente, solo dove il portale li mostra.
+
+### Admin: automazioni per agenzia
+
+- `agencies.automazioni_attive` (interruttore generale) e `automations.bloccata` (il titolare non può cambiarla),
+  migrazione `20261106091000`. Alla creazione dell'agenzia: consigliate / solo promemoria interni / tutte spente.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app

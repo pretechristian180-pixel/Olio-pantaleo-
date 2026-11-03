@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, Mail, MessageCircle, Plus, RefreshCw, Settings2, SquareCheckBig, BellRing } from "lucide-react";
+import { ChevronRight, Lock, Mail, MessageCircle, Plus, RefreshCw, Settings2, SquareCheckBig, BellRing } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Field, Input } from "@/components/ui/input";
 import { Segmented } from "@/components/ui/segmented";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BackLink } from "@/components/shared/BackLink";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -18,6 +19,7 @@ import { friendlyError } from "@/lib/errors";
 import { formatRelative, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
+  automationsEnabled,
   getMessagingSettings,
   listAutomations,
   listOptOuts,
@@ -84,6 +86,7 @@ export function AutomationsPage() {
 function Recipes() {
   const { data, loading, error, reload } = useQuery(listAutomations);
   const channels = useQuery(getMessagingSettings);
+  const enabled = useQuery(automationsEnabled);
   const [editing, setEditing] = useState<Automation | null>(null);
   if (error) return <ErrorState message={error} onRetry={reload} />;
   if (loading || !data)
@@ -97,6 +100,11 @@ function Recipes() {
   const active = data.filter((a) => a.active).length;
   return (
     <div className="space-y-4">
+      {enabled.data === false && (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-[15px] text-amber-950">
+          Le automazioni della tua agenzia sono spente da Mattonio: non parte nessun messaggio né promemoria automatico. Per riattivarle scrivi all'assistenza.
+        </p>
+      )}
       <ChannelsCard />
       <p className="text-[15px] text-muted-foreground">
         {active} automazioni accese su {data.length}. Nessun messaggio parte tra le 21 e le 8:30 né la domenica, e mai più di uno al giorno
@@ -143,7 +151,16 @@ function RecipeCard({ automation: a, onOpen, reviewsLink }: { automation: Automa
           <span className="block text-[17px] font-semibold leading-snug">{a.name}</span>
           <span className="mt-1 block text-[15px] text-muted-foreground">{a.description || whenText(a)}</span>
         </button>
-        <Switch on={a.active} onChange={toggle} disabled={busy} label={a.name} />
+        {a.locked ? (
+          <span className="flex shrink-0 flex-col items-center gap-1 text-center" title="Gestita da Mattonio">
+            <span className={cn("flex size-11 items-center justify-center rounded-full", a.active ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>
+              <Lock className="size-5" aria-hidden />
+            </span>
+            <span className="text-[13px] font-semibold text-muted-foreground">{a.active ? "Accesa" : "Spenta"}</span>
+          </span>
+        ) : (
+          <Switch on={a.active} onChange={toggle} disabled={busy} label={a.name} />
+        )}
       </div>
       <button type="button" onClick={onOpen} className="flex w-full flex-wrap items-center gap-2 border-t px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-muted/50">
         <span>{a.runsThisMonth === 1 ? "Eseguita 1 volta questo mese" : `Eseguita ${a.runsThisMonth} volte questo mese`}</span>
@@ -153,31 +170,13 @@ function RecipeCard({ automation: a, onOpen, reviewsLink }: { automation: Automa
           </Badge>
         )}
         {a.needsConsent && <span>· solo con consenso</span>}
+        {a.locked && <span>· gestita da Mattonio</span>}
         <span className="ml-auto flex items-center gap-1 font-semibold text-primary-strong">
           Modifica
           <ChevronRight className="size-4" aria-hidden />
         </span>
       </button>
     </div>
-  );
-}
-
-function Switch({ on, onChange, disabled, label }: { on: boolean; onChange: () => void; disabled?: boolean; label: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      aria-label={`${on ? "Spegni" : "Accendi"}: ${label}`}
-      onClick={onChange}
-      disabled={disabled}
-      className="flex shrink-0 flex-col items-center gap-1"
-    >
-      <span className={cn("flex h-8 w-14 items-center rounded-full p-1 transition-colors", on ? "bg-success" : "bg-border")}>
-        <span className={cn("size-6 rounded-full bg-white shadow transition-transform", on && "translate-x-6")} />
-      </span>
-      <span className={cn("text-[13px] font-semibold", on ? "text-success" : "text-muted-foreground")}>{on ? "Accesa" : "Spenta"}</span>
-    </button>
   );
 }
 

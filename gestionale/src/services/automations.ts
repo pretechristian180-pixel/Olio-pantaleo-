@@ -30,6 +30,12 @@ const toTemplate = (r: Row): MessageTemplate => ({
   waState: r.whatsapp_template_stato,
 });
 
+/** Interruttore generale deciso dall'admin di Mattonio per l'agenzia */
+export async function automationsEnabled(): Promise<boolean> {
+  const { data } = await db.from("agencies").select("automazioni_attive").maybeSingle();
+  return (data as Row | null)?.automazioni_attive !== false;
+}
+
 export async function listAutomations(): Promise<Automation[]> {
   const [autos, tpls, stats] = await Promise.all([
     db.from("automations").select("*").order("created_at"),
@@ -54,6 +60,7 @@ export async function listAutomations(): Promise<Automation[]> {
     recipient: r.azione_destinatario,
     content: r.azione_contenuto ?? {},
     needsConsent: r.richiede_consenso,
+    locked: !!r.bloccata,
     runsThisMonth: counts.get(r.id) ?? 0,
     template: r.azione_contenuto?.template ? byCode.get(r.azione_contenuto.template) : undefined,
   }));

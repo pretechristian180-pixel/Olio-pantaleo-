@@ -24,6 +24,7 @@ import { SettingsPage } from "@/features/settings/SettingsPage";
 import { AutomationsPage } from "@/features/automations/AutomationsPage";
 import { ImportPage } from "@/features/import/ImportPage";
 import { LeadDetailPage } from "@/features/leads/LeadDetailPage";
+import { ReportPublicPage } from "@/features/reports/ReportPublicPage";
 import { LeadSettingsPage } from "@/features/leads/LeadSettingsPage";
 import { LeadsPage } from "@/features/leads/LeadsPage";
 import { QuestionnairePage, UnsubscribePage } from "@/features/automations/PublicPages";
@@ -50,6 +51,8 @@ const routes = [
   { path: "approva/:token", element: <PublicApprovalPage /> },
   // Link nei messaggi automatici: questionario dopo la visita e disiscrizione dalle email
   { path: "questionario/:token", element: <QuestionnairePage /> },
+  // Report mandato al proprietario
+  { path: "report/:token", element: <ReportPublicPage /> },
   { path: "disiscrizione/:token", element: <UnsubscribePage /> },
   // Pannello admin della piattaforma (solo amministratori di Mattonio)
   {
