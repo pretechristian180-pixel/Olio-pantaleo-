@@ -181,6 +181,16 @@ Casella unica delle richieste: modulo del sito, Facebook e Instagram (Lead Ads),
 - `agencies.automazioni_attive` (interruttore generale) e `automations.bloccata` (il titolare non può cambiarla),
   migrazione `20261106091000`. Alla creazione dell'agenzia: consigliate / solo promemoria interni / tutte spente.
 
+### Assistente AI (`/assistente`, anche da Oggi e dal pulsante "+")
+
+- Edge Function `assistente`: Claude con strumenti di **sola lettura** (cose da fare, lead, clienti da risentire,
+  contatti, immobili con statistiche, trattative, acquisizioni, documenti, report da inviare, numeri dell'agenzia).
+  Ogni lettura usa la sessione di chi chiede: valgono le stesse regole RLS dell'app. Non scrive né invia nulla.
+- Funzioni `assistente_da_risentire`, `assistente_immobili` (security invoker), tabella `assistant_usage` con limite
+  di 60 domande al giorno a persona e 300 per agenzia (migrazione `20261107090000`).
+- Testi pronti (WhatsApp, email, annunci) con il pulsante "Copia"; link diretti alle schede; dettatura vocale dove il
+  browser la supporta.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app

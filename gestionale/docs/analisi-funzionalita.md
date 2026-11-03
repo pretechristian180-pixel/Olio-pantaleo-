@@ -53,7 +53,7 @@ Legenda: ✅ già presente · 🟡 in parte · 🆕 aggiunto ora (tranche "Sched
 - ⚠️ Successioni: niente individuazione massiva di eredi; solo fonti pubbliche e lecite, da valutare con un legale
 
 ## 10. Assistente AI
-- 📅 Nuova fase "Assistente": domande in linguaggio naturale sui propri dati (chi richiamare oggi, incarichi fermi, immobili con poche richieste, report da inviare, documenti mancanti, lead migliori) e scrittura di messaggi, descrizioni, annunci e report. Vede solo i dati che l'utente può vedere
+- ✅ Fase "Assistente" fatta: domande in linguaggio naturale sui propri dati (chi richiamare oggi, incarichi fermi, immobili con poche richieste, report da inviare, documenti mancanti, lead migliori) e scrittura di messaggi, descrizioni, annunci e report. Vede solo i dati che l'utente può vedere
 
 ## 11. Attività e collaboratori
 - ✅ Cose da fare con promemoria, agenda, appuntamenti

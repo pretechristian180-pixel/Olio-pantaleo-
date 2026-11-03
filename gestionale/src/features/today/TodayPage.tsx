@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, FileWarning, KeyRound, PhoneCall } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, FileWarning, KeyRound, PhoneCall, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,7 @@ import { countToApprove } from "@/services/studio";
 import { acquisitionsToFollow } from "@/services/acquisitions";
 import { paperworkSummary } from "@/services/records";
 import { listLeads } from "@/services/leads";
+import { suggestions as assistantSuggestions } from "@/features/assistant/AssistantPage";
 import { isLate, scoreLevel, since, sourceLabel } from "@/features/leads/labels";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/shared/ErrorState";
@@ -81,6 +82,7 @@ export function TodayPage() {
         )}
       </div>
 
+      <AssistantCard />
       <LeadsCard />
       <StudioCard />
       <AcquisitionsCard />
@@ -175,6 +177,36 @@ function StudioCard() {
       </span>
       <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
     </Link>
+  );
+}
+
+/** Domande pronte per l'assistente: un tocco e risponde */
+function AssistantCard() {
+  const navigate = useNavigate();
+  return (
+    <section className="mt-4 rounded-lg border bg-card p-4 shadow-card sm:mt-6">
+      <h2 className="flex items-center gap-2 text-[17px] font-semibold">
+        <span className="flex size-8 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+          <Sparkles className="size-5" aria-hidden />
+        </span>
+        Chiedi all'assistente
+      </h2>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {assistantSuggestions.slice(0, 3).map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => navigate(`/assistente?chiedi=${encodeURIComponent(s)}`)}
+            className="min-h-12 rounded-full border bg-background px-4 py-2 text-left text-[15px] font-medium hover:border-primary/40"
+          >
+            {s}
+          </button>
+        ))}
+        <Link to="/assistente" className="flex min-h-12 items-center px-2 text-[15px] font-semibold text-primary-strong">
+          Altra domanda
+        </Link>
+      </div>
+    </section>
   );
 }
 
