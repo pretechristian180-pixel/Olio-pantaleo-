@@ -29,7 +29,7 @@ Legenda: ✅ già presente · 🟡 in parte · 🆕 aggiunto ora (tranche "Sched
 - ⚠️ WhatsApp solo con l'API ufficiale (Cloud API) e modelli approvati da Meta
 
 ## 5. Lead
-- 📅 Nuova fase "Lead": casella unica dei lead, ingresso automatico da modulo del sito, Facebook/Instagram Lead Ads (webhook ufficiale Meta) e email dei portali, assegnazione automatica agli agenti, punteggio di qualità, risposta automatica e allarme se nessuno risponde
+- ✅ Fase "Lead" fatta: casella unica dei lead, ingresso automatico da modulo del sito, Facebook/Instagram Lead Ads (webhook ufficiale Meta) e email dei portali, assegnazione automatica agli agenti, punteggio di qualità, risposta automatica e allarme se nessuno risponde
 
 ## 6. Report ai proprietari
 - 🟡 Dati già raccolti: visite, trattative, giorni online, e ora le impressioni dei visitatori con offerte e criticità

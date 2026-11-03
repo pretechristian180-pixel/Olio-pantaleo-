@@ -2,7 +2,7 @@
 import type { ID } from "./domain";
 
 export type TriggerKind = "creazione" | "cambio_fase" | "data_evento" | "data_campo" | "nessuna_risposta" | "inattivita" | "periodico" | "data_fissa";
-export type TriggerEntity = "contact" | "property" | "deal" | "acquisition" | "appointment" | "match";
+export type TriggerEntity = "contact" | "property" | "deal" | "acquisition" | "appointment" | "match" | "lead";
 export type WaitUnit = "minuti" | "ore" | "ore_lavorative" | "giorni" | "giorni_lavorativi";
 export type ActionKind = "whatsapp" | "email" | "task" | "evento_agenda" | "notifica_interna" | "cambio_temperatura";
 export type Recipient = "contatto" | "proprietario" | "agente_assegnato" | "titolare";

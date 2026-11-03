@@ -23,6 +23,9 @@ import { PropertyPhotosPage } from "@/features/properties/PropertyPhotosPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { AutomationsPage } from "@/features/automations/AutomationsPage";
 import { ImportPage } from "@/features/import/ImportPage";
+import { LeadDetailPage } from "@/features/leads/LeadDetailPage";
+import { LeadSettingsPage } from "@/features/leads/LeadSettingsPage";
+import { LeadsPage } from "@/features/leads/LeadsPage";
 import { QuestionnairePage, UnsubscribePage } from "@/features/automations/PublicPages";
 import { NewVideoPage } from "@/features/studio/NewVideoPage";
 import { PublicApprovalPage } from "@/features/studio/PublicApprovalPage";
@@ -75,6 +78,8 @@ const routes = [
           { path: "immobili/:id/foto", element: <PropertyPhotosPage /> },
           { path: "contatti", element: <ContactsPage /> },
           { path: "contatti/nuovo", element: <NewContactPage /> },
+          { path: "contatti/lead", element: <LeadsPage /> },
+          { path: "contatti/lead/:id", element: <LeadDetailPage /> },
           { path: "contatti/:id", element: <ContactDetailPage /> },
           { path: "trattative", element: <DealsPage /> },
           { path: "trattative/vendita/:id", element: <DealDetailPage /> },
@@ -84,6 +89,7 @@ const routes = [
           { path: "impostazioni", element: <SettingsPage /> },
           { path: "impostazioni/automazioni", element: <AutomationsPage /> },
           { path: "impostazioni/importa", element: <ImportPage /> },
+          { path: "impostazioni/lead", element: <LeadSettingsPage /> },
           { path: "studio", element: <StudioPage /> },
           { path: "studio/nuovo/:propertyId", element: <NewVideoPage /> },
           { path: "studio/video/:id", element: <VideoPage /> },

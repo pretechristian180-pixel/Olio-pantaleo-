@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, ChevronRight, FileUp, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus, Zap } from "lucide-react";
+import { Check, ChevronRight, FileUp, Inbox, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -172,6 +172,21 @@ function ProfileSection() {
         </span>
         <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
       </Link>
+      {isOwner && (
+        <Link
+          to="/impostazioni/lead"
+          className="flex items-center gap-4 rounded-lg border bg-card p-4 shadow-card hover:border-primary/40"
+        >
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+            <Inbox className="size-6" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[17px] font-semibold">Lead in arrivo</span>
+            <span className="block text-muted-foreground">Sito, portali, Facebook e Instagram in un'unica casella</span>
+          </span>
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+        </Link>
+      )}
       {isOwner && (
         <Link
           to="/impostazioni/importa"

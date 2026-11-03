@@ -16,6 +16,9 @@ import { getToday, toggleTask } from "@/services/api";
 import { countToApprove } from "@/services/studio";
 import { acquisitionsToFollow } from "@/services/acquisitions";
 import { paperworkSummary } from "@/services/records";
+import { listLeads } from "@/services/leads";
+import { isLate, scoreLevel, since, sourceLabel } from "@/features/leads/labels";
+import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { TaskList } from "./TaskList";
 
@@ -72,12 +75,13 @@ export function TodayPage() {
         ) : (
           <>
             <StatCard value={data.appointments.length} label="appuntamenti oggi" to="/agenda" icon={<CalendarCheck />} />
-            <StatCard value={data.newLeads} label="nuovi contatti da richiamare" to="/contatti" tone="brand" icon={<PhoneCall />} />
+            <StatCard value={data.newLeads} label="nuovi contatti da richiamare" to="/contatti/lead" tone="brand" icon={<PhoneCall />} />
             <StatCard value={data.expiringMandates} label="incarichi in scadenza" to="/immobili" tone="orange" icon={<FileClock />} />
           </>
         )}
       </div>
 
+      <LeadsCard />
       <StudioCard />
       <AcquisitionsCard />
       <PaperworkCard />
@@ -171,6 +175,50 @@ function StudioCard() {
       </span>
       <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
     </Link>
+  );
+}
+
+/** Lead da richiamare: prima quelli in ritardo, poi i più caldi */
+function LeadsCard() {
+  const { data } = useQuery(listLeads);
+  const items = (data ?? []).filter((l) => l.state === "nuovo").sort((a, b) => Number(isLate(b)) - Number(isLate(a)) || b.score - a.score);
+  if (!items.length) return null;
+  return (
+    <section className="mt-4 rounded-lg border bg-card shadow-card sm:mt-6">
+      <div className="flex items-center justify-between gap-3 px-4 pt-4">
+        <h2 className="flex items-center gap-2 text-[17px] font-semibold">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+            <PhoneCall className="size-5" aria-hidden />
+          </span>
+          Lead da richiamare
+          <span className="rounded-full bg-primary px-2 py-0.5 text-sm font-bold tabular-nums text-white">{items.length}</span>
+        </h2>
+        <Link to="/contatti/lead" className="shrink-0 text-[15px] font-semibold text-primary-strong">
+          Vedi tutti
+        </Link>
+      </div>
+      <ul className="mt-2 divide-y">
+        {items.slice(0, 4).map((l) => {
+          const level = scoreLevel(l.score);
+          return (
+            <li key={l.id}>
+              <Link to={`/contatti/lead/${l.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/60">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold">
+                    {l.firstName} {l.lastName}
+                  </span>
+                  <span className={isLate(l) ? "block truncate text-[15px] font-semibold text-red-700" : "block truncate text-[15px] text-muted-foreground"}>
+                    {sourceLabel(l)} · {isLate(l) ? `nessuno ha risposto da ${since(l.createdAt).replace(" fa", "")}` : since(l.createdAt)}
+                  </span>
+                </span>
+                <Badge tone={level.tone}>{level.label}</Badge>
+                <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 

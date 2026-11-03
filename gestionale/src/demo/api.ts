@@ -406,6 +406,8 @@ export async function addPropertyPhotos(propertyId: ID, files: File[]) {
 /** Usate solo dai dati di esempio delle Acquisizioni (src/demo/acquisitions.ts) */
 export const demoDb = {
   contacts: () => db.contacts,
+  team: () => db.team,
+  properties: () => db.properties,
   addContact: (c: Contact) => db.contacts.push(c),
   removeContacts: (ids: ID[]) => {
     db.contacts = db.contacts.filter((c) => !ids.includes(c.id));

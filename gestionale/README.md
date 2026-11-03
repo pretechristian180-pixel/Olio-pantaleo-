@@ -153,6 +153,19 @@ Contatti, richieste, immobili, acquisizioni e appuntamenti da Excel (.xlsx) o CS
 - Riepilogo con Excel delle righe non importate e del motivo; "Annulla importazione" entro 24 ore
   (`import_undo`) elimina solo le schede create da quel file.
 
+### Lead (`/contatti/lead`, impostazioni in `/impostazioni/lead`)
+
+Casella unica delle richieste: modulo del sito, Facebook e Instagram (Lead Ads), email dei portali.
+- Tabelle `leads`, `lead_settings`, `lead_sources` (migrazioni `20261105090000`–`20261105091000`).
+  Il titolare vede tutti i lead, l'agente solo i propri; le scritture passano solo da funzioni del database.
+- Ingresso: Edge Function `lead-ingresso` → `lead_ingest()`: pulizia di telefono/email/nome, doppioni (stessa
+  persona nei 7 giorni = stesso lead), punteggio 0-100 con i motivi, collegamento all'immobile, contatto creato o
+  ritrovato, assegnazione (agente dell'immobile, a turno o al titolare), promemoria "Richiama…".
+- Le automazioni `lead_benvenuto` (risposta subito) e `lead_non_richiamato` (allarme dopo 2 ore lavorative)
+  partono da ogni lead. Chiamate, WhatsApp, appuntamenti e trattative aggiornano lo stato del lead da soli.
+- Modulo del sito: campo trappola anti-bot, consenso privacy obbligatorio, limite di invii per IP.
+- Facebook/Instagram: collegamento ufficiale Meta (OAuth); i token delle pagine stanno nel Vault.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app
@@ -183,6 +196,14 @@ Contatti, richieste, immobili, acquisizioni e appuntamenti da Excel (.xlsx) o CS
    disiscrizione), `RESEND_API_KEY` e `EMAIL_FROM` (email), `WHATSAPP_TOKEN`, `WHATSAPP_WABA_ID`,
    `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (WhatsApp). Webhook su Meta:
    `https://bwpgpsrcddlngpskyajr.supabase.co/functions/v1/whatsapp-webhook`.
+8. **Lead** (Edge Functions → Secrets), facoltativi uno per uno:
+   - Facebook/Instagram: `META_APP_ID`, `META_APP_SECRET`, `META_VERIFY_TOKEN` e `APP_URL`. Nell'app Meta: prodotto
+     "Webhooks" (oggetto Page, campo `leadgen`) con URL `https://bwpgpsrcddlngpskyajr.supabase.co/functions/v1/lead-ingresso`,
+     URL di reindirizzamento OAuth `…/functions/v1/lead-ingresso?azione=meta_ritorno`, permessi `leads_retrieval`,
+     `pages_show_list`, `pages_manage_metadata`, `pages_read_engagement`, `business_management` (revisione app di Meta).
+   - Email dei portali: `LEAD_EMAIL_DOMAIN` e `LEAD_EMAIL_SECRET`; un servizio di posta in arrivo (Postmark, CloudMailin…)
+     che inoltri le email a `…/functions/v1/lead-ingresso?azione=email&chiave=<LEAD_EMAIL_SECRET>`.
+     Con `ANTHROPIC_API_KEY` le email vengono lette con l'AI, altrimenti con regole fisse.
 7. **Importazione guidata**: `ANTHROPIC_API_KEY` (lo stesso di Studio) per l'abbinamento delle colonne con
    l'AI; senza chiave si usa il riconoscimento automatico. Nessun'altra configurazione: i job programmati
    `importazioni` e `importazioni-pulizia` sono già attivi.

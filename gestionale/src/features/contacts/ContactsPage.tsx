@@ -11,6 +11,7 @@ import { listContacts } from "@/services/api";
 import type { ContactRole } from "@/types/domain";
 import { ownerRoles, seekerRoles } from "@/lib/labels";
 import { cn } from "@/lib/utils";
+import { ContactsTabs, useNewLeadsCount } from "@/features/leads/LeadsPage";
 import { ContactCard, ContactCardSkeleton } from "./ContactCard";
 
 type Tab = "acquirente" | "proprietario" | "tutti";
@@ -23,6 +24,7 @@ export function ContactsPage() {
   const [params, setParams] = useSearchParams();
   const [tab, setTabState] = useState<Tab>((params.get("tipo") as Tab) || "acquirente");
   const { data, loading, error, reload } = useQuery(() => listContacts(), []);
+  const newLeads = useNewLeadsCount();
 
   function setTab(t: Tab) {
     setTabState(t);
@@ -46,6 +48,7 @@ export function ContactsPage() {
   return (
     <div>
       <PageHeader title="Contatti" subtitle="Le persone che segui, dalla più recente" action={addButton} />
+      <ContactsTabs newLeads={newLeads} />
 
       <Segmented
         label="Tipo di contatto"

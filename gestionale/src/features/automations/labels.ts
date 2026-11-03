@@ -69,7 +69,7 @@ export function whenText(a: Pick<Automation, "trigger" | "entity" | "conditions"
   const w = waitText(a.waitValue, a.waitUnit);
   switch (a.trigger) {
     case "creazione":
-      return `Quando arriva un nuovo ${a.entity === "contact" ? "contatto" : "elemento"}, ${w === "subito" ? "subito" : `dopo ${w}`}`;
+      return `Quando arriva un nuovo ${a.entity === "contact" ? "contatto" : a.entity === "lead" ? "lead" : "elemento"}, ${w === "subito" ? "subito" : `dopo ${w}`}`;
     case "cambio_fase":
       return `Quando ${a.entity === "deal" ? "una trattativa" : a.entity === "acquisition" ? "un'acquisizione" : "un immobile"} passa a "${String(c.fase ?? c.stato ?? "").replace(/_/g, " ")}", ${w === "subito" ? "subito" : `dopo ${w}`}`;
     case "data_evento":

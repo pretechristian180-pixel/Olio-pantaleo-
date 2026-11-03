@@ -12,9 +12,10 @@ import type { ActionKind, NewAutomation, TriggerEntity, TriggerKind, WaitUnit } 
 import { MessagePreview, VariableChips } from "./AutomationEditor";
 import { fill, unitLabel, waitText } from "./labels";
 
-type When = "nuovo_contatto" | "fase_trattativa" | "fase_acquisizione" | "prima_appuntamento" | "dopo_appuntamento" | "stato_immobile";
+type When = "nuovo_lead" | "nuovo_contatto" | "fase_trattativa" | "fase_acquisizione" | "prima_appuntamento" | "dopo_appuntamento" | "stato_immobile";
 
 const whenOptions: { id: When; label: string; trigger: TriggerKind; entity: TriggerEntity }[] = [
+  { id: "nuovo_lead", label: "Arriva un nuovo lead (sito, portali, social)", trigger: "creazione", entity: "lead" },
   { id: "nuovo_contatto", label: "Arriva un nuovo contatto", trigger: "creazione", entity: "contact" },
   { id: "prima_appuntamento", label: "Si avvicina un appuntamento", trigger: "data_evento", entity: "appointment" },
   { id: "dopo_appuntamento", label: "È finito un appuntamento", trigger: "data_evento", entity: "appointment" },
@@ -35,7 +36,7 @@ const units: WaitUnit[] = ["minuti", "ore", "ore_lavorative", "giorni", "giorni_
 /** Crea automazione: Quando → Aspetta → Fai, con frasi da completare (mai codice) */
 export function NewAutomationWizard({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState(1);
-  const [when, setWhen] = useState<When>("nuovo_contatto");
+  const [when, setWhen] = useState<When>("nuovo_lead");
   const [detail, setDetail] = useState("");
   const [waitValue, setWaitValue] = useState("0");
   const [waitUnit, setWaitUnit] = useState<WaitUnit>("ore");
@@ -60,7 +61,9 @@ export function NewAutomationWizard({ onDone }: { onDone: () => void }) {
   const detailLabel = details.find((d) => d.value === detailValue)?.label ?? "";
   const wait = waitText(Number(waitValue) || 0, waitUnit);
   const sentence =
-    when === "nuovo_contatto"
+    when === "nuovo_lead"
+      ? "Quando arriva un nuovo lead"
+      : when === "nuovo_contatto"
       ? "Quando arriva un nuovo contatto"
       : when === "prima_appuntamento"
         ? `Prima di ogni appuntamento "${detailLabel}"`
