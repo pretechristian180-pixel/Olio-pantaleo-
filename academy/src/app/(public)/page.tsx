@@ -14,7 +14,7 @@ export default async function HomePage() {
           <Eyebrow tone="muted" className="text-ink-inverse-muted">
             Formazione per imprenditori
           </Eyebrow>
-          <h1 className="mt-5 max-w-3xl font-display text-3xl leading-[1.35] uppercase sm:text-5xl">
+          <h1 className="mt-5 max-w-3xl font-display text-[clamp(1.5rem,6.5vw,3rem)] leading-[1.35] uppercase">
             Meno improvvisazione. Più sistema.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-white/80">
