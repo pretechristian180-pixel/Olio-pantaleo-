@@ -41,6 +41,7 @@ export function AutomationsPage() {
   const { isOwner } = useAuth();
   const [vista, setVista] = useState<Vista>(isOwner ? "ricette" : "cronologia");
   const [creating, setCreating] = useState(false);
+  const [draft, setDraft] = useState<Automation | undefined>(undefined);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -50,7 +51,13 @@ export function AutomationsPage() {
         subtitle="Lavorano da sole: tu scegli solo cosa tenere acceso"
         action={
           isOwner && vista === "ricette" ? (
-            <Button size="lg" onClick={() => setCreating(true)}>
+            <Button
+              size="lg"
+              onClick={() => {
+                setDraft(undefined);
+                setCreating(true);
+              }}
+            >
               <Plus aria-hidden />
               Crea automazione
             </Button>
@@ -68,13 +75,23 @@ export function AutomationsPage() {
           { value: "esclusi" as const, label: "Esclusi" },
         ]}
       />
-      {vista === "ricette" && <Recipes />}
+      {vista === "ricette" && (
+        <Recipes
+          onDuplicate={(a) => {
+            setDraft(a);
+            setCreating(true);
+          }}
+        />
+      )}
       {vista === "cronologia" && <History />}
       {vista === "esclusi" && <OptOuts />}
 
       <Dialog open={creating} onOpenChange={setCreating}>
-        <DialogContent title="Nuova automazione" description="Tre passi: quando, quanto aspettare, cosa fare.">
-          {creating && <NewAutomationWizard onDone={() => setCreating(false)} />}
+        <DialogContent
+          title={draft ? "Duplica e modifica" : "Crea la tua automazione"}
+          description={draft ? `Parti da "${draft.name}" e cambia quello che vuoi.` : "Quattro passi: quando, per chi, cosa fare, controlla."}
+        >
+          {creating && <NewAutomationWizard key={draft?.id ?? "nuova"} from={draft} onDone={() => setCreating(false)} />}
         </DialogContent>
       </Dialog>
     </div>
@@ -83,7 +100,7 @@ export function AutomationsPage() {
 
 /* ---------- Ricette ---------- */
 
-function Recipes() {
+function Recipes({ onDuplicate }: { onDuplicate: (a: Automation) => void }) {
   const { data, loading, error, reload } = useQuery(listAutomations);
   const channels = useQuery(getMessagingSettings);
   const enabled = useQuery(automationsEnabled);
@@ -115,7 +132,17 @@ function Recipes() {
       ))}
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent title={editing?.name ?? ""} description={editing?.description || (editing ? whenText(editing) : undefined)}>
-          {editing && <AutomationEditor automation={editing} onDone={() => setEditing(null)} />}
+          {editing && (
+            <AutomationEditor
+              automation={editing}
+              onDone={() => setEditing(null)}
+              onDuplicate={() => {
+                const a = editing;
+                setEditing(null);
+                onDuplicate(a);
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
@@ -171,6 +198,7 @@ function RecipeCard({ automation: a, onOpen, reviewsLink }: { automation: Automa
         )}
         {a.needsConsent && <span>· solo con consenso</span>}
         {a.locked && <span>· gestita da Mattonio</span>}
+        {!a.recipe && <span>· creata da voi</span>}
         <span className="ml-auto flex items-center gap-1 font-semibold text-primary-strong">
           Modifica
           <ChevronRight className="size-4" aria-hidden />

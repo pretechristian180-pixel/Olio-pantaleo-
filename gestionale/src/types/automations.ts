@@ -83,4 +83,10 @@ export interface NewAutomation {
   recipient: Recipient;
   text: string;
   subject?: string;
+  /** Solo ai contatti con il consenso alle comunicazioni */
+  needsConsent?: boolean;
+  /** Accesa subito (predefinito sì) */
+  active?: boolean;
+  /** Per "cambia l'interesse del cliente" */
+  temperature?: string;
 }

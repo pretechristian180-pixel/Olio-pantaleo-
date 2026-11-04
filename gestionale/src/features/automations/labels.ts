@@ -48,6 +48,9 @@ export const variables: { key: string; label: string; sample: string }[] = [
   { key: "visite", label: "Visite (report)", sample: "4" },
   { key: "richieste", label: "Interessati (report)", sample: "6" },
   { key: "giorni_online", label: "Giorni sul mercato", sample: "38" },
+  { key: "data_scadenza", label: "Scadenza dell'incarico", sample: "30/11/2026" },
+  { key: "festivita", label: "Auguri della festa", sample: "buon Natale e un felice anno nuovo" },
+  { key: "ora_creazione", label: "Ora di arrivo", sample: "10:15" },
 ];
 export const sampleVars = Object.fromEntries(
   variables.map((v) => [v.key, v.sample]).concat([["cognome", "Rossi"], ["festivita", "buon Natale e un felice anno nuovo"], ["data_scadenza", "30/11/2026"], ["ora_creazione", "10:15"]]),

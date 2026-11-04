@@ -135,6 +135,11 @@ a trovare il proprietario e ottenere l'incarico.
 - Risposte WhatsApp e "STOP": Edge Function `whatsapp-webhook`. Questionario dopo la visita (`/questionario/:token`)
   e disiscrizione dalle email (`/disiscrizione/:token`): Edge Function `automazioni-pubblico`.
 - I contatti con `importato = true` non ricevono il benvenuto.
+- Ogni agenzia crea le proprie automazioni in autonomia ("Crea automazione", 4 passi): 16 situazioni (nuovi lead,
+  contatti e immobili, cambi di fase, appuntamenti, silenzi, scadenze, compleanni, festività, invii periodici), filtri
+  su tipo, provenienza, interesse, canale e contratto, 5 azioni (WhatsApp/email a cliente o proprietario, cosa da fare,
+  avviso al titolare, cambio di interesse), consenso alle comunicazioni. "Duplica e modifica" parte da qualsiasi
+  automazione, ricette comprese (migrazione `20261108090000`).
 
 ### Importazione guidata (`/impostazioni/importa`, solo titolare)
 

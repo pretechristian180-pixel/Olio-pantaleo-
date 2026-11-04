@@ -83,13 +83,13 @@ export async function updateAutomation(a: Automation, patch: { waitValue: number
 }
 export async function createAutomation(n: NewAutomation) {
   const id = demoDb.newId("a");
-  let content: Automation["content"] = { titolo: n.text };
+  let content: Automation["content"] = n.action === "cambio_temperatura" ? { temperatura: n.temperature ?? "freddo" } : { titolo: n.text };
   if (n.action === "whatsapp" || n.action === "email") {
     const code = `personale_${id}`;
     templates.push(tpl(code, n.name, n.text, n.action, n.subject ?? n.name));
     content = { template: code };
   }
-  automations.push(r({ id, recipe: null, name: n.name, description: "", active: true, trigger: n.trigger, entity: n.entity, conditions: n.conditions, waitValue: n.waitValue, waitUnit: n.waitUnit, waitDirection: n.waitDirection, action: n.action, recipient: n.recipient, content, needsConsent: false }));
+  automations.push(r({ id, recipe: null, name: n.name, description: "", active: n.active ?? true, trigger: n.trigger, entity: n.entity, conditions: n.conditions, waitValue: n.waitValue, waitUnit: n.waitUnit, waitDirection: n.waitDirection, action: n.action, recipient: n.recipient, content, needsConsent: !!n.needsConsent }));
   emitChange();
   return wait(undefined);
 }

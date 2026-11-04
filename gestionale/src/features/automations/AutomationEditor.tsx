@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Check, Copy, Trash2 } from "lucide-react";
+import { Check, Copy, CopyPlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function MessagePreview({ text, channel, subject }: { text: string; chann
 const editableUnits: WaitUnit[] = ["minuti", "ore", "ore_lavorative", "giorni", "giorni_lavorativi"];
 
 /** Modifica di una ricetta: solo tempi e testi, con anteprima */
-export function AutomationEditor({ automation: a, onDone }: { automation: Automation; onDone: () => void }) {
+export function AutomationEditor({ automation: a, onDone, onDuplicate }: { automation: Automation; onDone: () => void; onDuplicate?: () => void }) {
   const message = (a.action === "whatsapp" || a.action === "email") && !!a.template;
   const [text, setText] = useState(a.template?.text ?? "");
   const [subject, setSubject] = useState(a.template?.subject ?? "");
@@ -149,6 +149,12 @@ export function AutomationEditor({ automation: a, onDone }: { automation: Automa
         <Check aria-hidden />
         {busy ? "Salvataggio…" : "Salva"}
       </Button>
+      {onDuplicate && (
+        <Button type="button" variant="outline" size="lg" className="w-full" onClick={onDuplicate}>
+          <CopyPlus aria-hidden />
+          Duplica e modifica tutto
+        </Button>
+      )}
       {!a.recipe && (
         <Button
           type="button"

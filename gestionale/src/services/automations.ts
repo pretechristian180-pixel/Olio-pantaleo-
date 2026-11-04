@@ -120,12 +120,14 @@ export async function createAutomation(n: NewAutomation) {
       }),
     );
     content = { template: code };
-  } else content = { titolo: n.text };
+  } else if (n.action === "cambio_temperatura") content = { temperatura: n.temperature ?? "freddo" };
+  else content = { titolo: n.text };
   ok(
     await db.from("automations").insert({
       nome: n.name,
       descrizione: null,
-      attiva: true,
+      attiva: n.active ?? true,
+      richiede_consenso: !!n.needsConsent,
       trigger_tipo: n.trigger,
       trigger_entita: n.entity,
       trigger_condizioni: n.conditions,
