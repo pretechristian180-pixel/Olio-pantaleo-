@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function CatalogPage() {
   const courses = await getPublishedCourses();
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+    <div className="mx-auto max-w-310 px-4 py-12 sm:px-6 sm:py-16">
       <PageHeader
         eyebrow="Catalogo"
         title="Scegli da dove partire"

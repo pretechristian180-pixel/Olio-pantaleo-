@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <AdminSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminMobileNav />
-        <main id="contenuto" className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+        <main id="contenuto" className="flex-1 px-4 py-6 sm:px-6 lg:px-12 lg:py-8">
           {children}
         </main>
       </div>

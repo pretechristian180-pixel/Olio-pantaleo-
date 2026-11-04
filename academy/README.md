@@ -4,6 +4,7 @@ Piattaforma di videocorsi di Nexora Gruppo Digitale. Next.js 15 · TypeScript ·
 Supabase · Bunny Stream · Stripe · Resend · Vercel.
 
 - Architettura, cartelle e schema del database: [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md)
+- Mockup di riferimento: [`design/`](design/)
 - Account da creare e chiavi: [`docs/ACCOUNT-E-CHIAVI.md`](docs/ACCOUNT-E-CHIAVI.md)
 
 ## Avvio in locale
@@ -43,7 +44,8 @@ npm run db:types    # rigenera i tipi TypeScript dal database
 | ---------------- | --------------------------------------------- |
 | `/`              | Home pubblica con claim e catalogo            |
 | `/corsi`         | Catalogo                                      |
-| `/corsi/[slug]`  | Pagina corso (versione essenziale)            |
+| `/corsi/[slug]`  | Pagina corso (come mockup Corso)              |
+| `/aziende`       | Offerta per le aziende                        |
 | `/app`           | Dashboard studente (stati vuoti)              |
 | `/admin`         | Panoramica admin; `/admin/corsi` elenco corsi |
 | `/design-system` | Token e componenti                            |

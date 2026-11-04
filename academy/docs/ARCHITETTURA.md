@@ -28,9 +28,11 @@ academy/
 │   │   ├── layout.tsx             Font Michroma + Montserrat, metadati
 │   │   └── globals.css            Token del brand (Tailwind v4 @theme)
 │   ├── components/
-│   │   ├── ui/                    Button, Card, Badge, ProgressBar, Eyebrow, Logo, Stat, EmptyState, Avatar
+│   │   ├── ui/                    Button, Card, Badge, ProgressBar, Eyebrow, Logo, Stat, Price, EmptyState, Avatar
 │   │   ├── layout/                StudentSidebar, StudentTopbar, TabBar, AdminSidebar, PageHeader
-│   │   ├── course/                CourseCard, CourseGrid
+│   │   ├── course/                CourseCard, CourseGrid, PurchaseCard, CourseProgram, InstructorCard, BusinessBox
+│   │   ├── dashboard/             ResumeCard, CourseProgressCard
+│   │   ├── admin/                 AdminStats
 │   │   └── public/                PublicHeader, PublicFooter
 │   ├── lib/
 │   │   ├── env.ts / env.server.ts Variabili validate con zod (pubbliche / segrete)
@@ -39,6 +41,7 @@ academy/
 │   │   ├── course-outline.ts      Logica pura sul programma (testata)
 │   │   └── utils.ts               cn, prezzi, durate, minutaggi
 │   └── middleware.ts              Rinnovo sessione (+ protezione rotte in Fase 2)
+├── design/                    Mockup HTML di riferimento (Main, Corso, Lezione, Login, Admin, Mobile)
 ├── supabase/
 │   ├── config.toml                Configurazione Supabase CLI
 │   ├── migrations/                Migration SQL versionate
@@ -66,25 +69,25 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
          └   stripe_events               idempotenza webhook
 ```
 
-| Tabella            | Campi principali                                                                                                                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `tenants`          | id, nome, slug, brand jsonb                                                                                                                                                                            |
-| `profiles`         | id (= auth.users.id), tenant_id, nome, cognome, avatar_url, ruolo, consenso_marketing, consenso_marketing_il, ultimo_accesso_il                                                                        |
-| `instructors`      | tenant_id, profile_id, nome, qualifica, bio, foto_path                                                                                                                                                 |
-| `courses`          | tenant_id, slug, titolo, sottotitolo, descrizione, risultati text[], copertina_path, trailer_video_id, prezzo_cents, valuta, stato draft/published, stripe_price_id, docente_id, ordine, pubblicato_il |
-| `modules`          | course_id, titolo, ordine                                                                                                                                                                              |
-| `lessons`          | module_id, course_id (dal trigger), slug, titolo, descrizione, bunny_video_id, durata_sec, is_free_preview, ordine                                                                                     |
-| `lesson_resources` | lesson_id, nome, tipo, storage_path, dimensione_bytes, ordine                                                                                                                                          |
-| `enrollments`      | tenant_id (dal trigger), user_id, course_id, fonte stripe/manuale/azienda/abbonamento, stripe_session_id, order_id, creato_il, scade_il                                                                |
-| `orders`           | tenant_id, user_id, course_id, email, importo_cents, valuta, stato, stripe_session_id, stripe_payment_intent_id, pagato_il                                                                             |
-| `lesson_progress`  | user_id, lesson_id, ultimo_secondo, secondi_visti, completata, completata_il, aggiornato_il                                                                                                            |
-| `notes`            | user_id, lesson_id, secondo, testo                                                                                                                                                                     |
-| `questions`        | tenant_id/course_id (dal trigger), lesson_id, user_id, testo, stato aperta/risposta/chiusa                                                                                                             |
-| `answers`          | question_id, user_id, testo, is_docente (dal trigger, dal ruolo dell'autore)                                                                                                                           |
-| `certificates`     | user_id, course_id, codice, nome_intestatario, pdf_path, rilasciato_il                                                                                                                                 |
-| `plans`            | tenant_id, nome, stripe_price_id, intervallo, prezzo_cents, attivo                                                                                                                                     |
-| `subscriptions`    | user_id, plan_id, stripe_subscription_id, stato, periodo_fine                                                                                                                                          |
-| `stripe_events`    | id evento Stripe, tipo, ricevuto_il                                                                                                                                                                    |
+| Tabella            | Campi principali                                                                                                                                                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tenants`          | id, nome, slug, brand jsonb                                                                                                                                                                                                        |
+| `profiles`         | id (= auth.users.id), tenant_id, nome, cognome, avatar_url, ruolo, consenso_marketing, consenso_marketing_il, ultimo_accesso_il                                                                                                    |
+| `instructors`      | tenant_id, profile_id, nome, qualifica, bio, foto_path                                                                                                                                                                             |
+| `courses`          | tenant_id, slug, titolo, sottotitolo, descrizione, categoria, risultati jsonb ({titolo, testo}), copertina_path, trailer_video_id, prezzo_cents, valuta, stato draft/published, stripe_price_id, docente_id, ordine, pubblicato_il |
+| `modules`          | course_id, titolo, ordine                                                                                                                                                                                                          |
+| `lessons`          | module_id, course_id (dal trigger), slug, titolo, descrizione, bunny_video_id, durata_sec, is_free_preview, ordine                                                                                                                 |
+| `lesson_resources` | lesson_id, nome, tipo, storage_path, dimensione_bytes, ordine                                                                                                                                                                      |
+| `enrollments`      | tenant_id (dal trigger), user_id, course_id, fonte stripe/manuale/azienda/abbonamento, stripe_session_id, order_id, creato_il, scade_il                                                                                            |
+| `orders`           | tenant_id, user_id, course_id, email, importo_cents, valuta, stato, stripe_session_id, stripe_payment_intent_id, pagato_il                                                                                                         |
+| `lesson_progress`  | user_id, lesson_id, ultimo_secondo, secondi_visti, completata, completata_il, aggiornato_il                                                                                                                                        |
+| `notes`            | user_id, lesson_id, secondo, testo                                                                                                                                                                                                 |
+| `questions`        | tenant_id/course_id (dal trigger), lesson_id, user_id, testo, stato aperta/risposta/chiusa                                                                                                                                         |
+| `answers`          | question_id, user_id, testo, is_docente (dal trigger, dal ruolo dell'autore)                                                                                                                                                       |
+| `certificates`     | user_id, course_id, codice, nome_intestatario, pdf_path, rilasciato_il                                                                                                                                                             |
+| `plans`            | tenant_id, nome, stripe_price_id, intervallo, prezzo_cents, attivo                                                                                                                                                                 |
+| `subscriptions`    | user_id, plan_id, stripe_subscription_id, stato, periodo_fine                                                                                                                                                                      |
+| `stripe_events`    | id evento Stripe, tipo, ricevuto_il                                                                                                                                                                                                |
 
 ### Sicurezza (RLS)
 

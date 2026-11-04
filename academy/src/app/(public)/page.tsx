@@ -10,14 +10,16 @@ export default async function HomePage() {
   return (
     <>
       <section className="bg-graphite-deep text-white">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-          <Eyebrow tone="bright">Nexora Academy</Eyebrow>
+        <div className="mx-auto max-w-310 px-4 py-20 sm:px-6 sm:py-28">
+          <Eyebrow tone="muted" className="text-ink-inverse-muted">
+            Formazione per imprenditori
+          </Eyebrow>
           <h1 className="mt-5 max-w-3xl font-display text-3xl leading-[1.35] uppercase sm:text-5xl">
             Meno improvvisazione. Più sistema.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-white/80">
-            Videocorsi pratici per chi guida una piccola o media impresa. Li guardi quando vuoi, da
-            computer o telefono, e li applichi il giorno dopo.
+            I corsi Nexora su CRM, automazioni, AI e marketing aziendale. Pratici, registrati da chi
+            questi sistemi li costruisce ogni giorno.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild size="lg">
@@ -31,7 +33,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-310 px-4 py-16 sm:px-6">
         <Eyebrow>Catalogo</Eyebrow>
         <h2 className="mt-2 mb-8 text-2xl font-bold">I corsi disponibili</h2>
         <CourseGrid courses={courses} />

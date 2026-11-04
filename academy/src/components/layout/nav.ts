@@ -2,11 +2,10 @@ import {
   Award,
   BarChart3,
   BookOpen,
-  GraduationCap,
+  CreditCard,
   Home,
   LayoutGrid,
-  MessageCircleQuestion,
-  Receipt,
+  MessageSquare,
   Settings,
   User,
   Users,
@@ -20,7 +19,7 @@ export const studentNav: NavItem[] = [
   { href: "/app/corsi", label: "I miei corsi", icon: BookOpen },
   { href: "/corsi", label: "Catalogo", icon: LayoutGrid },
   { href: "/app/attestati", label: "Attestati", icon: Award },
-  { href: "/app/community", label: "Community", icon: Users },
+  { href: "/app/community", label: "Community", icon: MessageSquare },
   { href: "/app/profilo", label: "Profilo", icon: User },
 ];
 
@@ -34,10 +33,10 @@ export const studentTabs: NavItem[] = [
 
 export const adminNav: NavItem[] = [
   { href: "/admin", label: "Panoramica", icon: BarChart3, exact: true },
-  { href: "/admin/corsi", label: "Corsi", icon: GraduationCap },
+  { href: "/admin/corsi", label: "Corsi", icon: BookOpen },
   { href: "/admin/studenti", label: "Studenti", icon: Users },
-  { href: "/admin/vendite", label: "Vendite", icon: Receipt },
-  { href: "/admin/domande", label: "Domande", icon: MessageCircleQuestion },
+  { href: "/admin/vendite", label: "Vendite", icon: CreditCard },
+  { href: "/admin/domande", label: "Domande", icon: MessageSquare },
   { href: "/admin/impostazioni", label: "Impostazioni", icon: Settings },
 ];
 

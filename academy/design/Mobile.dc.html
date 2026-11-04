@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Nexora Academy — Lezione da telefono</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Michroma&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            font-family: Montserrat, system-ui, sans-serif;
+            color: #1d2124;
+            background: #ffffff;
+          }
+          a {
+            color: #0042ed;
+          }
+          a:hover {
+            color: #0024a8;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          box-sizing: border-box;
+          background: #ffffff;
+          font-family: Montserrat, system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        "
+      >
+        <header
+          style="
+            height: 64px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #e3e6eb;
+            flex: none;
+          "
+        >
+          <a
+            href="Main.dc.html"
+            aria-label="Indietro"
+            style="
+              width: 44px;
+              height: 44px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #1d2124;
+            "
+            ><svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6"></path></svg
+          ></a>
+          <span
+            style="
+              flex: 1;
+              font-size: 14px;
+              font-weight: 600;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            "
+            >CRM e automazioni per PMI</span
+          >
+          <span
+            style="
+              font-family: Michroma, Montserrat, sans-serif;
+              font-size: 12px;
+              letter-spacing: 0.04em;
+              padding-right: 8px;
+            "
+            >NEXORA</span
+          >
+        </header>
+
+        <div
+          style="
+            height: 220px;
+            background: #1d2124;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+          "
+        >
+          <button
+            aria-label="Riproduci"
+            style="
+              width: 64px;
+              height: 64px;
+              border-radius: 50%;
+              border: 0;
+              background: #0042ed;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
+              <path d="M8 5v14l11-7z"></path>
+            </svg>
+          </button>
+          <div
+            style="
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              padding: 10px 14px;
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            "
+          >
+            <div style="height: 4px; border-radius: 2px; background: #4a5056">
+              <div style="width: 42%; height: 4px; border-radius: 2px; background: #038bfd"></div>
+            </div>
+            <div
+              style="display: flex; justify-content: space-between; font-size: 12px; color: #ffffff"
+            >
+              <span>08:14 / 19:30</span><span>1x · HD</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="padding: 20px 20px 0; display: flex; flex-direction: column; gap: 6px; flex: none"
+        >
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.24em; color: #0042ed">
+            MODULO 3 · LEZIONE 4
+          </div>
+          <h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 700">
+            Le pipeline di vendita nel CRM
+          </h1>
+        </div>
+
+        <div style="padding: 16px 20px; display: flex; gap: 10px; flex: none">
+          <button
+            style="
+              flex: 1;
+              min-height: 48px;
+              border: 1px solid #e3e6eb;
+              border-radius: 8px;
+              background: #ffffff;
+              font: inherit;
+              font-size: 14px;
+              font-weight: 600;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+            "
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#1f8a4c"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m5 12 5 5L20 7"></path></svg
+            >Completata
+          </button>
+          <a
+            href="#"
+            style="
+              flex: 1;
+              min-height: 48px;
+              border-radius: 8px;
+              background: #0042ed;
+              color: #ffffff;
+              text-decoration: none;
+              font-size: 14px;
+              font-weight: 700;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+            >Successiva</a
+          >
+        </div>
+
+        <div
+          style="
+            padding: 0 20px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #e3e6eb;
+            flex: none;
+          "
+        >
+          <span
+            style="
+              padding: 12px 0;
+              font-size: 14px;
+              font-weight: 700;
+              color: #0042ed;
+              border-bottom: 3px solid #0042ed;
+            "
+            >Lezioni</span
+          >
+          <span style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #5f646a"
+            >Materiali</span
+          >
+          <span style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #5f646a"
+            >Note</span
+          >
+        </div>
+
+        <ol
+          style="
+            margin: 0;
+            padding: 12px 20px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+          "
+        >
+          <li style="display: flex; align-items: center; gap: 12px; min-height: 52px">
+            <span
+              style="
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                background: #1f8a4c;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: none;
+              "
+              ><svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ffffff"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m5 12 5 5L20 7"></path></svg></span
+            ><span style="flex: 1; font-size: 14px">Quando un contatto cambia fase</span
+            ><span style="font-size: 12px; color: #5f646a">10:30</span>
+          </li>
+          <li
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              min-height: 52px;
+              padding: 0 10px;
+              margin: 0 -10px;
+              border-radius: 8px;
+              background: #e6edfd;
+            "
+          >
+            <span
+              style="
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                background: #0042ed;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: none;
+              "
+              ><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
+                <path d="M8 5v14l11-7z"></path></svg></span
+            ><span style="flex: 1; font-size: 14px; font-weight: 700"
+              >Le pipeline di vendita nel CRM</span
+            ><span style="font-size: 12px; color: #1d2124">19:30</span>
+          </li>
+          <li style="display: flex; align-items: center; gap: 12px; min-height: 52px">
+            <span
+              style="
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                border: 2px solid #c9ced4;
+                box-sizing: border-box;
+                flex: none;
+              "
+            ></span
+            ><span style="flex: 1; font-size: 14px">Pipeline per più venditori</span
+            ><span style="font-size: 12px; color: #5f646a">08:50</span>
+          </li>
+          <li style="display: flex; align-items: center; gap: 12px; min-height: 52px">
+            <span
+              style="
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                border: 2px solid #c9ced4;
+                box-sizing: border-box;
+                flex: none;
+              "
+            ></span
+            ><span style="flex: 1; font-size: 14px">Esercizio: la tua pipeline in 30 minuti</span
+            ><span style="font-size: 12px; color: #5f646a">06:00</span>
+          </li>
+        </ol>
+
+        <nav
+          aria-label="Menu"
+          style="
+            margin-top: auto;
+            height: 72px;
+            border-top: 1px solid #e3e6eb;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            flex: none;
+          "
+        >
+          <a
+            href="Main.dc.html"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              font-size: 11px;
+              font-weight: 600;
+              color: #5f646a;
+              text-decoration: none;
+            "
+            ><svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 10.5 12 3l9 7.5V21H3z"></path></svg
+            >Home</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              font-size: 11px;
+              font-weight: 700;
+              color: #0042ed;
+              text-decoration: none;
+            "
+            ><svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 4h10a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"></path></svg
+            >Corsi</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              font-size: 11px;
+              font-weight: 600;
+              color: #5f646a;
+              text-decoration: none;
+            "
+            ><svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="9" r="6"></circle>
+              <path d="M8.5 14 7 22l5-3 5 3-1.5-8"></path></svg
+            >Attestati</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              font-size: 11px;
+              font-weight: 600;
+              color: #5f646a;
+              text-decoration: none;
+            "
+            ><svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M4 21a8 8 0 0 1 16 0"></path></svg
+            >Profilo</a
+          >
+        </nav>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+      renderVals() { return {}; }
+      }
+    </script>
+  </body>
+</html>

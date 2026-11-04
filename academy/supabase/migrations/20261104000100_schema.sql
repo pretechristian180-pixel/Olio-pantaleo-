@@ -124,7 +124,10 @@ create table public.courses (
   titolo text not null check (char_length(titolo) between 1 and 160),
   sottotitolo text check (char_length(sottotitolo) <= 300),
   descrizione text check (char_length(descrizione) <= 20000),
-  risultati text[] not null default '{}',
+  -- Sopratitolo della pagina corso, es. "Organizzazione aziendale".
+  categoria text check (char_length(categoria) <= 60),
+  -- "Cosa porti a casa": [{"titolo": "...", "testo": "..."}]
+  risultati jsonb not null default '[]'::jsonb check (jsonb_typeof(risultati) = 'array'),
   copertina_path text,
   trailer_video_id text,
   prezzo_cents integer not null default 0 check (prezzo_cents >= 0),

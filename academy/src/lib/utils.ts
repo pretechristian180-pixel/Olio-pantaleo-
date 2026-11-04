@@ -25,13 +25,15 @@ export function formatDuration(totalSeconds: number) {
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
 
-/** Minutaggio per player e note: 95 → "1:35", 3725 → "1:02:05". */
+/** Minutaggio come nei mockup: 95 → "01:35", 3725 → "1:02:05". */
 export function formatTimestamp(totalSeconds: number) {
   const s = Math.max(0, Math.floor(totalSeconds));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = String(s % 60).padStart(2, "0");
-  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${sec}`
+    : `${String(m).padStart(2, "0")}:${sec}`;
 }
 
 export function percent(done: number, total: number) {

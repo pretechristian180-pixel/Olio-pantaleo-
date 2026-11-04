@@ -12,12 +12,12 @@ type Variant = "dark" | "light" | "tab";
 const styles: Record<Variant, { base: string; active: string; idle: string }> = {
   dark: {
     base: "flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
-    active: "bg-nexora-blue text-white",
-    idle: "text-white/75 hover:bg-white/5 hover:text-white",
+    active: "bg-nexora-blue font-semibold text-white",
+    idle: "text-ink-inverse-muted hover:bg-white/5 hover:text-white",
   },
   light: {
     base: "flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
-    active: "bg-blue-tint text-nexora-blue-deep",
+    active: "bg-blue-tint font-semibold text-nexora-blue",
     idle: "text-ink-muted hover:bg-surface-alt hover:text-ink",
   },
   tab: {
@@ -31,10 +31,13 @@ export function NavLink({
   item,
   icon,
   variant,
+  badge,
 }: {
   item: LinkItem;
   icon: React.ReactNode;
   variant: Variant;
+  /** Numero da evidenziare (es. domande da rispondere); nascosto se 0. */
+  badge?: number;
 }) {
   const pathname = usePathname();
   const active = isActive(pathname, item);
@@ -47,11 +50,20 @@ export function NavLink({
     >
       <span
         aria-hidden
-        className={cn("flex shrink-0", variant === "tab" ? "[&_svg]:size-6" : "[&_svg]:size-5")}
+        className={cn(
+          "flex shrink-0",
+          variant === "tab" ? "[&_svg]:size-6" : "[&_svg]:size-[18px]",
+        )}
       >
         {icon}
       </span>
       <span>{item.label}</span>
+      {badge ? (
+        <span className="ml-auto flex h-5 min-w-6 items-center justify-center rounded-full bg-nexora-blue px-1.5 text-[11px] font-bold text-white">
+          {badge}
+          <span className="sr-only"> da gestire</span>
+        </span>
+      ) : null}
     </Link>
   );
 }

@@ -4,7 +4,10 @@ type ProgressBarProps = {
   value: number;
   label?: string;
   showValue?: boolean;
-  tone?: "light" | "dark";
+  /** Colore della barra: blu su fondo chiaro, blu acceso su fondo scuro, verde a corso completato. */
+  tone?: "light" | "dark" | "positive";
+  /** Colore della traccia: grigio linea o azzurro tenue (come nei mockup). */
+  track?: "line" | "tint";
   size?: "sm" | "md";
   className?: string;
 };
@@ -14,6 +17,7 @@ export function ProgressBar({
   label = "Avanzamento",
   showValue = false,
   tone = "light",
+  track = "line",
   size = "sm",
   className,
 }: ProgressBarProps) {
@@ -28,14 +32,16 @@ export function ProgressBar({
         aria-valuenow={v}
         className={cn(
           "w-full overflow-hidden rounded-full",
-          size === "sm" ? "h-1.5" : "h-2.5",
-          tone === "dark" ? "bg-white/15" : "bg-line",
+          size === "sm" ? "h-1.5" : "h-2",
+          tone === "dark" ? "bg-white/15" : track === "tint" ? "bg-blue-tint" : "bg-line",
         )}
       >
         <div
           className={cn(
             "h-full rounded-full",
-            tone === "dark" ? "bg-nexora-blue-bright" : "bg-nexora-blue",
+            tone === "dark" && "bg-nexora-blue-bright",
+            tone === "light" && "bg-nexora-blue",
+            tone === "positive" && "bg-positive",
           )}
           style={{ width: `${v}%` }}
         />

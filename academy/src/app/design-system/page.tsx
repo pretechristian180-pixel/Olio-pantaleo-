@@ -8,6 +8,47 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { Logo } from "@/components/ui/logo";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Stat } from "@/components/ui/stat";
+import { CourseProgressCard } from "@/components/dashboard/course-progress-card";
+import { ResumeCard } from "@/components/dashboard/resume-card";
+import { BusinessBox } from "@/components/course/business-box";
+import { CourseProgram } from "@/components/course/course-program";
+import { InstructorCard } from "@/components/course/instructor-card";
+import { PurchaseCard } from "@/components/course/purchase-card";
+import { buildOutline } from "@/lib/course-outline";
+
+// Dati di esempio presi dai mockup, solo per questa vetrina.
+const esempioOutline = buildOutline(
+  (
+    [
+      [
+        1,
+        "Perché la tua azienda perde clienti",
+        "Il costo dei clienti che non richiami",
+        460,
+        true,
+      ],
+      [
+        1,
+        "Perché la tua azienda perde clienti",
+        "WhatsApp, email, fogli: la mappa del caos",
+        665,
+        false,
+      ],
+      [2, "Scegliere e impostare il CRM", "I cinque criteri per scegliere il CRM", 660, false],
+      [3, "Pipeline e fasi di vendita", "Le pipeline di vendita nel CRM", 1170, false],
+    ] as const
+  ).map(([ordine, modulo, lezione, durata, gratis], i) => ({
+    module_id: `m${ordine}`,
+    module_titolo: modulo,
+    module_ordine: ordine,
+    lesson_id: `l${i}`,
+    lesson_slug: `l${i}`,
+    lesson_titolo: lezione,
+    durata_sec: durata,
+    is_free_preview: gratis,
+    lesson_ordine: i,
+  })),
+);
 
 export const metadata: Metadata = {
   title: "Design system",
@@ -30,7 +71,7 @@ const colors = [
 
 export default function DesignSystemPage() {
   return (
-    <main id="contenuto" className="mx-auto max-w-5xl space-y-14 px-4 py-12 sm:px-6">
+    <main id="contenuto" className="mx-auto max-w-6xl space-y-14 px-4 py-12 sm:px-6">
       <header className="space-y-4">
         <Logo size="lg" />
         <h1 className="text-3xl font-bold">Design system</h1>
@@ -95,6 +136,76 @@ export default function DesignSystemPage() {
         <ProgressBar value={42} showValue />
         <div className="rounded-lg bg-graphite-deep p-5">
           <ProgressBar value={87} showValue tone="dark" size="md" />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <Eyebrow>Dashboard studente</Eyebrow>
+        <ResumeCard
+          lesson={{
+            courseTitolo: "CRM e automazioni per PMI",
+            courseSlug: "crm-e-automazioni-per-pmi",
+            lessonSlug: "le-pipeline-di-vendita-nel-crm",
+            lessonTitolo: "Le pipeline di vendita nel CRM",
+            eyebrow: "Modulo 3 · Lezione 4",
+            ultimoSecondo: 494,
+            durataSec: 1170,
+            percentCorso: 42,
+          }}
+        />
+        <ResumeCard lesson={null} />
+        <div className="grid gap-5 sm:grid-cols-3">
+          <CourseProgressCard
+            course={{
+              slug: "a",
+              titolo: "CRM e automazioni per PMI",
+              copertinaUrl: null,
+              moduli: 6,
+              lezioni: 32,
+              percent: 42,
+              haAttestato: false,
+            }}
+          />
+          <CourseProgressCard
+            course={{
+              slug: "b",
+              titolo: "AI in azienda: da dove partire",
+              copertinaUrl: null,
+              moduli: 4,
+              lezioni: 18,
+              percent: 15,
+              haAttestato: false,
+            }}
+          />
+          <CourseProgressCard
+            course={{
+              slug: "c",
+              titolo: "Personal branding per imprenditori",
+              copertinaUrl: null,
+              moduli: 5,
+              lezioni: 24,
+              percent: 100,
+              haAttestato: true,
+            }}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <Eyebrow>Pagina corso</Eyebrow>
+        <div className="grid gap-8 rounded-lg bg-graphite-deep p-6 lg:grid-cols-[1fr_340px]">
+          <p className="text-white">Hero del corso (vedi /corsi/[slug])</p>
+          <PurchaseCard prezzoCents={19700} valuta="EUR" />
+        </div>
+        <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
+          <CourseProgram outline={esempioOutline} />
+          <div className="flex flex-col gap-4">
+            <InstructorCard
+              nome="Christian Prete"
+              bio="Founder di Nexora Gruppo Digitale. Ogni giorno costruisce CRM, automazioni e sistemi per aziende italiane: nel corso ti mostra come li fa."
+            />
+            <BusinessBox />
+          </div>
         </div>
       </section>
 

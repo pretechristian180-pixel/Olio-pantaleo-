@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Nexora Academy — Admin gestione corsi</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Michroma&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            font-family: Montserrat, system-ui, sans-serif;
+            color: #1d2124;
+            background: #f4f6f9;
+          }
+          a {
+            color: #0042ed;
+          }
+          a:hover {
+            color: #0024a8;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          min-height: 100vh;
+          display: flex;
+          flex-wrap: wrap;
+          background: #f4f6f9;
+          font-family: Montserrat, system-ui, sans-serif;
+        "
+      >
+        <nav
+          aria-label="Menu admin"
+          style="
+            flex: 1 1 248px;
+            max-width: 100%;
+            background: #ffffff;
+            border-right: 1px solid #e3e6eb;
+            padding: 32px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+          "
+        >
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 12px">
+            <div
+              style="
+                font-family: Michroma, Montserrat, sans-serif;
+                font-size: 22px;
+                letter-spacing: 0.04em;
+                color: #1d2124;
+              "
+            >
+              NEXORA
+            </div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.32em; color: #0042ed">
+              ACADEMY · ADMIN
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 44px;
+                padding: 0 12px;
+                border-radius: 8px;
+                color: #5f646a;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg
+              >Panoramica</a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 44px;
+                padding: 0 12px;
+                border-radius: 8px;
+                background: #e6edfd;
+                color: #0024a8;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 700;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 4h10a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"></path>
+                <path d="M8 20a4 4 0 0 1 0-8h10"></path></svg
+              >Corsi</a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 44px;
+                padding: 0 12px;
+                border-radius: 8px;
+                color: #5f646a;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="9" cy="8" r="4"></circle>
+                <path d="M2 21a7 7 0 0 1 14 0"></path>
+                <path d="M17 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"></path></svg
+              >Studenti</a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 44px;
+                padding: 0 12px;
+                border-radius: 8px;
+                color: #5f646a;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <path d="M2 10h20"></path></svg
+              >Vendite</a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 44px;
+                padding: 0 12px;
+                border-radius: 8px;
+                color: #5f646a;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg
+              >Domande
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 12px;
+                  font-weight: 700;
+                  color: #ffffff;
+                  background: #0042ed;
+                  border-radius: 10px;
+                  padding: 2px 8px;
+                "
+                >4</span
+              ></a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 44px;
+                padding: 0 12px;
+                border-radius: 8px;
+                color: #5f646a;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                ></path></svg
+              >Impostazioni</a
+            >
+          </div>
+        </nav>
+
+        <main
+          style="
+            flex: 999 1 560px;
+            min-width: 0;
+            padding: 32px 48px 48px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+              align-items: flex-end;
+              gap: 16px;
+            "
+          >
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div
+                style="font-size: 12px; font-weight: 600; letter-spacing: 0.24em; color: #0042ed"
+              >
+                GESTIONE
+              </div>
+              <h1 style="margin: 0; font-size: 30px; line-height: 38px; font-weight: 700">
+                I tuoi corsi
+              </h1>
+            </div>
+            <button
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                min-height: 48px;
+                padding: 0 22px;
+                border: 0;
+                border-radius: 8px;
+                background: #0042ed;
+                color: #ffffff;
+                font: inherit;
+                font-size: 15px;
+                font-weight: 700;
+                cursor: pointer;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14"></path></svg
+              >Nuovo corso
+            </button>
+          </div>
+
+          <section
+            aria-label="Numeri del mese"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 16px;
+            "
+          >
+            <div
+              style="
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <div style="font-size: 13px; font-weight: 500; color: #5f646a">
+                Vendite · novembre
+              </div>
+              <div
+                style="
+                  font-family: Michroma, Montserrat, sans-serif;
+                  font-size: 28px;
+                  line-height: 36px;
+                "
+              >
+                [€ —]
+              </div>
+            </div>
+            <div
+              style="
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <div style="font-size: 13px; font-weight: 500; color: #5f646a">Studenti attivi</div>
+              <div
+                style="
+                  font-family: Michroma, Montserrat, sans-serif;
+                  font-size: 28px;
+                  line-height: 36px;
+                "
+              >
+                [—]
+              </div>
+            </div>
+            <div
+              style="
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <div style="font-size: 13px; font-weight: 500; color: #5f646a">
+                Completamento medio
+              </div>
+              <div
+                style="
+                  font-family: Michroma, Montserrat, sans-serif;
+                  font-size: 28px;
+                  line-height: 36px;
+                "
+              >
+                [— %]
+              </div>
+            </div>
+            <div
+              style="
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <div style="font-size: 13px; font-weight: 500; color: #5f646a">Dove si fermano</div>
+              <div style="font-size: 15px; line-height: 22px; font-weight: 600; margin-top: 6px">
+                Lezione con più abbandoni del mese
+              </div>
+            </div>
+          </section>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+            <section
+              aria-label="Elenco corsi"
+              style="
+                flex: 999 1 520px;
+                min-width: 0;
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                border-radius: 14px;
+                overflow: hidden;
+              "
+            >
+              <div style="overflow-x: auto">
+                <table
+                  style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px"
+                >
+                  <thead>
+                    <tr
+                      style="
+                        background: #f4f6f9;
+                        text-align: left;
+                        color: #5f646a;
+                        font-size: 12px;
+                        letter-spacing: 0.12em;
+                      "
+                    >
+                      <th style="padding: 14px 20px; font-weight: 600">CORSO</th>
+                      <th style="padding: 14px 12px; font-weight: 600">STATO</th>
+                      <th style="padding: 14px 12px; font-weight: 600">LEZIONI</th>
+                      <th style="padding: 14px 12px; font-weight: 600">PREZZO</th>
+                      <th style="padding: 14px 20px; font-weight: 600">
+                        <span
+                          style="
+                            position: absolute;
+                            width: 1px;
+                            height: 1px;
+                            overflow: hidden;
+                            clip: rect(0 0 0 0);
+                          "
+                          >Azioni</span
+                        >
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+                      <tr style="border-top: 1px solid #e3e6eb">
+                        <td style="padding: 16px 20px">
+                          <div style="display: flex; align-items: center; gap: 14px">
+                            <div
+                              style="
+                                width: 64px;
+                                height: 40px;
+                                border-radius: 4px;
+                                background: #353a3d;
+                                flex: none;
+                              "
+                            ></div>
+                            <span style="font-weight: 600">{{r.title}}</span>
+                          </div>
+                        </td>
+                        <td style="padding: 16px 12px">
+                          <span
+                            style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 4px; background: {{r.badgeBg}}; color: {{r.badgeFg}}"
+                            >{{r.status}}</span
+                          >
+                        </td>
+                        <td style="padding: 16px 12px; color: #5f646a">{{r.lessons}}</td>
+                        <td style="padding: 16px 12px; color: #5f646a">[PREZZO]</td>
+                        <td style="padding: 16px 20px; text-align: right">
+                          <a
+                            href="#"
+                            style="
+                              display: inline-flex;
+                              align-items: center;
+                              min-height: 44px;
+                              font-weight: 700;
+                              color: #0042ed;
+                              text-decoration: none;
+                            "
+                            >Modifica</a
+                          >
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section
+              aria-label="Carica una lezione"
+              style="
+                flex: 1 1 320px;
+                max-width: 100%;
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                border-radius: 14px;
+                padding: 24px;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+              "
+            >
+              <div
+                style="font-size: 12px; font-weight: 600; letter-spacing: 0.24em; color: #0042ed"
+              >
+                NUOVA LEZIONE
+              </div>
+              <h2 style="margin: 0; font-size: 17px; font-weight: 600">
+                Modulo 4 · Automazioni che lavorano al posto tuo
+              </h2>
+              <div
+                style="
+                  border: 2px dashed #c9ced4;
+                  border-radius: 14px;
+                  padding: 28px 16px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 10px;
+                  text-align: center;
+                "
+              >
+                <div
+                  style="
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 50%;
+                    background: #e6edfd;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#0024a8"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 16V4m0 0-5 5m5-5 5 5M5 20h14"></path>
+                  </svg>
+                </div>
+                <div style="font-size: 15px; font-weight: 600">Trascina qui il video</div>
+                <div style="font-size: 13px; line-height: 18px; color: #5f646a">
+                  MP4 o MOV. Viene caricato su Bunny Stream e protetto in automatico.
+                </div>
+                <button
+                  style="
+                    min-height: 44px;
+                    padding: 0 18px;
+                    border: 1px solid #e3e6eb;
+                    border-radius: 8px;
+                    background: #ffffff;
+                    font: inherit;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                  "
+                >
+                  Scegli file
+                </button>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <div style="display: flex; justify-content: space-between; font-size: 13px">
+                  <span style="font-weight: 600">automazioni-followup.mp4</span
+                  ><span style="color: #5f646a">68%</span>
+                </div>
+                <div style="height: 6px; border-radius: 4px; background: #e6edfd">
+                  <div
+                    style="width: 68%; height: 6px; border-radius: 4px; background: #0042ed"
+                  ></div>
+                </div>
+              </div>
+              <label
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 8px;
+                  font-size: 14px;
+                  font-weight: 600;
+                "
+                >Titolo della lezione<input
+                  type="text"
+                  placeholder="Es. Il follow-up automatico dopo il primo contatto"
+                  style="
+                    height: 48px;
+                    padding: 0 14px;
+                    border: 1px solid #e3e6eb;
+                    border-radius: 8px;
+                    font: inherit;
+                    font-size: 14px;
+                    font-weight: 400;
+                  "
+              /></label>
+              <label
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 10px;
+                  min-height: 44px;
+                  font-size: 14px;
+                "
+                ><input
+                  type="checkbox"
+                  style="width: 18px; height: 18px; accent-color: #0042ed"
+                />Anteprima gratuita nella pagina del corso</label
+              >
+              <button
+                style="
+                  min-height: 48px;
+                  border: 0;
+                  border-radius: 8px;
+                  background: #1d2124;
+                  color: #ffffff;
+                  font: inherit;
+                  font-size: 14px;
+                  font-weight: 700;
+                  cursor: pointer;
+                "
+              >
+                Salva come bozza
+              </button>
+            </section>
+          </div>
+        </main>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+      class Component extends DCLogic {
+      renderVals() {
+      const pub = { status: 'PUBBLICATO', badgeBg: '#e3f3ea', badgeFg: '#17683a' };
+      const draft = { status: 'BOZZA', badgeBg: '#f4f6f9', badgeFg: '#5f646a' };
+      return {
+      rows: [
+      { title: 'CRM e automazioni per PMI', lessons: '32', ...pub },
+      { title: 'AI in azienda: da dove partire', lessons: '18', ...pub },
+      { title: 'Personal branding per imprenditori', lessons: '24', ...pub },
+      { title: 'Marketing aziendale: il sistema completo', lessons: '9 di 30', ...draft }
+      ]
+      };
+      }
+      }
+    </script>
+  </body>
+</html>

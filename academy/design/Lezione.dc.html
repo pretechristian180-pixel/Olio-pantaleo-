@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Nexora Academy — Player lezione</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Michroma&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            font-family: Montserrat, system-ui, sans-serif;
+            color: #1d2124;
+            background: #ffffff;
+          }
+          a {
+            color: #0042ed;
+          }
+          a:hover {
+            color: #0024a8;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          min-height: 100vh;
+          background: #ffffff;
+          font-family: Montserrat, system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <header style="border-bottom: 1px solid #e3e6eb; background: #ffffff">
+          <div
+            style="
+              padding: 0 32px;
+              min-height: 72px;
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 20px;
+            "
+          >
+            <a
+              href="Main.dc.html"
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                min-height: 44px;
+                color: #1d2124;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m15 18-6-6 6-6"></path></svg
+              >Dashboard</a
+            >
+            <div style="width: 1px; height: 28px; background: #e3e6eb"></div>
+            <div
+              style="display: flex; align-items: baseline; gap: 10px; flex: 1 1 260px; min-width: 0"
+            >
+              <span
+                style="
+                  font-family: Michroma, Montserrat, sans-serif;
+                  font-size: 15px;
+                  letter-spacing: 0.04em;
+                "
+                >NEXORA</span
+              ><span
+                style="
+                  font-size: 15px;
+                  font-weight: 600;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                "
+                >CRM e automazioni per PMI</span
+              >
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; flex: 0 1 280px">
+              <div style="flex: 1; height: 8px; border-radius: 4px; background: #e6edfd">
+                <div style="width: 42%; height: 8px; border-radius: 4px; background: #0042ed"></div>
+              </div>
+              <span style="font-size: 13px; font-weight: 700">42%</span>
+            </div>
+          </div>
+        </header>
+
+        <div style="display: flex; flex-wrap: wrap; flex: 1">
+          <main
+            style="
+              flex: 999 1 600px;
+              min-width: 0;
+              padding: 32px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              gap: 24px;
+            "
+          >
+            <div
+              style="
+                aspect-ratio: 16 / 9;
+                background: #1d2124;
+                border-radius: 14px;
+                overflow: hidden;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  top: 20px;
+                  left: 20px;
+                  font-size: 11px;
+                  font-weight: 600;
+                  letter-spacing: 0.24em;
+                  color: #c9ced4;
+                "
+              >
+                PLAYER VIDEO · BUNNY STREAM
+              </div>
+              <button
+                aria-label="Riproduci"
+                style="
+                  width: 88px;
+                  height: 88px;
+                  border-radius: 50%;
+                  border: 0;
+                  background: #0042ed;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  cursor: pointer;
+                "
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
+                  <path d="M8 5v14l11-7z"></path>
+                </svg>
+              </button>
+              <div
+                style="
+                  position: absolute;
+                  left: 0;
+                  right: 0;
+                  bottom: 0;
+                  padding: 16px 20px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 12px;
+                  background: #1d2124;
+                "
+              >
+                <div style="height: 4px; border-radius: 2px; background: #4a5056">
+                  <div
+                    style="width: 42%; height: 4px; border-radius: 2px; background: #038bfd"
+                  ></div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    color: #ffffff;
+                    font-size: 13px;
+                    font-weight: 500;
+                  "
+                >
+                  <span>08:14 / 19:30</span>
+                  <span style="margin-left: auto">1x</span>
+                  <span>HD</span>
+                  <span>Sottotitoli</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+                <div
+                  style="font-size: 12px; font-weight: 600; letter-spacing: 0.24em; color: #0042ed"
+                >
+                  MODULO 3 · LEZIONE 4
+                </div>
+                <h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 700">
+                  Le pipeline di vendita nel CRM
+                </h1>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 12px">
+                <button
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    min-height: 48px;
+                    padding: 0 18px;
+                    border: 1px solid #e3e6eb;
+                    border-radius: 8px;
+                    background: #ffffff;
+                    font: inherit;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #1d2124;
+                    cursor: pointer;
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#1f8a4c"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m5 12 5 5L20 7"></path></svg
+                  >Segna come completata
+                </button>
+                <a
+                  href="#"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    min-height: 48px;
+                    padding: 0 20px;
+                    border-radius: 8px;
+                    background: #0042ed;
+                    color: #ffffff;
+                    text-decoration: none;
+                    font-size: 14px;
+                    font-weight: 700;
+                  "
+                  >Lezione successiva<svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 18 6-6-6-6"></path></svg
+                ></a>
+              </div>
+            </div>
+
+            <div
+              role="tablist"
+              aria-label="Contenuti della lezione"
+              style="display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #e3e6eb"
+            >
+              <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+                <button
+                  role="tab"
+                  aria-selected="{{t.selected}}"
+                  onClick="{{t.pick}}"
+                  style="min-height: 48px; padding: 0 18px; border: 0; background: transparent; font: inherit; font-size: 14px; cursor: pointer; font-weight: {{t.weight}}; color: {{t.color}}; border-bottom: 3px solid {{t.bar}}"
+                >
+                  {{t.label}}
+                </button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{showDesc}}" hint-placeholder-val="{{false}}">
+              <p
+                style="
+                  margin: 0;
+                  max-width: 760px;
+                  font-size: 15px;
+                  line-height: 26px;
+                  color: #1d2124;
+                "
+              >
+                In questa lezione costruiamo insieme la pipeline: le fasi che ogni contatto
+                attraversa, da quando ti scrive a quando diventa cliente. Alla fine avrai le fasi
+                pronte da copiare nel tuo CRM.
+              </p>
+            </sc-if>
+            <sc-if value="{{showMat}}" hint-placeholder-val="{{true}}">
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                  gap: 12px;
+                "
+              >
+                <sc-for list="{{files}}" as="f" hint-placeholder-count="3">
+                  <a
+                    href="#"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 14px;
+                      padding: 16px;
+                      border: 1px solid #e3e6eb;
+                      border-radius: 8px;
+                      text-decoration: none;
+                      color: #1d2124;
+                    "
+                  >
+                    <div
+                      style="
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 8px;
+                        background: #e6edfd;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#0024a8"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <path d="M14 3v6h6"></path>
+                      </svg>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                      <span style="font-size: 14px; font-weight: 600">{{f.name}}</span
+                      ><span style="font-size: 12px; color: #5f646a">{{f.meta}}</span>
+                    </div>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#1d2124"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 4v12m0 0-5-5m5 5 5-5M5 20h14"></path>
+                    </svg>
+                  </a>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{showNote}}" hint-placeholder-val="{{false}}">
+              <label
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 8px;
+                  max-width: 760px;
+                  font-size: 14px;
+                  font-weight: 600;
+                "
+                >Le tue note su questa lezione<textarea
+                  rows="5"
+                  placeholder="Scrivi qui. Le note si salvano da sole e restano legate al minuto del video."
+                  style="
+                    font: inherit;
+                    font-size: 15px;
+                    font-weight: 400;
+                    padding: 14px;
+                    border: 1px solid #e3e6eb;
+                    border-radius: 8px;
+                    resize: vertical;
+                  "
+                ></textarea>
+              </label>
+            </sc-if>
+            <sc-if value="{{showQa}}" hint-placeholder-val="{{false}}">
+              <div style="max-width: 760px; display: flex; flex-direction: column; gap: 12px">
+                <div
+                  style="
+                    padding: 16px;
+                    background: #f4f6f9;
+                    border-radius: 8px;
+                    font-size: 15px;
+                    line-height: 24px;
+                  "
+                >
+                  <strong style="display: block; font-size: 14px">Luca B. · 2 giorni fa</strong>Se
+                  ho due venditori, conviene una pipeline unica o una per ciascuno?
+                </div>
+                <div
+                  style="
+                    padding: 16px;
+                    background: #e6edfd;
+                    border-radius: 8px;
+                    font-size: 15px;
+                    line-height: 24px;
+                    margin-left: 32px;
+                  "
+                >
+                  <strong style="display: block; font-size: 14px; color: #0024a8"
+                    >Christian Prete · Risposta</strong
+                  >Una sola pipeline, con il filtro per venditore. Così confronti i numeri sulle
+                  stesse fasi.
+                </div>
+              </div>
+            </sc-if>
+          </main>
+
+          <aside
+            aria-label="Programma del corso"
+            style="
+              flex: 1 1 340px;
+              max-width: 100%;
+              border-left: 1px solid #e3e6eb;
+              background: #f4f6f9;
+              padding: 24px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            "
+          >
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <h2 style="margin: 0; font-size: 17px; font-weight: 600">
+                Modulo 3 · Pipeline e fasi di vendita
+              </h2>
+            </div>
+            <div style="font-size: 13px; color: #5f646a">3 di 6 lezioni completate</div>
+            <ol
+              style="
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <sc-for list="{{outline}}" as="o" hint-placeholder-count="6">
+                <li
+                  style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; border-radius: 8px; background: {{o.bg}}; border: 1px solid {{o.border}}"
+                >
+                  <sc-if value="{{o.done}}" hint-placeholder-val="{{false}}"
+                    ><span
+                      style="
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        background: #1f8a4c;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex: none;
+                      "
+                      ><svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#ffffff"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m5 12 5 5L20 7"></path></svg></span
+                  ></sc-if>
+                  <sc-if value="{{o.current}}" hint-placeholder-val="{{false}}"
+                    ><span
+                      style="
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        background: #0042ed;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex: none;
+                      "
+                      ><svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="#ffffff"
+                        aria-hidden="true"
+                      >
+                        <path d="M8 5v14l11-7z"></path></svg></span
+                  ></sc-if>
+                  <sc-if value="{{o.todo}}" hint-placeholder-val="{{true}}"
+                    ><span
+                      style="
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        border: 2px solid #c9ced4;
+                        box-sizing: border-box;
+                        flex: none;
+                      "
+                    ></span
+                  ></sc-if>
+                  <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"
+                    ><span style="font-size: 14px; line-height: 20px; font-weight: {{o.weight}}"
+                      >{{o.title}}</span
+                    ><span style="font-size: 12px; color: #5f646a">{{o.time}}</span></span
+                  >
+                </li>
+              </sc-for>
+            </ol>
+            <div
+              style="
+                margin-top: 8px;
+                padding: 16px;
+                border-radius: 8px;
+                background: #ffffff;
+                border: 1px solid #e3e6eb;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              "
+            >
+              <span
+                style="font-size: 12px; font-weight: 600; letter-spacing: 0.24em; color: #5f646a"
+                >PROSSIMO MODULO</span
+              >
+              <span style="font-size: 14px; font-weight: 600"
+                >4 · Automazioni che lavorano al posto tuo</span
+              >
+            </div>
+          </aside>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+      class Component extends DCLogic {
+      constructor(props) { super(props); this.state = { tab: 'mat' }; }
+      renderVals() {
+      const tab = this.state.tab;
+      const defs = [['desc', 'Descrizione'], ['mat', 'Materiali'], ['note', 'Le mie note'], ['qa', 'Domande']];
+      const tabs = defs.map(([id, label]) => ({
+      label,
+      selected: tab === id ? 'true' : 'false',
+      weight: tab === id ? 700 : 500,
+      color: tab === id ? '#0042ed' : '#5f646a',
+      bar: tab === id ? '#0042ed' : 'transparent',
+      pick: () => this.setState({ tab: id })
+      }));
+      const raw = [
+      { title: 'Cos’è una pipeline e perché ti serve', time: '09:10', s: 'done' },
+      { title: 'Le fasi giuste per la tua attività', time: '12:45', s: 'done' },
+      { title: 'Quando un contatto cambia fase', time: '10:30', s: 'done' },
+      { title: 'Le pipeline di vendita nel CRM', time: '19:30', s: 'current' },
+      { title: 'Pipeline per più venditori', time: '08:50', s: 'todo' },
+      { title: 'Esercizio: la tua pipeline in 30 minuti', time: '06:00', s: 'todo' }
+      ];
+      const outline = raw.map((o) => ({
+      title: o.title, time: o.time,
+      done: o.s === 'done', current: o.s === 'current', todo: o.s === 'todo',
+      bg: o.s === 'current' ? '#ffffff' : 'transparent',
+      border: o.s === 'current' ? '#0042ed' : 'transparent',
+      weight: o.s === 'current' ? 700 : 500
+      }));
+      return {
+      tabs, outline,
+      showDesc: tab === 'desc', showMat: tab === 'mat', showNote: tab === 'note', showQa: tab === 'qa',
+      files: [
+      { name: 'Schema fasi della pipeline', meta: 'PDF · 2 pagine' },
+      { name: 'Modello pipeline da importare', meta: 'CSV · per il tuo CRM' },
+      { name: 'Slide della lezione', meta: 'PDF · 14 slide' }
+      ]
+      };
+      }
+      }
+    </script>
+  </body>
+</html>

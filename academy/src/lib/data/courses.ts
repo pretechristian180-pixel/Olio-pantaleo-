@@ -4,13 +4,16 @@ import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { buildOutline, type Outline, type OutlineRow } from "@/lib/course-outline";
 
+export type Risultato = { titolo: string; testo: string };
+
 type CourseRow = {
   id: string;
   slug: string;
   titolo: string;
   sottotitolo: string | null;
   descrizione: string | null;
-  risultati: string[];
+  categoria: string | null;
+  risultati: Risultato[];
   prezzo_cents: number;
   valuta: string;
   copertina_path: string | null;
@@ -25,7 +28,7 @@ export type Course = Omit<CourseRow, "instructors" | "copertina_path"> & {
 };
 
 const COURSE_COLUMNS =
-  "id, slug, titolo, sottotitolo, descrizione, risultati, prezzo_cents, valuta, copertina_path, trailer_video_id, instructors(nome, qualifica, bio), tenants!inner(slug)";
+  "id, slug, titolo, sottotitolo, descrizione, categoria, risultati, prezzo_cents, valuta, copertina_path, trailer_video_id, instructors(nome, qualifica, bio), tenants!inner(slug)";
 
 async function hydrate(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -35,9 +38,12 @@ async function hydrate(
     p_course_id: row.id,
   });
   if (error) throw new Error(`Programma del corso non disponibile: ${error.message}`);
-  const { instructors, copertina_path, ...rest } = row;
+  const { instructors, copertina_path, risultati, ...rest } = row;
   return {
     ...rest,
+    risultati: Array.isArray(risultati)
+      ? risultati.filter((r): r is Risultato => typeof r?.titolo === "string")
+      : [],
     docente: instructors,
     copertinaUrl: copertina_path
       ? supabase.storage.from("copertine").getPublicUrl(copertina_path).data.publicUrl

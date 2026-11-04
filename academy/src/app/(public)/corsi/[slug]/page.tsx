@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Check, Clock, Layers, PlayCircle } from "lucide-react";
+import { Clock, ListVideo, MonitorPlay } from "lucide-react";
 import { getCourseBySlug } from "@/lib/data/courses";
-import { formatDuration, formatPrice, pluralize } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
+import { formatDuration, pluralize } from "@/lib/utils";
+import { Avatar, initials } from "@/components/ui/avatar";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { BusinessBox } from "@/components/course/business-box";
+import { CourseProgram } from "@/components/course/course-program";
+import { InstructorCard } from "@/components/course/instructor-card";
+import { PurchaseCard } from "@/components/course/purchase-card";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,111 +27,84 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// Fase 1: struttura essenziale. Card acquisto, trailer, fisarmonica e scheda docente arrivano in Fase 2.
 export default async function CoursePage({ params }: Props) {
   const course = await getCourseBySlug((await params).slug);
   if (!course) notFound();
-  const { outline } = course;
+  const { outline, docente } = course;
+  const [nomeDocente, ...cognomeDocente] = (docente?.nome ?? "").split(" ");
 
   return (
     <>
       <section className="bg-graphite-deep text-white">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_360px] lg:py-20">
+        <div className="mx-auto grid max-w-310 gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_340px] lg:gap-16 lg:py-16">
           <div>
-            <Eyebrow tone="bright">Corso</Eyebrow>
-            <h1 className="mt-4 text-3xl leading-tight font-bold sm:text-4xl">{course.titolo}</h1>
+            <Eyebrow tone="bright">
+              Videocorso{course.categoria ? ` · ${course.categoria}` : ""}
+            </Eyebrow>
+            <h1 className="mt-5 text-4xl leading-tight font-bold sm:text-5xl">{course.titolo}</h1>
             {course.sottotitolo && (
-              <p className="mt-4 max-w-2xl text-lg text-white/80">{course.sottotitolo}</p>
+              <p className="mt-6 max-w-155 text-lg leading-7 text-ink-inverse-muted">
+                {course.sottotitolo}
+              </p>
             )}
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
+            <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
               <li className="inline-flex items-center gap-2">
-                <Layers aria-hidden className="size-4" />{" "}
+                <MonitorPlay aria-hidden className="size-4 text-nexora-blue-bright" />
+                {pluralize(outline.totaleLezioni, "lezione video", "lezioni video")}
+              </li>
+              <li className="inline-flex items-center gap-2">
+                <ListVideo aria-hidden className="size-4 text-nexora-blue-bright" />
                 {pluralize(outline.moduli.length, "modulo", "moduli")}
               </li>
               <li className="inline-flex items-center gap-2">
-                <PlayCircle aria-hidden className="size-4" />{" "}
-                {pluralize(outline.totaleLezioni, "lezione", "lezioni")}
-              </li>
-              <li className="inline-flex items-center gap-2">
-                <Clock aria-hidden className="size-4" /> {formatDuration(outline.totaleDurataSec)}
+                <Clock aria-hidden className="size-4 text-nexora-blue-bright" />
+                {formatDuration(outline.totaleDurataSec)}
               </li>
             </ul>
-            {course.docente && (
-              <p className="mt-6 text-sm text-white/70">
-                Con <span className="font-semibold text-white">{course.docente.nome}</span>
-                {course.docente.qualifica && `, ${course.docente.qualifica}`}
-              </p>
+            {docente && (
+              <div className="mt-8 flex items-center gap-3">
+                <Avatar
+                  name={initials(nomeDocente, cognomeDocente.join(" "))}
+                  className="size-12"
+                />
+                <div>
+                  <p className="text-[15px] font-semibold">{docente.nome}</p>
+                  {docente.qualifica && (
+                    <p className="text-[13px] text-ink-inverse-muted">{docente.qualifica}</p>
+                  )}
+                </div>
+              </div>
             )}
           </div>
-          <Card className="self-start text-ink">
-            <CardBody>
-              <p className="font-display text-3xl">
-                {formatPrice(course.prezzo_cents, course.valuta)}
-              </p>
-              <p className="mt-1 text-sm text-ink-muted">
-                Pagamento unico, accesso senza scadenza.
-              </p>
-              <Button block size="lg" className="mt-6" disabled>
-                Acquista il corso
-              </Button>
-              <p className="mt-3 text-center text-xs text-ink-muted">
-                Acquisto attivo dalla Fase 3.
-              </p>
-            </CardBody>
-          </Card>
+          <PurchaseCard prezzoCents={course.prezzo_cents} valuta={course.valuta} />
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-12">
-          {course.risultati.length > 0 && (
-            <section aria-labelledby="risultati">
-              <h2 id="risultati" className="text-2xl font-bold">
-                Cosa porti a casa
-              </h2>
-              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                {course.risultati.map((r) => (
-                  <li key={r} className="flex gap-3 rounded-lg border border-line bg-surface p-4">
-                    <Check aria-hidden className="mt-0.5 size-5 shrink-0 text-nexora-blue" />
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <section aria-labelledby="programma">
-            <h2 id="programma" className="text-2xl font-bold">
-              Programma
-            </h2>
-            <ol className="mt-6 space-y-4">
-              {outline.moduli.map((m) => (
-                <li key={m.id} className="rounded-lg border border-line bg-surface">
-                  <div className="flex items-baseline justify-between gap-4 border-b border-line p-5">
-                    <div>
-                      <Eyebrow tone="muted">Modulo {m.numero}</Eyebrow>
-                      <h3 className="mt-1 font-semibold">{m.titolo}</h3>
-                    </div>
-                    <span className="shrink-0 text-sm text-ink-muted">
-                      {formatDuration(m.durataSec)}
-                    </span>
-                  </div>
-                  <ul>
-                    {m.lezioni.map((l) => (
-                      <li key={l.id} className="flex min-h-12 items-center gap-3 px-5 py-2 text-sm">
-                        <PlayCircle aria-hidden className="size-4 shrink-0 text-ink-muted" />
-                        <span className="flex-1">{l.titolo}</span>
-                        {l.isFreePreview && <Badge>Gratis</Badge>}
-                        <span className="w-14 text-right text-ink-muted tabular-nums">
-                          {formatDuration(l.durataSec)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ol>
-          </section>
+      <div className="bg-surface">
+        <div className="mx-auto grid max-w-310 gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_300px] lg:px-8">
+          <div className="flex min-w-0 flex-col gap-14">
+            {course.risultati.length > 0 && (
+              <section aria-labelledby="risultati">
+                <Eyebrow>Cosa porti a casa</Eyebrow>
+                <h2 id="risultati" className="mt-3 text-[28px] leading-tight font-bold">
+                  Alla fine del corso avrai un sistema, non solo appunti.
+                </h2>
+                <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {course.risultati.map((r) => (
+                    <li key={r.titolo} className="rounded-lg bg-surface-alt p-6">
+                      <h3 className="font-bold">{r.titolo}</h3>
+                      <p className="mt-2 text-sm leading-6 text-ink-muted">{r.testo}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            <CourseProgram outline={outline} />
+          </div>
+          <div className="flex flex-col gap-4">
+            {docente && <InstructorCard nome={docente.nome} bio={docente.bio} />}
+            <BusinessBox />
+          </div>
         </div>
       </div>
     </>

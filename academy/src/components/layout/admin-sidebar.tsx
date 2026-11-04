@@ -1,26 +1,25 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
-import { Eyebrow } from "@/components/ui/eyebrow";
 import { NavLink } from "./nav-link";
 import { adminNav } from "./nav";
 
-export function AdminSidebar() {
+type Counts = { domande?: number };
+
+export function AdminSidebar({ counts = {} }: { counts?: Counts }) {
   return (
-    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-surface px-4 py-6 lg:flex">
+    <aside className="sticky top-0 hidden h-dvh w-62 shrink-0 flex-col gap-8 border-r border-line bg-surface px-5 py-8 lg:flex">
       <div className="px-3">
-        <Logo href="/admin" />
-        <Eyebrow tone="muted" className="mt-4">
-          Amministrazione
-        </Eyebrow>
+        <Logo href="/admin" label="ACADEMY · ADMIN" />
       </div>
-      <nav aria-label="Amministrazione" className="mt-6 flex flex-col gap-1">
+      <nav aria-label="Amministrazione" className="flex flex-col gap-1">
         {adminNav.map((item) => (
           <NavLink
             key={item.href}
             item={{ href: item.href, label: item.label, exact: item.exact }}
             icon={<item.icon />}
             variant="light"
+            badge={item.href === "/admin/domande" ? counts.domande : undefined}
           />
         ))}
       </nav>
@@ -36,11 +35,11 @@ export function AdminSidebar() {
 }
 
 /** Sotto i 1024px: barra in alto con le voci scorrevoli in orizzontale. */
-export function AdminMobileNav() {
+export function AdminMobileNav({ counts = {} }: { counts?: Counts }) {
   return (
     <div className="border-b border-line bg-surface lg:hidden">
       <div className="flex h-14 items-center px-4">
-        <Logo size="sm" href="/admin" />
+        <Logo size="sm" href="/admin" label="ACADEMY · ADMIN" />
       </div>
       <nav aria-label="Amministrazione" className="flex gap-1 overflow-x-auto px-2 pb-2">
         {adminNav.map((item) => (
@@ -49,6 +48,7 @@ export function AdminMobileNav() {
               item={{ href: item.href, label: item.label, exact: item.exact }}
               icon={<item.icon />}
               variant="light"
+              badge={item.href === "/admin/domande" ? counts.domande : undefined}
             />
           </div>
         ))}

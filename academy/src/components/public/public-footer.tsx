@@ -4,7 +4,7 @@ import { Logo } from "@/components/ui/logo";
 export function PublicFooter() {
   return (
     <footer className="border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:px-6">
+      <div className="mx-auto flex max-w-310 flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:px-6">
         <Logo size="sm" />
         <p className="text-sm text-ink-muted">
           © {new Date().getFullYear()} Nexora Gruppo Digitale

@@ -12,7 +12,8 @@ describe("formattazione", () => {
     expect(formatDuration(11340)).toBe("3 h 9 min");
   });
   it("minutaggio", () => {
-    expect(formatTimestamp(95)).toBe("1:35");
+    expect(formatTimestamp(95)).toBe("01:35");
+    expect(formatTimestamp(1170)).toBe("19:30");
     expect(formatTimestamp(3725)).toBe("1:02:05");
   });
   it("percentuali limitate tra 0 e 100", () => {

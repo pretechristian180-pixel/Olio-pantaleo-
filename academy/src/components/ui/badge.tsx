@@ -10,7 +10,7 @@ const badgeVariants = cva(
         blue: "bg-blue-tint text-nexora-blue-deep",
         solid: "bg-nexora-blue text-white",
         neutral: "bg-surface-alt text-ink-muted",
-        positive: "bg-positive/10 text-positive",
+        positive: "bg-positive-tint text-positive-deep",
         negative: "bg-negative/10 text-negative",
         dark: "bg-white/10 text-white",
       },
