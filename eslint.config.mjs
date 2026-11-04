@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Nexora Academy è un progetto separato con la sua configurazione.
+    "academy/**",
   ]),
 ]);
 
