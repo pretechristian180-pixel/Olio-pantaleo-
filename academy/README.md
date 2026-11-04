@@ -7,6 +7,12 @@ Supabase · Bunny Stream · Stripe · Resend · Vercel.
 - Mockup di riferimento: [`design/`](design/)
 - Account da creare e chiavi: [`docs/ACCOUNT-E-CHIAVI.md`](docs/ACCOUNT-E-CHIAVI.md)
 
+## Progetto Supabase
+
+Progetto `nexora-academy` (ref `vxgfjfxfoyulpjwtqjlw`, Francoforte) nell'organizzazione NEXORA:
+migration e seed già applicati. URL e chiave pubblica vanno in `.env.local` e su Vercel; la chiave
+segreta si copia da Project Settings → API Keys.
+
 ## Avvio in locale
 
 ```bash
