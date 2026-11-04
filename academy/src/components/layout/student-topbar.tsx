@@ -1,4 +1,5 @@
-import { Bell, Search } from "lucide-react";
+import Link from "next/link";
+import { Bell, LogOut, Search } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Logo } from "@/components/ui/logo";
 
@@ -36,8 +37,24 @@ export function StudentTopbar({ initials = "N", name }: { initials?: string; nam
         >
           <Bell aria-hidden className="size-5" />
         </button>
-        <Avatar name={initials} className="size-12" />
-        {name && <span className="hidden text-sm font-semibold lg:inline">{name}</span>}
+        <Link
+          href="/app/profilo"
+          className="flex items-center gap-3 rounded-full"
+          aria-label="Il tuo profilo"
+        >
+          <Avatar name={initials} className="size-12" />
+          {name && <span className="hidden text-sm font-semibold lg:inline">{name}</span>}
+        </Link>
+        <form action="/esci" method="post" className="hidden md:block">
+          <button
+            type="submit"
+            aria-label="Esci"
+            title="Esci"
+            className="flex size-12 items-center justify-center rounded-md text-ink-muted hover:bg-surface hover:text-ink"
+          >
+            <LogOut aria-hidden className="size-5" />
+          </button>
+        </form>
       </div>
     </header>
   );

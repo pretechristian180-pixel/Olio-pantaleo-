@@ -58,15 +58,17 @@ function LogoMark({
       >
         NEXORA
       </span>
-      <span
-        className={cn(
-          "font-semibold tracking-[0.32em] whitespace-nowrap",
-          sizes[size].sub,
-          tone === "dark" ? "text-nexora-blue-bright" : "text-nexora-blue",
-        )}
-      >
-        {label}
-      </span>
+      {label && (
+        <span
+          className={cn(
+            "font-semibold tracking-[0.32em] whitespace-nowrap",
+            sizes[size].sub,
+            tone === "dark" ? "text-nexora-blue-bright" : "text-nexora-blue",
+          )}
+        >
+          {label}
+        </span>
+      )}
     </span>
   );
 }

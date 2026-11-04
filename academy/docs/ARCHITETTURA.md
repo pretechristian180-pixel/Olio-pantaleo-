@@ -46,7 +46,7 @@ academy/
 │   ├── config.toml                Configurazione Supabase CLI
 │   ├── migrations/                Migration SQL versionate
 │   ├── seed.sql                   Tenant Nexora + corso di esempio
-│   └── tests/rls_test.sql         Test pgTAP delle policy (42 controlli)
+│   └── tests/rls_test.sql         Test pgTAP delle policy (46 controlli)
 ├── tests/unit/                    Vitest
 ├── tests/e2e/                     (Fase 5) Playwright
 └── docs/                          Questa documentazione
@@ -114,3 +114,22 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
 - **`lessons.course_id`** ridondante (riempito da trigger) per URL `/app/corsi/[slug]/[lezione]` e RLS veloci.
 - **Ordini conservati** anche se l'utente cancella l'account (obblighi fiscali): `user_id` diventa null.
 - Progetto in **cartella separata `academy/`** perché il repository contiene già altri progetti.
+
+## Decisioni della Fase 2
+
+- **Login dal browser** (supabase-js nel client) e non da Server Action: i limiti anti-tentativi di
+  Supabase Auth valgono per l'IP di chi prova; dal server sarebbero condivisi da tutti gli utenti.
+- **"Ricordami"**: cookie-marcatore `nx_ricordami` (persistente se acceso, di sessione se spento).
+  Se al ritorno ci sono i cookie Supabase ma non il marcatore, il middleware chiude la sessione.
+- **Link di accesso via email** solo per account esistenti (`shouldCreateUser: false`), con lo
+  stesso messaggio che l'email esista o no.
+- **Lezione gratuita**: serve un account gratuito (le pagine `/app` sono protette). Così ogni
+  anteprima porta un contatto.
+- **Video**: l'URL embed Bunny viene firmato sul server (`src/lib/bunny.ts`, scadenza 2 ore) solo
+  se la select della lezione passa le RLS. Senza chiavi Bunny o senza video il player mostra
+  "Il video arriva a breve".
+- **Avanzamento**: il player (player.js) manda il minuto ogni 10 s, alla pausa, a fine video e
+  quando lasci la pagina (`fetch` con `keepalive`) a `POST /api/progress`. Contano solo i secondi
+  guardati in continuità (max 15 per invio); completata oltre il 90% o con il pulsante.
+- **Domande**: la funzione `lesson_thread()` mostra solo "Nome I." degli autori, a chi ha accesso
+  al corso; i profili restano privati.

@@ -1,30 +1,24 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
+import { displayName, requireUser } from "@/lib/auth";
+import { getDashboard } from "@/lib/data/student";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Stat } from "@/components/ui/stat";
-import {
-  CourseProgressCard,
-  type CourseProgress,
-} from "@/components/dashboard/course-progress-card";
-import { ResumeCard, type ResumeLesson } from "@/components/dashboard/resume-card";
+import { CourseProgressCard } from "@/components/dashboard/course-progress-card";
+import { ResumeCard } from "@/components/dashboard/resume-card";
 
-// Fase 1: struttura del mockup Main. In Fase 2 questi valori arrivano dal database.
-const nome: string | null = null;
-const resume: ResumeLesson | null = null;
-const corsi: CourseProgress[] = [];
-const numeri = { attivi: 0, completate: 0, ore: "0", attestati: 0 };
+export default async function DashboardPage() {
+  const user = await requireUser();
+  const { cards, resume, numeri } = await getDashboard(user.id);
 
-export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-10">
       <div>
         <Eyebrow>Bentornato</Eyebrow>
-        <h1 className="mt-2 text-[32px] leading-tight font-bold">
-          {nome
-            ? `Ciao ${nome}, riprendi da dove eri rimasto.`
-            : "Ciao, riprendi da dove eri rimasto."}
+        <h1 className="mt-2 text-[28px] leading-tight font-bold sm:text-[32px]">
+          Ciao {displayName(user)}, {resume ? "riprendi da dove eri rimasto." : "iniziamo."}
         </h1>
       </div>
 
@@ -49,7 +43,7 @@ export default function DashboardPage() {
             Vedi tutto il catalogo
           </Link>
         </div>
-        {corsi.length === 0 ? (
+        {cards.length === 0 ? (
           <EmptyState
             icon={BookOpen}
             title="Nessun corso, per ora"
@@ -62,7 +56,7 @@ export default function DashboardPage() {
           />
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {corsi.map((c) => (
+            {cards.map((c) => (
               <CourseProgressCard key={c.slug} course={c} />
             ))}
           </div>

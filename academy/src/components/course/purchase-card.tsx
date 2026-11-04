@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -10,8 +11,21 @@ const vantaggi = [
   "Pagamento sicuro, anche a rate",
 ];
 
-/** Card acquisto con trailer (mockup Corso). Pulsanti attivi da Fase 2 (anteprima) e Fase 3 (Stripe). */
-export function PurchaseCard({ prezzoCents, valuta }: { prezzoCents: number; valuta: string }) {
+/** Card acquisto con trailer (mockup Corso). L'acquisto con Stripe si attiva in Fase 3. */
+export function PurchaseCard({
+  prezzoCents,
+  valuta,
+  courseHref,
+  freeLessonHref,
+  enrolled = false,
+}: {
+  prezzoCents: number;
+  valuta: string;
+  /** Dove porta "Vai al corso" quando l'utente è già iscritto. */
+  courseHref?: string;
+  freeLessonHref?: string | null;
+  enrolled?: boolean;
+}) {
   return (
     <div className="overflow-hidden rounded-lg bg-surface text-ink">
       <div className="flex aspect-[17/10] flex-col bg-graphite p-4">
@@ -30,15 +44,29 @@ export function PurchaseCard({ prezzoCents, valuta }: { prezzoCents: number; val
           <Price cents={prezzoCents} currency={valuta} className="text-4xl" />
           <span className="text-[13px] text-ink-muted">IVA inclusa</span>
         </p>
-        <Button size="lg" block disabled>
-          Acquista il corso
-        </Button>
-        <Button variant="secondary" block disabled>
-          Guarda una lezione gratis
-        </Button>
-        <p className="text-center text-xs text-ink-muted">
-          Anteprima e acquisto si attivano nelle prossime fasi.
-        </p>
+        {enrolled && courseHref ? (
+          <Button asChild size="lg" block>
+            <Link href={courseHref}>Vai al corso</Link>
+          </Button>
+        ) : (
+          <>
+            <Button size="lg" block disabled>
+              Acquista il corso
+            </Button>
+            {freeLessonHref ? (
+              <Button asChild variant="secondary" block>
+                <Link href={freeLessonHref}>Guarda una lezione gratis</Link>
+              </Button>
+            ) : (
+              <Button variant="secondary" block disabled>
+                Guarda una lezione gratis
+              </Button>
+            )}
+            <p className="text-center text-xs text-ink-muted">
+              L&apos;acquisto online si attiva a breve.
+            </p>
+          </>
+        )}
         <ul className="flex flex-col gap-3 pt-1">
           {vantaggi.map((v) => (
             <li key={v} className="flex items-center gap-3 text-sm">

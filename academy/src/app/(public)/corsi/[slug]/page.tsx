@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock, ListVideo, MonitorPlay } from "lucide-react";
+import { getSessionUser } from "@/lib/auth";
 import { getCourseBySlug } from "@/lib/data/courses";
+import { getMyEnrolledSlugs } from "@/lib/data/student";
 import { formatDuration, pluralize } from "@/lib/utils";
 import { Avatar, initials } from "@/components/ui/avatar";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -31,6 +33,9 @@ export default async function CoursePage({ params }: Props) {
   const course = await getCourseBySlug((await params).slug);
   if (!course) notFound();
   const { outline, docente } = course;
+  const user = await getSessionUser();
+  const enrolled = user ? (await getMyEnrolledSlugs(user.id)).includes(course.slug) : false;
+  const freeLesson = outline.moduli.flatMap((m) => m.lezioni).find((l) => l.isFreePreview);
   const [nomeDocente, ...cognomeDocente] = (docente?.nome ?? "").split(" ");
 
   return (
@@ -76,7 +81,13 @@ export default async function CoursePage({ params }: Props) {
               </div>
             )}
           </div>
-          <PurchaseCard prezzoCents={course.prezzo_cents} valuta={course.valuta} />
+          <PurchaseCard
+            prezzoCents={course.prezzo_cents}
+            valuta={course.valuta}
+            enrolled={enrolled}
+            courseHref={`/app/corsi/${course.slug}`}
+            freeLessonHref={freeLesson ? `/app/corsi/${course.slug}/${freeLesson.slug}` : null}
+          />
         </div>
       </section>
 

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
+import { getSessionUser } from "@/lib/auth";
 
-export function PublicHeader() {
+export async function PublicHeader() {
+  const user = await getSessionUser();
   return (
     <header className="border-b border-white/10 bg-graphite-deep">
       <div className="mx-auto flex h-19 max-w-310 items-center gap-6 px-4 sm:px-6">
@@ -21,7 +23,7 @@ export function PublicHeader() {
             Per le aziende
           </Link>
           <Button asChild variant="outline-inverse">
-            <Link href="/accedi">Accedi</Link>
+            {user ? <Link href="/app">La tua area</Link> : <Link href="/accedi">Accedi</Link>}
           </Button>
         </nav>
       </div>

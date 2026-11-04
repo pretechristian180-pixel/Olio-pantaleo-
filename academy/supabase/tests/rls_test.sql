@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(42);
+select plan(46);
 
 -- ---------------------------------------------------------------------------
 -- Utilità: impersonare un utente come fa PostgREST
@@ -231,6 +231,28 @@ reset role;
 select is(
   (select titolo from public.courses where id = 'c0000000-0000-4000-8000-000000000001'),
   'Corso 1', 'admin B: non modifica corsi del tenant A');
+
+-- ---------------------------------------------------------------------------
+-- Thread delle domande con nomi brevi
+-- ---------------------------------------------------------------------------
+select tests.login('a0000000-0000-4000-8000-0000000000b1');
+select is(
+  (select count(*)::int from public.lesson_thread('e0000000-0000-4000-8000-000000000002')),
+  3, 'S1: vede domanda e risposte del thread');
+select is(
+  (select autore from public.lesson_thread('e0000000-0000-4000-8000-000000000002') where tipo = 'domanda'),
+  'Sara', 'thread: mostra solo il nome breve dell''autore');
+reset role;
+select tests.login('a0000000-0000-4000-8000-0000000000b2');
+select is(
+  (select count(*)::int from public.lesson_thread('e0000000-0000-4000-8000-000000000003')),
+  0, 'S2: nessun thread su corsi senza accesso');
+reset role;
+select tests.anon();
+select throws_ok(
+  $$select * from public.lesson_thread('e0000000-0000-4000-8000-000000000002')$$,
+  '42501', null, 'anon: non legge i thread');
+reset role;
 
 select * from finish();
 rollback;

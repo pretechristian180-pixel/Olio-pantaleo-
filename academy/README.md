@@ -55,11 +55,13 @@ npm run db:types    # rigenera i tipi TypeScript dal database
 | `/app`           | Dashboard studente (stati vuoti)              |
 | `/admin`         | Panoramica admin; `/admin/corsi` elenco corsi |
 | `/design-system` | Token e componenti                            |
+| `/accedi`, `/registrati`, `/password-dimenticata` | Accesso (Fase 2)  |
+| `/app/corsi/[slug]/[lezione]` | Player della lezione (Fase 2)    |
 
 ## Avanzamento
 
 - [x] Fase 1 — Fondamenta
-- [ ] Fase 2 — Auth e area studente
+- [x] Fase 2 — Auth e area studente
 - [ ] Fase 3 — Pagamenti
 - [ ] Fase 4 — Admin
 - [ ] Fase 5 — Rifinitura e deploy
