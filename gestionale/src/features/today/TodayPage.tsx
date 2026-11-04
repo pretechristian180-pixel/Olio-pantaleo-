@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, FileWarning, KeyRound, PhoneCall, Sparkles } from "lucide-react";
+import { CalendarCheck, CalendarPlus, ChevronRight, Clapperboard, FileClock, FileWarning, KeyRound, PhoneCall, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,7 @@ import { countToApprove } from "@/services/studio";
 import { acquisitionsToFollow } from "@/services/acquisitions";
 import { paperworkSummary } from "@/services/records";
 import { listLeads } from "@/services/leads";
+import { teamDashboard } from "@/services/team";
 import { suggestions as assistantSuggestions } from "@/features/assistant/AssistantPage";
 import { isLate, scoreLevel, since, sourceLabel } from "@/features/leads/labels";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,7 @@ function greeting(d: Date) {
 }
 
 export function TodayPage() {
-  const { agent } = useAuth();
+  const { agent, isOwner } = useAuth();
   const { data, loading, error, reload } = useQuery(getToday);
   const { openAppointment } = useAppointmentDialog();
   const now = new Date();
@@ -82,6 +83,7 @@ export function TodayPage() {
         )}
       </div>
 
+      {isOwner && <TeamCard />}
       <AssistantCard />
       <LeadsCard />
       <StudioCard />
@@ -92,11 +94,16 @@ export function TodayPage() {
         <section>
           <SectionTitle
             aside={
-              data && data.tasks.length > 0 ? (
-                <span className="text-muted-foreground">
-                  {data.tasks.filter((t) => t.done).length} di {data.tasks.length} fatte
-                </span>
-              ) : null
+              <span className="flex items-center gap-3">
+                {data && data.tasks.length > 0 && (
+                  <span className="text-muted-foreground">
+                    {data.tasks.filter((t) => t.done).length} di {data.tasks.length} fatte
+                  </span>
+                )}
+                <Link to="/attivita" className="text-[15px] font-semibold text-primary-strong">
+                  Vedi tutte
+                </Link>
+              </span>
             }
           >
             Cose da fare oggi
@@ -173,6 +180,30 @@ function StudioCard() {
         </span>
         <span className="block text-[15px] text-muted-foreground">
           {pending ? "Guardalo e decidi: approva, chiedi modifiche o scarta." : "Crea un Reel di un immobile con il tuo avatar."}
+        </span>
+      </span>
+      <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+    </Link>
+  );
+}
+
+/** Per il titolare: la squadra in una riga, con chi è in ritardo */
+function TeamCard() {
+  const { data } = useQuery(() => teamDashboard(7));
+  if (!data || data.length < 2) return null;
+  const late = data.filter((a) => a.tasksLate > 0);
+  const actions = data.reduce((s, a) => s + a.calls + a.messages, 0);
+  const visits = data.reduce((s, a) => s + a.visits, 0);
+  return (
+    <Link to="/squadra" className="mt-4 flex items-center gap-3 rounded-lg border bg-card p-4 shadow-card hover:border-primary/40 sm:mt-6">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+        <Users className="size-5" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[17px] font-semibold">La squadra in questa settimana</span>
+        <span className={late.length ? "block text-[15px] font-medium text-red-700" : "block text-[15px] text-muted-foreground"}>
+          {actions} chiamate e messaggi · {visits} visite
+          {late.length ? ` · in ritardo: ${late.map((a) => a.name.split(" ")[0]).join(", ")}` : ""}
         </span>
       </span>
       <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />

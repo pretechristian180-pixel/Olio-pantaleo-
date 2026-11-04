@@ -26,6 +26,8 @@ import { ImportPage } from "@/features/import/ImportPage";
 import { LeadDetailPage } from "@/features/leads/LeadDetailPage";
 import { ReportPublicPage } from "@/features/reports/ReportPublicPage";
 import { AssistantPage } from "@/features/assistant/AssistantPage";
+import { TasksPage } from "@/features/team/TasksPage";
+import { TeamPage } from "@/features/team/TeamPage";
 import { LeadSettingsPage } from "@/features/leads/LeadSettingsPage";
 import { LeadsPage } from "@/features/leads/LeadsPage";
 import { QuestionnairePage, UnsubscribePage } from "@/features/automations/PublicPages";
@@ -95,6 +97,8 @@ const routes = [
           { path: "impostazioni/importa", element: <ImportPage /> },
           { path: "impostazioni/lead", element: <LeadSettingsPage /> },
           { path: "assistente", element: <AssistantPage /> },
+          { path: "attivita", element: <TasksPage /> },
+          { path: "squadra", element: <TeamPage /> },
           { path: "studio", element: <StudioPage /> },
           { path: "studio/nuovo/:propertyId", element: <NewVideoPage /> },
           { path: "studio/video/:id", element: <VideoPage /> },

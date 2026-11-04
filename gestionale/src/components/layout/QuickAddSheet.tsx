@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { CalendarPlus, ChevronRight, House, KeyRound, Sparkles, UserPlus } from "lucide-react";
+import { CalendarPlus, ChevronRight, House, KeyRound, ListTodo, Sparkles, UserPlus } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAppointmentDialog } from "@/features/agenda/AppointmentDialog";
 
@@ -32,6 +32,12 @@ export function QuickAddSheet({ open, onOpenChange }: { open: boolean; onOpenCha
       hint: "Visita, valutazione o firma",
       icon: CalendarPlus,
       run: () => openAppointment(),
+    },
+    {
+      label: "Una cosa da fare",
+      hint: "Per te o per un collega, con la scadenza",
+      icon: ListTodo,
+      run: () => navigate("/attivita?nuova=1"),
     },
     {
       label: "Una domanda all'assistente",

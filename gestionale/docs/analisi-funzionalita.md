@@ -57,7 +57,7 @@ Legenda: ✅ già presente · 🟡 in parte · 🆕 aggiunto ora (tranche "Sched
 
 ## 11. Attività e collaboratori
 - ✅ Cose da fare con promemoria, agenda, appuntamenti
-- 📅 Stati delle attività (da iniziare, in corso, fatte, in ritardo), assegnazione ai colleghi, calendario condiviso, cruscotto di produttività per il titolare
+- ✅ Stati delle attività (da iniziare, in corso, fatte, in ritardo), assegnazione ai colleghi, calendario condiviso, cruscotto di produttività per il titolare (fatto)
 
 ## 12. Marketing
 - ✅ Video social con avatar (Studio), 📅 pubblicazione automatica sui social (Studio fase 3)

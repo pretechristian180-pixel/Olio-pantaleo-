@@ -196,6 +196,15 @@ Casella unica delle richieste: modulo del sito, Facebook e Instagram (Lead Ads),
 - Testi pronti (WhatsApp, email, annunci) con il pulsante "Copia"; link diretti alle schede; dettatura vocale dove il
   browser la supporta.
 
+### Attività e squadra (`/attivita`, `/squadra`, agenda condivisa)
+
+- Cose da fare con stato (da iniziare, in corso, fatta; "in ritardo" dalla scadenza), priorità, note e `creato_da`:
+  si assegnano ai colleghi e chi le crea continua a vederle (migrazione `20261109090000`). Stato e spunta restano
+  allineati da un trigger.
+- Agenda: "I miei / Tutta l'agenzia / Un collega"; il titolare fissa appuntamenti per un agente.
+- `squadra_cruscotto(giorni)`: chiamate, messaggi, visite, nuovi contatti, lead e tempo di risposta, incarichi,
+  proposte e rogiti, cose da fare fatte/aperte/in ritardo. Il titolare vede tutti, l'agente solo sé stesso.
+
 ### Da configurare nel pannello Supabase prima di usarlo con clienti veri
 
 1. **Authentication → URL Configuration**: Site URL = indirizzo dove pubblicherai l'app

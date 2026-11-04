@@ -27,6 +27,7 @@ export function AppointmentItem({ appt, past }: { appt: AppointmentWithRefs; pas
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[17px] font-semibold">{appt.contact ? fullName(appt.contact) : "Cliente"}</p>
             <AppointmentBadge kind={appt.kind} />
+            {appt.agentName && <span className="rounded-full bg-muted px-2 py-0.5 text-sm font-medium">{appt.agentName}</span>}
           </div>
           {appt.property && (
             <p className="mt-1 flex items-start gap-1.5 text-muted-foreground">

@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 import { fullName, formatLongDate } from "@/lib/format";
 import { useQuery } from "@/hooks/useQuery";
 import { friendlyError } from "@/lib/errors";
-import { createAppointment, pickerOptions } from "@/services/api";
+import { createAppointment, listTeam, pickerOptions } from "@/services/api";
+import { useAuth } from "@/features/auth/AuthProvider";
 import type { AppointmentKind, ID } from "@/types/domain";
 
 interface Defaults {
@@ -73,6 +74,10 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
   const [contactId, setContactId] = useState(defaults.contactId ?? "");
   const [propertyId, setPropertyId] = useState(defaults.propertyId ?? "");
   const [note, setNote] = useState("");
+  const { isOwner, agent } = useAuth();
+  const team = useQuery(listTeam);
+  const members = (team.data?.members ?? []).filter((m) => m.active);
+  const [agentId, setAgentId] = useState(agent?.id ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -87,7 +92,7 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
     setSaveError(null);
     const iso = new Date(`${day}T${time}`).toISOString();
     try {
-      await createAppointment({ kind, start: iso, contactId, propertyId: propertyId || undefined, note: note || undefined });
+      await createAppointment({ kind, start: iso, contactId, propertyId: propertyId || undefined, note: note || undefined, agentId: isOwner && agentId && agentId !== agent?.id ? agentId : undefined });
     } catch (err) {
       setSaveError(friendlyError(err));
       setSaving(false);
@@ -163,6 +168,19 @@ function AppointmentForm({ defaults, onDone }: { defaults: Defaults; onDone: () 
           ))}
         </Select>
       </Field>
+
+      {isOwner && members.length > 1 && (
+        <Field label="Chi ci va" htmlFor="ap-agent">
+          <Select id="ap-agent" value={agentId} onChange={(e) => setAgentId(e.target.value)}>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.firstName} {m.lastName}
+                {m.id === agent?.id ? " (tu)" : ""}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
 
       <Field label="Nota (facoltativa)" htmlFor="ap-note">
         <Textarea id="ap-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Es. portare le chiavi" className="min-h-20" />

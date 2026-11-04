@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, ChevronRight, FileUp, Inbox, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus, Zap } from "lucide-react";
+import { Check, ChevronRight, FileUp, Inbox, Users, ImagePlus, LogOut, Mail, Plus, ShieldCheck, UserPlus, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -169,6 +169,19 @@ function ProfileSection() {
         <span className="min-w-0 flex-1">
           <span className="block text-[17px] font-semibold">Automazioni</span>
           <span className="block text-muted-foreground">Messaggi e promemoria che partono da soli: già accesi</span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+      </Link>
+      <Link
+        to="/squadra"
+        className="flex items-center gap-4 rounded-lg border bg-card p-4 shadow-card hover:border-primary/40"
+      >
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary-strong">
+          <Users className="size-6" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[17px] font-semibold">{isOwner ? "La squadra" : "I miei numeri"}</span>
+          <span className="block text-muted-foreground">{isOwner ? "Chiamate, visite, incarichi e cose da fare di ogni agente" : "Chiamate, visite e cose da fare"}</span>
         </span>
         <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
       </Link>

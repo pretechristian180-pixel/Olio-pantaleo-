@@ -136,10 +136,11 @@ const db = {
   proposed: new Map<string, string[]>(legacy.contacts.map((c: any) => [c.id, c.proposedPropertyIds])),
   deals: legacy.deals.map((d: any): Deal => ({ ...d, agencyId: AG, agentId: ME, commission: null })),
   appointments: legacy.appointments.map(
-    (a: any): Appointment => ({
+    (a: any, i: number): Appointment => ({
       ...a,
       agencyId: AG,
-      agentId: ME,
+      // Alcuni appuntamenti sono della collega, per mostrare l'agenda condivisa
+      agentId: i % 3 === 2 ? "u_2" : ME,
       end: new Date(new Date(a.start).getTime() + a.durationMin * 60000).toISOString(),
     }),
   ),
@@ -584,25 +585,26 @@ export async function createDeal(input: { contactId: ID; propertyId: ID }) {
 
 /* ---------- Agenda ---------- */
 
-function listAppointmentsNow(from: Date, to: Date): AppointmentWithRefs[] {
+function listAppointmentsNow(from: Date, to: Date, who: string = "miei"): AppointmentWithRefs[] {
   return db.appointments
     .filter((a) => {
       const d = new Date(a.start);
-      return d >= from && d < to;
+      const mine = who === "tutti" || (who === "miei" ? a.agentId === ME : a.agentId === who);
+      return mine && d >= from && d < to;
     })
     .sort((a, b) => a.start.localeCompare(b.start))
     .map((a) => ({ ...a, contact: findContact(a.contactId), property: findProperty(a.propertyId) }));
 }
 
-export async function listAppointments(from: Date, to: Date) {
-  return wait(listAppointmentsNow(from, to));
+export async function listAppointments(from: Date, to: Date, who: string = "miei") {
+  return wait(listAppointmentsNow(from, to, who));
 }
 
-export async function createAppointment(input: { kind: AppointmentKind; start: string; contactId: ID; propertyId?: ID; note?: string }) {
+export async function createAppointment(input: { kind: AppointmentKind; start: string; contactId: ID; propertyId?: ID; note?: string; agentId?: ID }) {
   const a: Appointment = {
     id: newId("e"),
     agencyId: AG,
-    agentId: ME,
+    agentId: input.agentId ?? ME,
     kind: input.kind,
     start: input.start,
     end: new Date(new Date(input.start).getTime() + 3600000).toISOString(),

@@ -12,7 +12,9 @@ import { useQuery } from "@/hooks/useQuery";
 import { appointmentKind, toneClasses } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { addDays, formatLongDate, formatTime, fullName, isSameDay, startOfDay, startOfWeek } from "@/lib/format";
-import { listAppointments, type AppointmentWithRefs } from "@/services/api";
+import { listAppointments, listTeam, type AppointmentWithRefs } from "@/services/api";
+import { Select } from "@/components/ui/input";
+import { useAuth } from "@/features/auth/AuthProvider";
 import type { AppointmentKind } from "@/types/domain";
 import { useAppointmentDialog } from "./AppointmentDialog";
 import { AppointmentItem } from "./AppointmentItem";
@@ -35,7 +37,13 @@ export function AgendaPage() {
   const weekStart = startOfWeek(day);
   const from = currentView === "giorno" ? day : weekStart;
   const to = addDays(from, currentView === "giorno" ? 1 : 7);
-  const { data, loading, error, reload } = useQuery(() => listAppointments(from, to), [from.getTime(), to.getTime()]);
+  const { agent } = useAuth();
+  const team = useQuery(listTeam);
+  const members = (team.data?.members ?? []).filter((m) => m.active);
+  const [who, setWho] = useState<string>("miei");
+  const { data: raw, loading, error, reload } = useQuery(() => listAppointments(from, to, who), [from.getTime(), to.getTime(), who]);
+  // Nell'agenda condivisa ogni appuntamento mostra di chi è
+  const data = raw?.map((a) => (who === "miei" ? a : { ...a, agentName: members.find((m) => m.id === a.agentId)?.firstName }));
 
   const step = currentView === "giorno" ? 1 : 7;
   const today = startOfDay(new Date());
@@ -85,6 +93,33 @@ export function AgendaPage() {
           </Button>
         </div>
       </div>
+
+      {members.length > 1 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <Segmented
+            label="Di chi"
+            value={who === "miei" || who === "tutti" ? who : "collega"}
+            onChange={(v) => setWho(v === "collega" ? (members.find((m) => m.id !== agent?.id)?.id ?? "tutti") : v)}
+            className="sm:w-96"
+            options={[
+              { value: "miei", label: "I miei" },
+              { value: "tutti", label: "Tutta l'agenzia" },
+              { value: "collega", label: "Un collega" },
+            ]}
+          />
+          {who !== "miei" && who !== "tutti" && (
+            <Select aria-label="Quale collega" value={who} onChange={(e) => setWho(e.target.value)} className="sm:w-56">
+              {members
+                .filter((m) => m.id !== agent?.id)
+                .map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.firstName} {m.lastName}
+                  </option>
+                ))}
+            </Select>
+          )}
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">{title}</h2>

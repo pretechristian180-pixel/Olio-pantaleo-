@@ -343,7 +343,7 @@ export async function acceptInvitation() {
  * ===================================================================== */
 
 export type TaskWithRefs = Task & { contact?: Contact };
-export type AppointmentWithRefs = Appointment & { contact?: Contact; property?: Property };
+export type AppointmentWithRefs = Appointment & { contact?: Contact; property?: Property; agentName?: string };
 
 export interface TodaySummary {
   appointments: AppointmentWithRefs[];
@@ -921,14 +921,14 @@ export async function createDeal(input: { contactId: ID; propertyId: ID }) {
  * Agenda
  * ===================================================================== */
 
-/** Appuntamenti dell'utente collegato tra due date */
-export async function listAppointments(from: Date, to: Date): Promise<AppointmentWithRefs[]> {
+/** Appuntamenti tra due date: i miei (predefinito), di tutta l'agenzia ("tutti") o di un collega (id) */
+export async function listAppointments(from: Date, to: Date, who: "miei" | "tutti" | ID = "miei"): Promise<AppointmentWithRefs[]> {
   type Row = Tables<"appointments"> & { contact: Tables<"contacts"> | null; property: PropertyRow | null };
+  let q = supabase.from("appointments").select("*, contact:contacts(*), property:properties(*)");
+  if (who === "miei") q = q.eq("agente_id", me.userId);
+  else if (who !== "tutti") q = q.eq("agente_id", who);
   const rows = ok(
-    await supabase
-      .from("appointments")
-      .select("*, contact:contacts(*), property:properties(*)")
-      .eq("agente_id", me.userId)
+    await q
       .gte("inizio", from.toISOString())
       .lt("inizio", to.toISOString())
       .order("inizio"),
@@ -946,6 +946,8 @@ export async function createAppointment(input: {
   contactId: ID;
   propertyId?: ID;
   note?: string;
+  /** Solo il titolare può fissarlo per un collega */
+  agentId?: ID;
 }) {
   const end = new Date(new Date(input.start).getTime() + 60 * 60000).toISOString();
   // La riga in cronologia ("Fissato appuntamento…") la crea il database
@@ -959,6 +961,7 @@ export async function createAppointment(input: {
         contact_id: input.contactId,
         property_id: input.propertyId ?? null,
         note: input.note ?? null,
+        ...(input.agentId ? { agente_id: input.agentId } : {}),
       })
       .select("*")
       .single(),
