@@ -129,3 +129,23 @@ ${o.nuovoAccount ? "<p>Il link qui sotto vale 24 ore: ti fa scegliere la passwor
     text: `Ciao,\n\nabbiamo creato per te l'academy «${o.nomeAcademy}» su Nexora Academy. Sei tu l'amministratore.\n\n${azione}: ${o.url}`,
   };
 }
+
+export function certificateIssued(o: {
+  brand: Brand;
+  corso: string;
+  codice: string;
+  url: string;
+  pdfUrl: string;
+}): EmailContent {
+  return {
+    subject: `Complimenti! Il tuo attestato per «${o.corso}»`,
+    html: layout(
+      o.brand,
+      `<p>Complimenti, hai completato <strong>${escapeHtml(o.corso)}</strong>.</p>
+<p>Il tuo attestato è pronto. Codice di verifica: <strong>${escapeHtml(o.codice)}</strong>. Chiunque può controllarlo con il QR stampato sull'attestato.</p>
+<p><a href="${escapeHtml(o.pdfUrl)}">Scarica il PDF</a></p>`,
+      { label: "Vai ai tuoi attestati", url: o.url },
+    ),
+    text: `Complimenti, hai completato «${o.corso}».\n\nCodice dell'attestato: ${o.codice}\nScarica il PDF: ${o.pdfUrl}\nI tuoi attestati: ${o.url}`,
+  };
+}

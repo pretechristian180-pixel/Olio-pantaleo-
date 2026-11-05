@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { afterLessonCompleted } from "@/lib/certificates";
 import { requireUser } from "@/lib/auth";
 import { getCurrentTenant } from "@/lib/tenant";
 import { createClient } from "@/lib/supabase/server";
@@ -38,6 +39,7 @@ export async function markLessonComplete(
     completata_il: completata ? new Date().toISOString() : null,
   });
   if (error) return { ok: false, error: "Non abbiamo potuto segnare la lezione. Riprova." };
+  if (completata) await afterLessonCompleted(lessonId, user.email);
   revalidatePath("/app", "layout");
   return { ok: true };
 }

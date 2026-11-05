@@ -170,3 +170,11 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
   academy dei clienti con stato, piano, Stripe, studenti, corsi e vendite; incasso mensile
   ricorrente; scheda azienda con team, prolungamento prova, cambio piano, sospensione e accesso
   al pannello dell'academy per assistenza (`platform_*`).
+
+## Attestati (Fase 5)
+
+- Rilascio automatico quando lo studente completa tutte le lezioni (`claim_certificate`, idempotente):
+  dal player, dal pulsante "Segna come completata" e alla visita di /app/attestati. Email allo studente.
+- Nome stampato = nome e cognome del profilo (se mancano, l'app chiede di completarli).
+- PDF A4 generato al volo (`pdf-lib`, `/attestati/[codice]/pdf`) con colore dell'academy, codice e QR.
+- Verifica pubblica `/attestati/[codice]` con i soli dati stampati (`certificate_details`).

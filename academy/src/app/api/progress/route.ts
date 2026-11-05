@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { nextProgress } from "@/lib/progress";
 import { progressSchema } from "@/lib/validation";
+import { afterLessonCompleted } from "@/lib/certificates";
 
 /**
  * Battito del player (ogni ~10 s, alla pausa e all'uscita dalla pagina).
@@ -39,5 +40,9 @@ export async function POST(request: NextRequest) {
     completata_il: row.completata && !prev?.completata ? new Date().toISOString() : undefined,
   });
   if (error) return NextResponse.json({ errore: "Avanzamento non salvato" }, { status: 500 });
+  if (row.completata && !prev?.completata) {
+    const email = (auth?.claims?.email as string | undefined) ?? "";
+    if (email) await afterLessonCompleted(lessonId, email);
+  }
   return NextResponse.json({ completata: row.completata });
 }
