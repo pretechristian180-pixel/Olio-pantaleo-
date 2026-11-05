@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Plus, Upload } from "lucide-react";
+import { Building2, Check, LogOut, Plus, Upload } from "lucide-react";
 
 import { NexoraLogo, NexoraMark } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -16,6 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut } from "@/app/(auth)/actions";
+import { switchWorkspace } from "@/lib/actions/workspace";
 import { cn } from "@/lib/utils";
 
 import { isActive, primaryNav, settingsNav, uploadHref, type NavItem } from "./nav";
@@ -26,6 +28,7 @@ export interface ShellUser {
 }
 
 export interface ShellWorkspace {
+  id: string;
   name: string;
   planLabel: string;
 }
@@ -57,7 +60,15 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   );
 }
 
-function AccountMenu({ user, workspace }: { user: ShellUser; workspace: ShellWorkspace }) {
+function AccountMenu({
+  user,
+  workspace,
+  workspaces,
+}: {
+  user: ShellUser;
+  workspace: ShellWorkspace;
+  workspaces: { id: string; name: string }[];
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -81,6 +92,28 @@ function AccountMenu({ user, workspace }: { user: ShellUser; workspace: ShellWor
           <span className="block truncate font-normal">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {workspaces.length > 1 && (
+          <>
+            <DropdownMenuLabel>Le tue aziende</DropdownMenuLabel>
+            {workspaces.map((w) => (
+              <form key={w.id} action={switchWorkspace}>
+                <input type="hidden" name="workspace_id" value={w.id} />
+                <DropdownMenuItem asChild>
+                  <button
+                    type="submit"
+                    className="w-full"
+                    aria-current={w.id === workspace.id ? "true" : undefined}
+                  >
+                    <Building2 aria-hidden />
+                    <span className="flex-1 truncate text-left">{w.name}</span>
+                    {w.id === workspace.id && <Check className="text-primary-text" aria-hidden />}
+                  </button>
+                </DropdownMenuItem>
+              </form>
+            ))}
+            <DropdownMenuSeparator />
+          </>
+        )}
         <div className="lg:hidden">
           {settingsNav.map((item) => (
             <DropdownMenuItem key={item.href} asChild>
@@ -96,10 +129,14 @@ function AccountMenu({ user, workspace }: { user: ShellUser; workspace: ShellWor
           <ThemeToggle className="w-full justify-between" />
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
-          <LogOut aria-hidden />
-          Esci
-        </DropdownMenuItem>
+        <form action={signOut}>
+          <DropdownMenuItem variant="destructive" asChild>
+            <button type="submit" className="w-full">
+              <LogOut aria-hidden />
+              Esci
+            </button>
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -113,10 +150,12 @@ function AccountMenu({ user, workspace }: { user: ShellUser; workspace: ShellWor
 export function AppShell({
   user,
   workspace,
+  workspaces,
   children,
 }: {
   user: ShellUser;
   workspace: ShellWorkspace;
+  workspaces: { id: string; name: string }[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -167,7 +206,7 @@ export function AppShell({
           <p className="px-2 pb-2 text-xs text-muted-foreground">
             Piano <span className="font-medium text-foreground">{workspace.planLabel}</span>
           </p>
-          <AccountMenu user={user} workspace={workspace} />
+          <AccountMenu user={user} workspace={workspace} workspaces={workspaces} />
         </div>
       </aside>
 
@@ -182,7 +221,7 @@ export function AppShell({
             <NexoraMark className="h-6" title={null} />
             <span className="max-w-[12rem] truncate text-sm font-semibold">{workspace.name}</span>
           </Link>
-          <AccountMenu user={user} workspace={workspace} />
+          <AccountMenu user={user} workspace={workspace} workspaces={workspaces} />
         </header>
 
         <main id="contenuto" className="flex-1 pb-safe-nav lg:pb-10">

@@ -38,7 +38,7 @@ export default function Home() {
       <header className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
         <NexoraLogo />
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/inizio">Accedi</Link>
+          <Link href="/accedi">Accedi</Link>
         </Button>
       </header>
 
@@ -58,7 +58,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button variant="brand" size="lg" asChild>
-                <Link href="/inizio">Prova gratis 3 video</Link>
+                <Link href="/registrati">Prova gratis 3 video</Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
                 <a href="#come-funziona">Come funziona</a>
@@ -107,7 +107,17 @@ export default function Home() {
       <footer className="relative border-t">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} Nexora Gruppo Digitale</p>
-          <p>Siamo in costruzione: la registrazione apre a breve.</p>
+          <nav aria-label="Note legali" className="flex gap-4">
+            <Link href="/termini" className="hover:text-foreground">
+              Termini
+            </Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/cookie" className="hover:text-foreground">
+              Cookie
+            </Link>
+          </nav>
         </div>
       </footer>
     </div>

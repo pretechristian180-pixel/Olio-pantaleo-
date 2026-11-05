@@ -131,6 +131,8 @@ create table public.workspaces (
   -- Operatività Nexora
   manual_review           boolean not null default true,  -- durante il test ogni video passa dal team
 
+  -- Onboarding: passo a cui riprendere (1 = azienda … 5 = fine), completato quando valorizzato
+  onboarding_step         smallint not null default 2 check (onboarding_step between 1 and 10),
   onboarding_completed_at timestamptz,
   created_by              uuid references auth.users (id) on delete set null,
   created_at              timestamptz not null default now(),
@@ -328,7 +330,7 @@ create policy "workspaces: eliminazione admin"
 revoke update on public.workspaces from authenticated;
 grant update (
   name, sector, city, website, instagram_handle, logo_url, brand_colors,
-  posts_per_week, posting_days, posting_time, timezone, onboarding_completed_at
+  posts_per_week, posting_days, posting_time, timezone, onboarding_step, onboarding_completed_at
 ) on public.workspaces to authenticated;
 
 -- workspace_members --------------------------------------------------------
@@ -534,6 +536,33 @@ begin
   return inv.workspace_id;
 end;
 $$;
+
+-- Anteprima di un invito per la pagina /invito/<token>, anche prima dell'accesso.
+-- Restituisce solo nome dell'azienda, email invitata e stato: niente altri dati.
+create or replace function public.get_invitation(p_token uuid)
+returns table (workspace_name text, email text, role text, status text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    w.name,
+    i.email::text,
+    i.role,
+    case
+      when i.accepted_at is not null then 'accepted'
+      when i.revoked_at is not null then 'revoked'
+      when i.expires_at <= now() then 'expired'
+      else 'open'
+    end
+  from public.workspace_invitations i
+  join public.workspaces w on w.id = i.workspace_id
+  where i.token = p_token;
+$$;
+
+revoke execute on function public.get_invitation(uuid) from public;
+grant execute on function public.get_invitation(uuid) to anon, authenticated;
 
 -- Le funzioni RPC sono per utenti autenticati, non per anon.
 revoke execute on function public.create_workspace(text, text, text, text, text) from public, anon;

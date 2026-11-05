@@ -45,3 +45,43 @@ export interface ProviderCost {
   units?: number;
   unitLabel?: string;
 }
+
+/** Settori proposti nell'onboarding (vincolo `workspaces.sector`). */
+export const SECTORS = [
+  { value: "ristorazione", label: "Ristorazione" },
+  { value: "automotive", label: "Concessionaria o officina" },
+  { value: "immobiliare", label: "Agenzia immobiliare" },
+  { value: "studio_professionale", label: "Studio professionale" },
+  { value: "retail", label: "Negozio" },
+  { value: "beauty_benessere", label: "Bellezza e benessere" },
+  { value: "fitness", label: "Palestra e fitness" },
+  { value: "artigianato", label: "Artigianato" },
+  { value: "turismo", label: "Turismo e ospitalità" },
+  { value: "altro", label: "Altro" },
+] as const;
+export type Sector = (typeof SECTORS)[number]["value"];
+
+/** Giorni ISO (1 = lunedì) con etichette italiane. */
+export const WEEKDAYS = [
+  { value: 1, short: "Lun", label: "Lunedì" },
+  { value: 2, short: "Mar", label: "Martedì" },
+  { value: 3, short: "Mer", label: "Mercoledì" },
+  { value: 4, short: "Gio", label: "Giovedì" },
+  { value: 5, short: "Ven", label: "Venerdì" },
+  { value: 6, short: "Sab", label: "Sabato" },
+  { value: 7, short: "Dom", label: "Domenica" },
+] as const;
+
+/** Stile di montaggio salvato in `brand_profiles.edit_style`. */
+export interface EditStyle {
+  pace?: "calmo" | "medio" | "veloce";
+  subtitles?: {
+    style?: "pulito" | "evidenziato" | "karaoke";
+    size?: "piccoli" | "medi" | "grandi";
+  };
+  music?: {
+    mood?: "energica" | "rilassata" | "elegante" | "nessuna";
+  };
+  broll_usage?: "nessuno" | "poco" | "spesso";
+  logo_outro?: boolean;
+}

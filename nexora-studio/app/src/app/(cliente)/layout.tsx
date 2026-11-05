@@ -1,15 +1,24 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { createClient } from "@/lib/supabase/server";
+import { displayName, requireWorkspace } from "@/lib/workspace";
 
-/**
- * Area cliente.
- * TODO Fase 1: utente e workspace reali dalla sessione Supabase, con redirect a /accedi
- * per chi non ha effettuato l'accesso. Per ora dati dimostrativi per la base grafica.
- */
-export default function ClienteLayout({ children }: { children: React.ReactNode }) {
+/** Area cliente: serve l'accesso e un'azienda con l'onboarding completato. */
+export default async function ClienteLayout({ children }: { children: React.ReactNode }) {
+  const ctx = await requireWorkspace();
+  const ws = ctx.active.workspace;
+
+  let planLabel = "Prova gratuita";
+  if (ws.plan_id) {
+    const supabase = await createClient();
+    const { data } = await supabase.from("plans").select("name").eq("id", ws.plan_id).maybeSingle();
+    planLabel = data?.name ?? planLabel;
+  }
+
   return (
     <AppShell
-      user={{ name: "Mario Rossi", email: "mario@pizzeriadamario.it" }}
-      workspace={{ name: "Pizzeria Da Mario", planLabel: "Prova gratuita" }}
+      user={{ name: displayName(ctx), email: ctx.user.email }}
+      workspace={{ id: ws.id, name: ws.name, planLabel }}
+      workspaces={ctx.memberships.map((m) => ({ id: m.workspace.id, name: m.workspace.name }))}
     >
       {children}
     </AppShell>

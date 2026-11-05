@@ -4,8 +4,8 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: Fase 0 completata, base grafica pronta, schema della Fase 1 in attesa di approvazione.
-> Vedi `docs/CHANGELOG.md`.
+> Stato: **Fase 1 completata** (accesso, onboarding, brand, team, RLS). Testata su Supabase locale:
+> il progetto Supabase online va ancora creato. Vedi `docs/CHANGELOG.md`.
 
 ## Struttura
 
@@ -68,7 +68,22 @@ npm run build
 
 ## Supabase
 
-- Progetto: `nexora-studio`, organizzazione NEXORA, regione `eu-central-1`.
+### In locale (consigliato per sviluppare)
+
+```bash
+npx supabase start          # serve Docker: database, auth, storage, Mailpit per leggere le email
+npx supabase status         # URL e chiavi locali da mettere in app/.env.local
+```
+
+Le email di conferma si leggono su Mailpit: http://127.0.0.1:54324
+
+### Progetto online
+
+- Progetto: `nexora-studio`, organizzazione NEXORA, regione `eu-central-1` (**da creare**).
+- Dopo la creazione:
+  - collegare e applicare le migrazioni con `npx supabase link` e `npx supabase db push`;
+  - copiare i template email di `supabase/templates/` in Authentication → Email Templates;
+  - impostare Site URL e Redirect URLs.
 - Le migrazioni stanno in `supabase/migrations/`. Ogni schema viene approvato prima di applicarlo.
 - Tipi TypeScript del database: `npm run db:types` (richiede `supabase link`).
 - Nell'app si usa solo la chiave **publishable** (con RLS). La chiave **secret** serve solo al

@@ -15,10 +15,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { firstName, requireWorkspace } from "@/lib/workspace";
+
+/** Numero della settimana ISO, come sul calendario. */
+function isoWeek(date: Date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
 
 export const metadata: Metadata = { title: "Home" };
 
-export default function InizioPage() {
+export default async function InizioPage() {
+  const ctx = await requireWorkspace();
+  const ws = ctx.active.workspace;
+  const isTrial = !ws.plan_id;
+  const trialUsed = 3 - ws.trial_videos_left;
+
   return (
     <PageContainer>
       {/* Benvenuto con il bagliore del brand */}
@@ -31,10 +46,10 @@ export default function InizioPage() {
           <div className="grid gap-2">
             <Badge variant="info" className="gap-1">
               <Sparkles aria-hidden />
-              Settimana 45
+              Settimana {isoWeek(new Date())}
             </Badge>
             <h1 className="text-2xl font-semibold sm:text-3xl">
-              Ciao Mario, ecco la tua settimana
+              Ciao {firstName(ctx)}, ecco la tua settimana
             </h1>
             <p className="max-w-xl text-sm text-muted-foreground sm:text-base">
               Gira i video quando hai un momento: al montaggio e alla pubblicazione pensiamo noi.
@@ -81,15 +96,25 @@ export default function InizioPage() {
         <Card>
           <CardHeader>
             <CardTitle>Il tuo piano</CardTitle>
-            <CardDescription>Prova gratuita</CardDescription>
+            <CardDescription>{isTrial ? "Prova gratuita" : "Abbonamento attivo"}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
-            <UsageMeter
-              label="Video montati"
-              used={0}
-              total={3}
-              hint="Ti restano 3 video gratuiti."
-            />
+            {isTrial ? (
+              <UsageMeter
+                label="Video montati"
+                used={trialUsed}
+                total={3}
+                hint={
+                  ws.trial_videos_left > 0
+                    ? `Ti restano ${ws.trial_videos_left} video gratuiti.`
+                    : "Hai usato i video gratuiti: scegli un piano per continuare."
+                }
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Il dettaglio dei consumi arriva con la fatturazione.
+              </p>
+            )}
             <Button variant="secondary" asChild>
               <Link href="/piano">Scopri i piani</Link>
             </Button>

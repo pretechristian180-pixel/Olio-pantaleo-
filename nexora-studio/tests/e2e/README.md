@@ -1,0 +1,17 @@
+# Test end-to-end
+
+Girano contro **Supabase locale** e l'app su `http://localhost:3000`.
+
+```bash
+npx supabase start                       # dalla cartella nexora-studio (serve Docker)
+cp .env.example app/.env.local           # URL e chiave publishable da `npx supabase status`
+npm run build -w @nexora/app && npm run start -w @nexora/app
+tests/e2e/prepara.sh                     # logo e video di prova
+node tests/e2e/flow-fase1.cjs            # registrazione → email → onboarding → brand → team → invito
+SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=... \
+  node tests/e2e/isolamento.mjs <email-titolare> <email-collaboratore>   # 21 controlli RLS
+```
+
+- `flow-fase1.cjs` legge le email di conferma da Mailpit (`http://127.0.0.1:54324`). Gli screenshot finiscono in `tests/e2e/.assets`.
+- `isolamento.mjs` crea una terza azienda e verifica che non veda né modifichi i dati delle altre, e che il collaboratore non possa toccare piano, ruoli o admin.
+- I test SQL senza Docker sono in `supabase/tests/` (`run_local.sh`, su un Postgres qualsiasi).

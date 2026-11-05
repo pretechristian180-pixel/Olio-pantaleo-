@@ -180,7 +180,7 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -225,7 +225,7 @@ enabled = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
@@ -255,6 +255,21 @@ otp_expiry = 3600
 # enabled = true
 # subject = "Your password has been changed"
 # content_path = "./supabase/templates/password_changed_notification.html"
+
+# Email in italiano: i link portano a /auth/conferma con token_hash
+# (funziona anche se l'email si apre in un altro browser, es. l'app di Gmail).
+# Sul progetto online vanno copiate in Authentication → Email Templates.
+[auth.email.template.confirmation]
+subject = "Conferma il tuo account Nexora Studio"
+content_path = "./supabase/templates/conferma.html"
+
+[auth.email.template.recovery]
+subject = "Scegli una nuova password"
+content_path = "./supabase/templates/recupero.html"
+
+[auth.email.template.email_change]
+subject = "Conferma la nuova email"
+content_path = "./supabase/templates/cambio-email.html"
 
 [auth.sms]
 # Allow/disallow the phone provider. When false, users can't sign up or sign in with SMS.
