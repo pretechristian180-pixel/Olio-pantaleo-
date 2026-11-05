@@ -345,15 +345,13 @@ export async function createLesson(
     .order("ordine", { ascending: false })
     .limit(1)
     .maybeSingle();
-  const { error } = await supabase
-    .from("lessons")
-    .insert({
-      module_id: moduleId,
-      course_id: courseId,
-      titolo: t.slice(0, 160),
-      slug,
-      ordine: (last?.ordine ?? 0) + 1,
-    });
+  const { error } = await supabase.from("lessons").insert({
+    module_id: moduleId,
+    course_id: courseId,
+    titolo: t.slice(0, 160),
+    slug,
+    ordine: (last?.ordine ?? 0) + 1,
+  });
   if (error) return { ok: false, error: GENERIC };
   refresh(courseId);
   return { ok: true };
