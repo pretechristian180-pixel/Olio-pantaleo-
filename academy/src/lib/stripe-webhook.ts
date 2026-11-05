@@ -94,7 +94,7 @@ async function processEvent(event: Stripe.Event) {
         await syncTenantSubscription(await stripe().subscriptions.retrieve(event.data.object.id));
       break;
     case "account.updated":
-      await syncConnectAccount(event.data.object);
+      await syncConnectAccount(event.data.object.id);
       break;
   }
 }

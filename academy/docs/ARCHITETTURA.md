@@ -141,7 +141,7 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
   Chi attiva durante la prova paga dalla fine della prova. Fatture, carta, cambio piano e disdetta
   dal portale clienti Stripe. Stato dell'academy dal webhook: active → attivo, trialing → prova,
   past_due/unpaid → insoluto, canceled → sospeso.
-- **Vendite dei clienti con Stripe Connect**: conto collegato con dashboard Stripe completa; il
+- **Vendite dei clienti con Stripe Connect**: conto collegato Accounts v2 (configurazione "merchant") con dashboard Stripe completa; il
   cliente è il venditore e paga le commissioni Stripe, **Nexora non trattiene nulla** (direct
   charge senza application fee). I corsi Nexora si incassano sul conto della piattaforma.
 - **Acquisto corso**: ordine `in_attesa` → Checkout → al ritorno (`/acquisto/completato`) e dal

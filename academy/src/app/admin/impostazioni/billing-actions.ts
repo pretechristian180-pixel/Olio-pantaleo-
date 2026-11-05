@@ -104,17 +104,19 @@ export async function connectStripe() {
   const s = stripe();
   let account = billing.stripe_account_id;
   if (!account) {
-    const a = await s.accounts.create(
+    // Accounts v2: il cliente è il venditore (configurazione "merchant"), usa la sua dashboard
+    // Stripe completa e paga lui le commissioni Stripe. Nexora non trattiene nulla.
+    const a = await s.v2.core.accounts.create(
       {
-        country: "IT",
-        email: user.email,
-        business_profile: { name: tenant.nome, url: origin },
-        // Il cliente è il venditore: paga lui le commissioni Stripe, gestisce il suo conto
-        // dalla sua dashboard, e Nexora non trattiene nulla.
-        controller: {
-          fees: { payer: "account" },
-          losses: { payments: "stripe" },
-          stripe_dashboard: { type: "full" },
+        display_name: tenant.nome,
+        contact_email: user.email,
+        identity: { country: "IT" },
+        dashboard: "full",
+        configuration: { merchant: { capabilities: { card_payments: { requested: true } } } },
+        defaults: {
+          currency: "eur",
+          locales: ["it-IT"],
+          responsibilities: { fees_collector: "stripe", losses_collector: "stripe" },
         },
         metadata: { tenant_id: tenant.id, slug: tenant.slug },
       },
@@ -126,11 +128,15 @@ export async function connectStripe() {
       .update({ stripe_account_id: account })
       .eq("id", tenant.id);
   }
-  const link = await s.accountLinks.create({
+  const link = await s.v2.core.accountLinks.create({
     account,
-    type: "account_onboarding",
-    refresh_url: `${origin}/admin/impostazioni?stripe=riprova`,
-    return_url: `${origin}/admin/impostazioni?stripe=ritorno`,
+    use_case: {
+      type: "account_onboarding",
+      account_onboarding: {
+        refresh_url: `${origin}/admin/impostazioni?stripe=riprova`,
+        return_url: `${origin}/admin/impostazioni?stripe=ritorno`,
+      },
+    },
   });
   redirect(link.url);
 }

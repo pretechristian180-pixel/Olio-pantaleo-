@@ -1,6 +1,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { stripe } from "@/lib/stripe";
 import { planFromLookupKey, tenantStatusFromSubscription } from "@/lib/billing";
 
 /**
@@ -62,14 +63,21 @@ export async function syncTenantSubscription(sub: Stripe.Subscription) {
   if (error) throw new Error(`Academy non aggiornata: ${error.message}`);
 }
 
-/** Conto Stripe Connect del cliente: può incassare? */
-export async function syncConnectAccount(account: Stripe.Account) {
-  const db = createAdminClient();
-  const { error } = await db
+/**
+ * Conto Stripe Connect del cliente (Accounts v2): può incassare con carta?
+ * Rilegge il conto da Stripe e aggiorna l'academy. Restituisce lo stato.
+ */
+export async function syncConnectAccount(accountId: string) {
+  const account = await stripe().v2.core.accounts.retrieve(accountId, {
+    include: ["configuration.merchant"],
+  });
+  const attivi = account.configuration?.merchant?.capabilities?.card_payments?.status === "active";
+  const { error } = await createAdminClient()
     .from("tenants")
-    .update({ stripe_pagamenti_attivi: Boolean(account.charges_enabled) })
-    .eq("stripe_account_id", account.id);
+    .update({ stripe_pagamenti_attivi: attivi })
+    .eq("stripe_account_id", accountId);
   if (error) throw new Error(`Conto Stripe non aggiornato: ${error.message}`);
+  return attivi;
 }
 
 /**

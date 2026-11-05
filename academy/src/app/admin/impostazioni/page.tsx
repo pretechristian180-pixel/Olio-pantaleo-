@@ -2,7 +2,7 @@ import { requireTenantAdmin } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
 import { getCurrentTenant, isNexoraTenant } from "@/lib/tenant";
 import { getPlans } from "@/lib/data/plans";
-import { isStripeConfigured, stripe } from "@/lib/stripe";
+import { isStripeConfigured } from "@/lib/stripe";
 import { syncConnectAccount } from "@/lib/stripe-sync";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PaymentsCard, SubscriptionCard } from "@/components/admin/billing-section";
@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { BrandForm } from "@/components/admin/brand-form";
 
 /** Dati di fatturazione (non leggibili dal browser): solo con chiave segreta configurata. */
-async function getBilling(tenantId: string, esitoStripe?: string) {
+async function getBilling(tenantId: string) {
   if (!isStripeConfigured()) return null;
   const { data } = await createAdminClient()
     .from("tenants")
@@ -19,11 +19,12 @@ async function getBilling(tenantId: string, esitoStripe?: string) {
     .eq("id", tenantId)
     .single();
   if (!data) return null;
-  // Di ritorno dall'onboarding Stripe: aggiorniamo subito, senza aspettare il webhook.
-  if (esitoStripe === "ritorno" && data.stripe_account_id && !data.stripe_pagamenti_attivi) {
-    const account = await stripe().accounts.retrieve(data.stripe_account_id);
-    await syncConnectAccount(account);
-    data.stripe_pagamenti_attivi = Boolean(account.charges_enabled);
+  // Conto collegato ma non ancora attivo (onboarding in corso o appena concluso): rileggiamo lo
+  // stato da Stripe, così non dipendiamo dall'arrivo del webhook.
+  if (data.stripe_account_id && !data.stripe_pagamenti_attivi) {
+    data.stripe_pagamenti_attivi = await syncConnectAccount(data.stripe_account_id).catch(
+      () => false,
+    );
   }
   return data;
 }
@@ -39,7 +40,7 @@ export default async function SettingsPage({
   const [nexora, plans, billing] = await Promise.all([
     isNexoraTenant(),
     getPlans(),
-    getBilling(tenant.id, sp.stripe),
+    getBilling(tenant.id),
   ]);
   const indirizzo =
     tenant.dominioPersonalizzato ?? `${tenant.slug}.${publicEnv.NEXT_PUBLIC_ROOT_DOMAIN}`;
