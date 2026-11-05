@@ -28,6 +28,17 @@ DNS di Vercel, quindi ogni nuova academy registra il proprio sottodominio sul pr
 Su Supabase: Site URL `https://academy.nexoragruppodigitale.it` e Redirect URLs
 `https://academy.nexoragruppodigitale.it/**`, `https://*.academy.nexoragruppodigitale.it/**`.
 
+## Rami e rilasci
+
+| Ramo | A cosa serve | Dove va online |
+| ---- | ------------ | -------------- |
+| `claude/nexora-academy-platform-kf66dg` | Sviluppo: ogni modifica nasce qui | Anteprima Vercel (protetta da login Vercel) |
+| `academy-produzione` | Versione ufficiale | `academy.nexoragruppodigitale.it` e tutte le academy dei clienti |
+
+Per rilasciare: pull request da sviluppo verso `academy-produzione`, controllo dell'anteprima,
+merge. Vercel pubblica da solo. Le modifiche al database (cartella `supabase/migrations`) vanno
+applicate prima del merge. Vercel salta la build quando un push non tocca la cartella `academy`.
+
 ## Avvio in locale
 
 ```bash
