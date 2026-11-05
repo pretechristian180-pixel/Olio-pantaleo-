@@ -159,3 +159,14 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
 - Conferma di acquisto allo studente e avviso di vendita agli admin dell'academy, solo quando
   l'ordine passa davvero a "pagato" (aggiornamento condizionato + chiave anti-duplicato Resend).
 - Benvenuto a chi crea un'academy. Testi in `src/lib/email-templates.ts` (testati).
+
+## Pannelli di gestione (Fase 4)
+
+- **Admin dell'academy** (`/admin`): panoramica con vendite del mese, studenti attivi (30 giorni),
+  completamento medio e lezione dove gli studenti si fermano; studenti con ricerca, scheda e
+  accesso manuale ai corsi; vendite con export CSV; domande con risposta (email allo studente).
+  I numeri arrivano da funzioni del database (`admin_*`) che controllano che chi chiede sia staff.
+- **Piattaforma** (`/piattaforma`, solo dominio principale, solo `platform_admins`): tutte le
+  academy dei clienti con stato, piano, Stripe, studenti, corsi e vendite; incasso mensile
+  ricorrente; scheda azienda con team, prolungamento prova, cambio piano, sospensione e accesso
+  al pannello dell'academy per assistenza (`platform_*`).

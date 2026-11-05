@@ -89,3 +89,22 @@ export function academyWelcome(o: { nomeAcademy: string; url: string }): EmailCo
     text: `Benvenuto in Nexora Academy!\n\nLa tua academy «${o.nomeAcademy}» è online.\n1. Imposta logo e colori in Impostazioni.\n2. Crea il primo corso e carica i video.\n3. Collega Stripe per incassare, senza commissioni Nexora.\n\nPannello: ${o.url}`,
   };
 }
+
+export function answerNotification(o: {
+  brand: Brand;
+  lezione: string;
+  risposta: string;
+  url: string;
+}): EmailContent {
+  const estratto = o.risposta.length > 600 ? `${o.risposta.slice(0, 600)}…` : o.risposta;
+  return {
+    subject: `Hai una risposta sulla lezione «${o.lezione}»`,
+    html: layout(
+      o.brand,
+      `<p>Il docente ha risposto alla tua domanda sulla lezione <strong>${escapeHtml(o.lezione)}</strong>:</p>
+<blockquote style="margin:16px 0;padding:12px 16px;background:#f4f5f7;border-radius:6px;white-space:pre-line">${escapeHtml(estratto)}</blockquote>`,
+      { label: "Apri la lezione", url: o.url },
+    ),
+    text: `Il docente ha risposto alla tua domanda sulla lezione «${o.lezione}»:\n\n${estratto}\n\nApri la lezione: ${o.url}`,
+  };
+}

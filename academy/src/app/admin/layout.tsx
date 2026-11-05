@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth";
-import { getCurrentTenant } from "@/lib/tenant";
+import { getCurrentTenant, isPlatformHost } from "@/lib/tenant";
+import { isPlatformAdmin } from "@/lib/data/platform";
 import { AdminMobileNav, AdminSidebar } from "@/components/layout/admin-sidebar";
 
 export const metadata: Metadata = {
@@ -11,15 +12,20 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireStaff();
-  const tenant = await getCurrentTenant();
+  const [tenant, platformHost, platformAdmin] = await Promise.all([
+    getCurrentTenant(),
+    isPlatformHost(),
+    isPlatformAdmin(),
+  ]);
+  const platform = platformHost && platformAdmin;
   const giorni = tenant?.provaFineIl
     ? Math.max(0, Math.ceil((new Date(tenant.provaFineIl).getTime() - Date.now()) / 86_400_000))
     : null;
   return (
     <div className="flex min-h-dvh bg-surface-alt">
-      <AdminSidebar />
+      <AdminSidebar platform={platform} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <AdminMobileNav />
+        <AdminMobileNav platform={platform} />
         {tenant?.stato === "prova" && giorni !== null && (
           <p className="bg-blue-tint px-4 py-3 text-sm text-nexora-blue-deep sm:px-6 lg:px-12">
             Sei in prova gratuita: {giorni === 1 ? "manca 1 giorno" : `mancano ${giorni} giorni`}.

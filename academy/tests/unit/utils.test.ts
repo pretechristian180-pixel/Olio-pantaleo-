@@ -22,3 +22,12 @@ describe("formattazione", () => {
     expect(percent(1, 0)).toBe(0);
   });
 });
+
+import { toCsv } from "@/lib/csv";
+describe("csv", () => {
+  it("separatore ;, virgolette e niente formule", () => {
+    const out = toCsv([["a;b", 'di "lui"', "=SOMMA(1)", null, 3]]);
+    expect(out.startsWith("﻿")).toBe(true);
+    expect(out.slice(1)).toBe('"a;b";"di ""lui""";\'=SOMMA(1);;3');
+  });
+});

@@ -49,3 +49,18 @@ describe("email", () => {
     expect(e.text).toContain("https://s.it/admin");
   });
 });
+
+describe("email risposta", () => {
+  it("accorcia le risposte lunghe ed esegue l'escape", async () => {
+    const { answerNotification } = await import("@/lib/email-templates");
+    const e = answerNotification({
+      brand,
+      lezione: "Pipeline",
+      risposta: "<b>" + "x".repeat(700),
+      url: "https://s.it/app/corsi/c/l",
+    });
+    expect(e.html).not.toContain("<b>x");
+    expect(e.text).toContain("…");
+    expect(e.subject).toContain("Pipeline");
+  });
+});

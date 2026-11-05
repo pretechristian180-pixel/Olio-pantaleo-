@@ -4,7 +4,6 @@ import { requireStaff } from "@/lib/auth";
 import { getAdminCourses } from "@/lib/data/admin";
 import { formatPrice } from "@/lib/utils";
 import { PageHeader } from "@/components/layout/page-header";
-import { AdminStats } from "@/components/admin/admin-stats";
 import { NewCourseButton } from "@/components/admin/course/new-course-button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -17,14 +16,6 @@ export default async function AdminCoursesPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader eyebrow="Gestione" title="I tuoi corsi" actions={<NewCourseButton />} />
-      <AdminStats
-        n={{
-          venditeMeseCents: null,
-          studentiAttivi: null,
-          completamentoMedio: null,
-          lezioneAbbandoni: null,
-        }}
-      />
       {courses.length === 0 ? (
         <EmptyState
           icon={GraduationCap}
