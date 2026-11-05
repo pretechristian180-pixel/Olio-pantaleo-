@@ -115,3 +115,8 @@ begin
   ) as t(modulo, ordine, slug, titolo, durata, gratis);
 end;
 $$;
+
+-- Nexora è il cliente n. 1 della piattaforma: piano Business, sempre attivo.
+update public.tenants
+set piano_id = (select id from public.platform_plans where codice = 'business'), stato = 'attivo'
+where slug = 'nexora' and piano_id is null;

@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(46);
+select plan(59);
 
 -- ---------------------------------------------------------------------------
 -- Utilità: impersonare un utente come fa PostgREST
@@ -45,8 +45,8 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('a0000000-0000-4000-8000-0000000000b2', 's2@test.local', '{"tenant":"test-a","nome":"Luca"}'),
   ('b0000000-0000-4000-8000-0000000000a1', 'admin-b@test.local', '{"tenant":"test-b","nome":"Bea"}');
 
-update public.profiles set ruolo = 'admin'
-where id in ('a0000000-0000-4000-8000-0000000000a1', 'b0000000-0000-4000-8000-0000000000a1');
+update public.memberships set ruolo = 'admin'
+where user_id in ('a0000000-0000-4000-8000-0000000000a1', 'b0000000-0000-4000-8000-0000000000a1');
 
 insert into public.courses (id, tenant_id, slug, titolo, stato) values
   ('c0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000000', 'c1', 'Corso 1', 'published'),
@@ -139,7 +139,7 @@ select throws_ok(
   $$insert into public.enrollments (user_id, course_id, fonte) values ('a0000000-0000-4000-8000-0000000000b2', 'c0000000-0000-4000-8000-000000000001', 'manuale')$$,
   '42501', null, 'S2: non può iscriversi da solo');
 select throws_ok(
-  $$update public.profiles set ruolo = 'admin' where id = 'a0000000-0000-4000-8000-0000000000b2'$$,
+  $$update public.memberships set ruolo = 'admin' where user_id = 'a0000000-0000-4000-8000-0000000000b2'$$,
   '42501', null, 'S2: non può cambiarsi il ruolo');
 select lives_ok(
   $$update public.profiles set nome = 'Luca B.' where id = 'a0000000-0000-4000-8000-0000000000b2'$$,
@@ -252,6 +252,52 @@ select tests.anon();
 select throws_ok(
   $$select * from public.lesson_thread('e0000000-0000-4000-8000-000000000002')$$,
   '42501', null, 'anon: non legge i thread');
+reset role;
+
+-- ---------------------------------------------------------------------------
+-- Multi-azienda: appartenenze, creazione self-service, dati riservati del tenant
+-- ---------------------------------------------------------------------------
+select is(
+  (select count(*)::int from public.memberships where tenant_id = 'a0000000-0000-4000-8000-000000000000'),
+  3, 'registrazione: ogni utente entra come studente nell''azienda da cui si iscrive');
+
+select tests.anon();
+select throws_ok($$select stripe_customer_id from public.tenants$$, '42501', null,
+  'anon: non legge i dati di fatturazione del tenant');
+select is((select count(*)::int from public.tenants where slug = 'test-a'), 1, 'anon: legge nome e marchio del tenant');
+select throws_ok($$select public.create_tenant('X', 'nuova-x')$$, '42501', null, 'anon: non crea academy');
+reset role;
+
+select tests.login('a0000000-0000-4000-8000-0000000000b2');
+select throws_ok(
+  $$insert into public.memberships (user_id, tenant_id, ruolo) values ('a0000000-0000-4000-8000-0000000000b2', 'b0000000-0000-4000-8000-000000000000', 'admin')$$,
+  '42501', null, 'S2: non si aggiunge da solo come admin di un''azienda');
+update public.tenants set nome = 'Manomesso' where id = 'a0000000-0000-4000-8000-000000000000';
+select throws_ok($$select public.create_tenant('Admin', 'admin')$$, '23505', null,
+  'create_tenant: i sottodomini riservati non si possono prendere');
+select lives_ok($$select public.create_tenant('Academy di Luca', 'academy-luca')$$,
+  'S2: crea la sua academy self-service');
+select is(
+  (select m.ruolo::text from public.memberships m join public.tenants t on t.id = m.tenant_id
+   where t.slug = 'academy-luca' and m.user_id = 'a0000000-0000-4000-8000-0000000000b2'),
+  'admin', 'S2: diventa admin della nuova academy');
+select is((select stato::text from public.tenants where slug = 'academy-luca'), 'prova', 'la nuova academy parte in prova');
+reset role;
+select is((select nome from public.tenants where id = 'a0000000-0000-4000-8000-000000000000'), 'Tenant A',
+  'S2: non modifica il nome di un''azienda dove è solo studente');
+
+-- S1 entra anche nel tenant B con lo stesso account.
+select tests.login('a0000000-0000-4000-8000-0000000000b1');
+select lives_ok($$select public.join_tenant('b0000000-0000-4000-8000-000000000000')$$,
+  'S1: entra come studente in una seconda academy');
+reset role;
+select tests.login('b0000000-0000-4000-8000-0000000000a1');
+select is(
+  (select count(*)::int from public.profiles where id = 'a0000000-0000-4000-8000-0000000000b1'),
+  1, 'admin B: vede il profilo di S1, ora suo studente');
+select is(
+  (select count(*)::int from public.profiles where id = 'a0000000-0000-4000-8000-0000000000b2'),
+  0, 'admin B: non vede studenti che non sono suoi');
 reset role;
 
 select * from finish();
