@@ -40,6 +40,15 @@ export function selectExpr(segments: { start: number; end: number }[]) {
  * Passi: tagli → 9:16 → sottotitoli → b-roll → chiusura con logo; voce + musica con ducking,
  * normalizzazione del volume per i social (-14 LUFS).
  */
+/** Metadati scritti in ogni video esportato. */
+export const AI_METADATA: [string, string][] = [
+  ["comment", "Video montato con intelligenza artificiale da Nexora Studio (AI-edited content)."],
+  ["description", "AI-edited video: cuts, subtitles, music and stock footage selected by an AI system (Nexora Studio)."],
+  ["encoder_info", "Nexora Studio"],
+  ["ai_generated", "edited"],
+  ["ai_system", "Nexora Studio"],
+];
+
 export function buildRenderArgs(input: RenderInput, assFile: string) {
   const { spec, source } = input;
   const segs = spec.segments;
@@ -127,7 +136,10 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
     "-map", `[${vOut}]`, "-map", "[aout]",
     "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p", "-r", String(FPS),
     "-c:a", "aac", "-b:a", "160k", "-ar", "48000",
-    "-movflags", "+faststart",
+    // Marcatura leggibile dalle macchine dei contenuti montati con AI (AI Act, art. 50):
+    // metadati MP4 standard (comment, description) e chiavi dedicate.
+    ...AI_METADATA.flatMap(([k, v]) => ["-metadata", `${k}=${v}`]),
+    "-movflags", "+faststart+use_metadata_tags",
     "-t", f3(total),
     input.outputPath,
   );

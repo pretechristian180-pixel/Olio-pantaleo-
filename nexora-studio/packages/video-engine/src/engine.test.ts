@@ -103,3 +103,17 @@ test("argomenti FFmpeg: tagli, musica con ducking, logo finale", () => {
   assert.ok(Math.abs(durationS - (1.5 + 0.9 + 1.6)) < 1e-9);
   assert.ok(args.includes("-stream_loop"));
 });
+
+test("ogni video esportato porta la marcatura AI nei metadati", () => {
+  const { args } = buildRenderArgs(
+    {
+      workDir: "/tmp", sourcePath: "in.mp4", outputPath: "out.mp4", words, faces: [], spec: baseSpec({}),
+      source: { durationS: 6, width: 1080, height: 1920, fps: 30, hasAudio: true, orientation: "portrait" },
+    },
+    "subs.ass",
+  );
+  const joined = args.join(" ");
+  assert.match(joined, /ai_generated=edited/);
+  assert.match(joined, /comment=Video montato con intelligenza artificiale/);
+  assert.ok(args.includes("+faststart+use_metadata_tags"));
+});
