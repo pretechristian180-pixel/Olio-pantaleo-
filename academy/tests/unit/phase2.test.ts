@@ -76,3 +76,19 @@ describe("nextLessonToWatch", () => {
     expect(nextLessonToWatch(ls, new Set(["a", "b", "c"]))?.id).toBe("a");
   });
 });
+
+import { tusUploadSignature } from "@/lib/bunny";
+
+describe("tusUploadSignature", () => {
+  it("firma il caricamento come richiesto da Bunny", () => {
+    const { signature, expires } = tusUploadSignature({
+      libraryId: "123",
+      apiKey: "k",
+      videoId: "v",
+      ttlSec: 60,
+      now: 1_000_000,
+    });
+    expect(expires).toBe(1000 + 60);
+    expect(signature).toBe(createHash("sha256").update("123k1060v").digest("hex"));
+  });
+});

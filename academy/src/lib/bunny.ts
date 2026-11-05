@@ -33,3 +33,22 @@ export function signedEmbedUrl(opts: {
     expires,
   };
 }
+
+/**
+ * Firma per il caricamento TUS diretto dal browser verso Bunny Stream.
+ * signature = SHA256_HEX(library_id + api_key + scadenza_unix + video_id)
+ * La chiave API resta sul server: al browser arriva solo la firma, valida fino a `expires`.
+ */
+export function tusUploadSignature(opts: {
+  libraryId: string;
+  apiKey: string;
+  videoId: string;
+  ttlSec?: number;
+  now?: number;
+}) {
+  const expires = Math.floor((opts.now ?? Date.now()) / 1000) + (opts.ttlSec ?? 6 * 3600);
+  const signature = createHash("sha256")
+    .update(opts.libraryId + opts.apiKey + expires + opts.videoId)
+    .digest("hex");
+  return { signature, expires };
+}

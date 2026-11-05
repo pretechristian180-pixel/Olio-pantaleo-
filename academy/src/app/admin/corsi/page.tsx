@@ -1,29 +1,22 @@
-import { GraduationCap, Plus } from "lucide-react";
-import { getPublishedCourses } from "@/lib/data/courses";
+import Link from "next/link";
+import { GraduationCap } from "lucide-react";
+import { requireStaff } from "@/lib/auth";
+import { getAdminCourses } from "@/lib/data/admin";
 import { formatPrice } from "@/lib/utils";
 import { PageHeader } from "@/components/layout/page-header";
 import { AdminStats } from "@/components/admin/admin-stats";
+import { NewCourseButton } from "@/components/admin/course/new-course-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const th = "px-5 py-4 text-[11px] font-semibold tracking-[0.16em] text-ink-muted uppercase";
 
-// Fase 1: elenco in sola lettura dei corsi pubblicati.
-// Bozze, editor, riordino e upload video (pannello "Nuova lezione" del mockup) arrivano in Fase 4.
 export default async function AdminCoursesPage() {
-  const courses = await getPublishedCourses();
+  await requireStaff();
+  const courses = await getAdminCourses();
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader
-        eyebrow="Gestione"
-        title="I tuoi corsi"
-        actions={
-          <Button size="lg" disabled title="Disponibile in Fase 4">
-            <Plus aria-hidden /> Nuovo corso
-          </Button>
-        }
-      />
+      <PageHeader eyebrow="Gestione" title="I tuoi corsi" actions={<NewCourseButton />} />
       <AdminStats
         n={{
           venditeMeseCents: null,
@@ -35,8 +28,8 @@ export default async function AdminCoursesPage() {
       {courses.length === 0 ? (
         <EmptyState
           icon={GraduationCap}
-          title="Nessun corso"
-          description="Il primo corso che crei compare qui."
+          title="Crea il tuo primo corso"
+          description="Dagli un titolo: poi aggiungi moduli e lezioni, carichi i video e lo pubblichi quando è pronto."
         />
       ) : (
         <div className="overflow-x-auto rounded-lg border border-line bg-surface">
@@ -70,7 +63,7 @@ export default async function AdminCoursesPage() {
                         <img
                           src={c.copertinaUrl}
                           alt=""
-                          className="h-10 w-16 rounded-sm object-cover"
+                          className="h-10 w-16 shrink-0 rounded-sm object-cover"
                         />
                       ) : (
                         <span aria-hidden className="h-10 w-16 shrink-0 rounded-sm bg-graphite" />
@@ -79,19 +72,23 @@ export default async function AdminCoursesPage() {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <Badge tone="positive">Pubblicato</Badge>
+                    {c.stato === "published" ? (
+                      <Badge tone="positive">Pubblicato</Badge>
+                    ) : (
+                      <Badge tone="neutral">Bozza</Badge>
+                    )}
                   </td>
-                  <td className="px-5 py-4 text-ink-muted">{c.outline.totaleLezioni}</td>
+                  <td className="px-5 py-4 text-ink-muted">{c.lezioni}</td>
                   <td className="px-5 py-4 text-ink-muted">
-                    {formatPrice(c.prezzo_cents, c.valuta)}
+                    {c.prezzo_cents ? formatPrice(c.prezzo_cents, c.valuta) : "Gratis"}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span
-                      className="text-sm font-semibold text-ink-muted"
-                      title="Disponibile in Fase 4"
+                    <Link
+                      href={`/admin/corsi/${c.id}`}
+                      className="inline-flex min-h-11 items-center text-sm font-bold text-nexora-blue hover:text-nexora-blue-deep"
                     >
-                      Modifica
-                    </span>
+                      Modifica<span className="sr-only"> {c.titolo}</span>
+                    </Link>
                   </td>
                 </tr>
               ))}
