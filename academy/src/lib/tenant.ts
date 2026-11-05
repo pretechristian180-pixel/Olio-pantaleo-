@@ -93,3 +93,9 @@ export function isTenantOpen(t: Pick<Tenant, "stato">) {
 export async function isPlatformHost() {
   return (await getHostMatch()).kind === "root";
 }
+
+/** L'academy corrente è quella di Nexora (non di un cliente)? */
+export async function isNexoraTenant() {
+  const t = await getCurrentTenant();
+  return !t || t.slug === publicEnv.NEXT_PUBLIC_TENANT_SLUG;
+}

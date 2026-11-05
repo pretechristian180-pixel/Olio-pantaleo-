@@ -10,6 +10,8 @@ export type TenantUi = {
   tagline: string | null;
   /** Mostrare "Piattaforma Nexora Academy" nel footer. */
   poweredBy: boolean;
+  /** È l'academy di Nexora (contenuti e offerte Nexora), non quella di un cliente. */
+  isNexora: boolean;
 };
 
 export const DEFAULT_TENANT_UI: TenantUi = {
@@ -19,6 +21,7 @@ export const DEFAULT_TENANT_UI: TenantUi = {
   logoUrl: null,
   tagline: null,
   poweredBy: false,
+  isNexora: true,
 };
 
 const Ctx = createContext<TenantUi>(DEFAULT_TENANT_UI);

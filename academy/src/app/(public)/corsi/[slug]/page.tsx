@@ -4,6 +4,7 @@ import { Clock, ListVideo, MonitorPlay } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { getCourseBySlug } from "@/lib/data/courses";
 import { getMyEnrolledSlugs } from "@/lib/data/student";
+import { isNexoraTenant } from "@/lib/tenant";
 import { formatDuration, pluralize } from "@/lib/utils";
 import { Avatar, initials } from "@/components/ui/avatar";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -33,7 +34,7 @@ export default async function CoursePage({ params }: Props) {
   const course = await getCourseBySlug((await params).slug);
   if (!course) notFound();
   const { outline, docente } = course;
-  const user = await getSessionUser();
+  const [user, nexora] = await Promise.all([getSessionUser(), isNexoraTenant()]);
   const enrolled = user ? (await getMyEnrolledSlugs(user.id)).includes(course.slug) : false;
   const freeLesson = outline.moduli.flatMap((m) => m.lezioni).find((l) => l.isFreePreview);
   const [nomeDocente, ...cognomeDocente] = (docente?.nome ?? "").split(" ");
@@ -114,7 +115,7 @@ export default async function CoursePage({ params }: Props) {
           </div>
           <div className="flex flex-col gap-4">
             {docente && <InstructorCard nome={docente.nome} bio={docente.bio} />}
-            <BusinessBox />
+            {nexora && <BusinessBox />}
           </div>
         </div>
       </div>

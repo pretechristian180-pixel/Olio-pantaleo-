@@ -11,7 +11,10 @@ describe("resolveHost", () => {
     expect(resolveHost("ACADEMY.nexoragruppodigitale.it.", ROOT)).toEqual({ kind: "root" });
   });
   it("sottodominio del cliente", () => {
-    expect(resolveHost(`pizzeria-mario.${ROOT}`, ROOT)).toEqual({ kind: "sub", slug: "pizzeria-mario" });
+    expect(resolveHost(`pizzeria-mario.${ROOT}`, ROOT)).toEqual({
+      kind: "sub",
+      slug: "pizzeria-mario",
+    });
   });
   it("sviluppo e anteprime", () => {
     expect(resolveHost("localhost:3000", ROOT)).toEqual({ kind: "root" });
@@ -19,7 +22,10 @@ describe("resolveHost", () => {
     expect(resolveHost("academy-abc.vercel.app", ROOT)).toEqual({ kind: "root" });
   });
   it("dominio personalizzato", () => {
-    expect(resolveHost("academy.cliente.it", ROOT)).toEqual({ kind: "custom", domain: "academy.cliente.it" });
+    expect(resolveHost("academy.cliente.it", ROOT)).toEqual({
+      kind: "custom",
+      domain: "academy.cliente.it",
+    });
   });
   it("sottodomini su più livelli non valgono come academy", () => {
     expect(resolveHost(`a.b.${ROOT}`, ROOT)).toEqual({ kind: "root" });
@@ -47,14 +53,24 @@ describe("marchio", () => {
     expect(contrast(readablePrimary(giallo), "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
   it("scarta valori non validi e logo non https", () => {
-    const b = parseBrand({ primary: "red;}body{display:none", logo_url: "javascript:alert(1)", logo_text: "pizzeria mario" });
+    const b = parseBrand({
+      primary: "red;}body{display:none",
+      logo_url: "javascript:alert(1)",
+      logo_text: "pizzeria mario",
+    });
     expect(b.primary).toBe(DEFAULT_BRAND.primary);
     expect(b.logoUrl).toBeNull();
     expect(b.logoText).toBe("PIZZERIA MARIO");
   });
   it("il CSS contiene solo colori validati", () => {
     const css = brandCss(parseBrand({ primary: "#7a1fa2" }));
-    expect(css).toMatch(/^:root\{--color-nexora-blue:#[0-9a-f]{6};--color-nexora-blue-deep:#[0-9a-f]{6};--color-graphite-deep:#[0-9a-f]{6}\}$/);
+    expect(css).toMatch(
+      /^:root\{--color-nexora-blue:#[0-9a-f]{6};--color-nexora-blue-deep:#[0-9a-f]{6};--color-nexora-blue-bright:#[0-9a-f]{6};--color-graphite-deep:#[0-9a-f]{6}\}$/,
+    );
+  });
+  it("l'accento chiaro si legge sul fondo scuro del cliente", () => {
+    const b = parseBrand({ primary: "#0f766e", dark: "#132a27" });
+    expect(contrast(b.primaryBright, b.dark)).toBeGreaterThanOrEqual(4.5);
   });
 });
 
@@ -62,7 +78,9 @@ import { academyUrlFrom, slugify } from "@/lib/tenant-host";
 
 describe("academyUrlFrom e slugify", () => {
   it("in sviluppo usa slug.localhost con la porta", () => {
-    expect(academyUrlFrom("localhost:3000", "mario", ROOT, "/admin")).toBe("http://mario.localhost:3000/admin");
+    expect(academyUrlFrom("localhost:3000", "mario", ROOT, "/admin")).toBe(
+      "http://mario.localhost:3000/admin",
+    );
   });
   it("in produzione usa il sottodominio", () => {
     expect(academyUrlFrom(ROOT, "mario", ROOT, "/admin")).toBe(`https://mario.${ROOT}/admin`);

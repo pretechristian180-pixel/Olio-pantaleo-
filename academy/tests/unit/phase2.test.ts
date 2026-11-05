@@ -9,7 +9,13 @@ describe("safeNext", () => {
     expect(safeNext("/app/corsi/x")).toBe("/app/corsi/x");
   });
   it("blocca URL esterni e trucchi", () => {
-    for (const bad of ["https://evil.it", "//evil.it", "/\\evil.it", "app", "/ok\r\nSet-Cookie:x"]) {
+    for (const bad of [
+      "https://evil.it",
+      "//evil.it",
+      "/\\evil.it",
+      "app",
+      "/ok\r\nSet-Cookie:x",
+    ]) {
       expect(safeNext(bad)).toBe("/app");
     }
     expect(safeNext(null, "/")).toBe("/");
@@ -19,10 +25,20 @@ describe("safeNext", () => {
 describe("signedEmbedUrl", () => {
   it("firma come richiesto da Bunny", () => {
     const now = 1_800_000_000_000;
-    const { url, expires } = signedEmbedUrl({ libraryId: "123", videoId: "abc", tokenKey: "k", ttlSec: 3600, now });
+    const { url, expires } = signedEmbedUrl({
+      libraryId: "123",
+      videoId: "abc",
+      tokenKey: "k",
+      ttlSec: 3600,
+      now,
+    });
     expect(expires).toBe(1_800_000_000 + 3600);
-    const token = createHash("sha256").update("kabc" + expires).digest("hex");
-    expect(url).toContain(`https://iframe.mediadelivery.net/embed/123/abc?token=${token}&expires=${expires}`);
+    const token = createHash("sha256")
+      .update("kabc" + expires)
+      .digest("hex");
+    expect(url).toContain(
+      `https://iframe.mediadelivery.net/embed/123/abc?token=${token}&expires=${expires}`,
+    );
     expect(url).not.toContain("&t=");
   });
   it("aggiunge il punto di ripresa", () => {

@@ -3,6 +3,8 @@
 export type Brand = {
   primary: string;
   primaryDeep: string;
+  /** Accento chiaro per testi e dettagli su fondo scuro. */
+  primaryBright: string;
   dark: string;
   logoText: string;
   logoUrl: string | null;
@@ -12,6 +14,7 @@ export type Brand = {
 export const DEFAULT_BRAND: Brand = {
   primary: "#0042ed",
   primaryDeep: "#0024a8",
+  primaryBright: "#038bfd",
   dark: "#1d2124",
   logoText: "NEXORA",
   logoUrl: null,
@@ -37,6 +40,19 @@ function luminance(hex: string) {
 export function contrast(a: string, b: string) {
   const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
   return (l1 + 0.05) / (l2 + 0.05);
+}
+
+/** Schiarisce un colore verso il bianco di una quota (0-1). */
+export function lighten(hex: string, amount: number) {
+  const [r, g, b] = rgb(hex).map((v) => Math.min(255, Math.round(v + (255 - v) * amount)));
+  return `#${[r, g, b].map((v) => v!.toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** Accento leggibile sul fondo scuro (almeno 4.5:1), partendo dal colore del cliente. */
+export function brightOn(dark: string, primary: string) {
+  let c = primary.toLowerCase();
+  for (let i = 0; i < 20 && contrast(c, dark) < 4.5; i++) c = lighten(c, 0.12);
+  return c;
 }
 
 /** Scurisce un colore di una quota (0-1). */
@@ -71,6 +87,8 @@ export function parseBrand(raw: unknown): Brand {
     primary,
     primaryDeep:
       primary === DEFAULT_BRAND.primary ? DEFAULT_BRAND.primaryDeep : darken(primary, 0.3),
+    primaryBright:
+      primary === DEFAULT_BRAND.primary ? DEFAULT_BRAND.primaryBright : brightOn(dark, primary),
     dark,
     logoText: str(b.logo_text, 24)?.toUpperCase() ?? DEFAULT_BRAND.logoText,
     logoUrl: logoUrl && /^https:\/\//.test(logoUrl) ? logoUrl : null,
@@ -80,5 +98,5 @@ export function parseBrand(raw: unknown): Brand {
 
 /** CSS che sovrascrive i token del design system per questa academy. */
 export function brandCss(brand: Brand) {
-  return `:root{--color-nexora-blue:${brand.primary};--color-nexora-blue-deep:${brand.primaryDeep};--color-graphite-deep:${brand.dark}}`;
+  return `:root{--color-nexora-blue:${brand.primary};--color-nexora-blue-deep:${brand.primaryDeep};--color-nexora-blue-bright:${brand.primaryBright};--color-graphite-deep:${brand.dark}}`;
 }

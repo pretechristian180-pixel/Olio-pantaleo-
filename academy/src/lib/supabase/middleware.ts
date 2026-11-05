@@ -40,5 +40,12 @@ export async function updateSession(request: NextRequest) {
 
   // Non inserire codice tra createServerClient e getClaims: serve a rinnovare i token.
   const { data } = await supabase.auth.getClaims();
-  return { response, userId: (data?.claims?.sub as string | undefined) ?? null };
+  let userId = (data?.claims?.sub as string | undefined) ?? null;
+  // Se il controllo veloce del token fallisce ma c'è una sessione, chiediamo al server Auth:
+  // middleware e pagine devono dare la stessa risposta, altrimenti /accedi e /app si rimbalzano.
+  if (!userId && hasSupabaseAuthCookie(names)) {
+    const { data: u } = await supabase.auth.getUser();
+    userId = u.user?.id ?? null;
+  }
+  return { response, userId };
 }

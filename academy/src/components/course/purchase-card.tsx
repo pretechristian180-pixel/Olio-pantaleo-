@@ -7,7 +7,7 @@ import { Price } from "@/components/ui/price";
 const vantaggi = [
   "Accesso illimitato, anche da telefono",
   "Materiali e modelli scaricabili",
-  "Attestato Nexora a fine corso",
+  "Attestato di completamento",
   "Pagamento sicuro, anche a rate",
 ];
 
