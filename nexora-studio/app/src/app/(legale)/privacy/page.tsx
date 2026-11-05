@@ -114,11 +114,10 @@ export default function PrivacyPage() {
             ["Vercel", "Hosting della Piattaforma", "UE (Irlanda); società con sede negli USA"],
             [
               "Railway",
-              "Elaborazione e rendering dei video",
+              "Elaborazione, trascrizione e montaggio dei video",
               "UE (Paesi Bassi); società con sede negli USA",
             ],
             ["Anthropic", "Generazione di testi e script", "USA"],
-            ["OpenAI", "Trascrizione audio", "USA"],
             [
               "Pexels",
               "Clip video di repertorio (riceve solo parole chiave, nessun dato personale)",

@@ -1,5 +1,16 @@
 # Changelog
 
+## Trascrizione sul worker (2026-11-05)
+
+### Cambiato
+- **Whisper gira sul worker** (faster-whisper, modello `large-v3-turbo`, CPU int8) invece che sull'API OpenAI.
+  - L'audio dei clienti non lascia il server e non serve nessun account esterno.
+  - Il modello viene scaricato durante la build dell'immagine Railway.
+  - In prova, 11 secondi di parlato sono stati trascritti in circa 9 secondi su 4 CPU, tempo di caricamento compreso. Per un girato di 3 minuti si stimano 1-2 minuti.
+- La trascrizione la decodifica FFmpeg (`packages/video-engine/python/transcribe.py`). Il provider è `TRANSCRIPTION_PROVIDER=local`, predefinito quando manca `OPENAI_API_KEY`.
+- Il costo per video stima il calcolo con `LOCAL_TRANSCRIBE_USD_PER_MIN` (predefinito 0,002 $ al minuto).
+- Informativa privacy: OpenAI tolta dai fornitori; Railway ora indicata anche per la trascrizione.
+
 ## Aziende create dal team (2026-11-05)
 
 ### Aggiunto

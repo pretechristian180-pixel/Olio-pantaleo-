@@ -63,7 +63,7 @@ npm workspaces: un solo `npm install` dalla cartella `nexora-studio/`.
 | Adapter | Prima implementazione |
 | --- | --- |
 | `LLMProvider` | Anthropic Claude (`claude-opus-5-5`) |
-| `TranscriptionProvider` | Whisper via API OpenAI (`whisper-1`) |
+| `TranscriptionProvider` | Whisper sul worker (faster-whisper, `large-v3-turbo`): l'audio non esce dal server. In alternativa API OpenAI |
 | `BrollProvider` | Pexels (stock gratuito); Horacle in futuro per il b-roll AI |
 | `PublishingProvider` | Metricool (vedi `docs/METRICOOL.md`) |
 | `BillingProvider` | Stripe (vedi `docs/STRIPE.md`) |
