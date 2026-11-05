@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { requireStaff } from "@/lib/auth";
 import { getAdminCourse } from "@/lib/data/admin";
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
@@ -64,6 +65,19 @@ export default async function CourseEditorPage({ params }: { params: Promise<{ i
           </Card>
         </div>
         <div className="flex flex-col gap-8">
+          <Card tone="tint">
+            <CardBody>
+              <CardTitle>Landing di vendita</CardTitle>
+              <p className="mt-1 mb-4 text-sm">
+                L&apos;IA scrive la pagina che vende il corso, tu la rifinisci e la pubblichi.
+              </p>
+              <Button asChild>
+                <Link href={`/admin/corsi/${course.id}/landing`}>
+                  <Sparkles aria-hidden /> Crea con l&apos;IA
+                </Link>
+              </Button>
+            </CardBody>
+          </Card>
           <Card>
             <CardBody>
               <CardTitle>Copertina</CardTitle>

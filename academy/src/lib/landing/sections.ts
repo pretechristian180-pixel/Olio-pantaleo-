@@ -11,7 +11,11 @@ const s = (max: number) =>
     .string()
     .catch("")
     .transform((v) => v.trim().slice(0, max));
-const list = (max: number, n: number) => z.array(s(max)).catch([]).transform((a) => a.filter(Boolean).slice(0, n));
+const list = (max: number, n: number) =>
+  z
+    .array(s(max))
+    .catch([])
+    .transform((a) => a.filter(Boolean).slice(0, n));
 const items = (n: number) =>
   z
     .array(z.object({ titolo: s(120), testo: s(600) }))
@@ -38,7 +42,16 @@ export const sectionData = {
 
 export type SectionType = keyof typeof sectionData;
 export const SECTION_ORDER: SectionType[] = [
-  "hero", "problema", "risultati", "per_chi", "programma", "docente", "bonus", "garanzia", "faq", "cta_finale",
+  "hero",
+  "problema",
+  "risultati",
+  "per_chi",
+  "programma",
+  "docente",
+  "bonus",
+  "garanzia",
+  "faq",
+  "cta_finale",
 ];
 
 export const SECTION_LABELS: Record<SectionType, string> = {
@@ -55,19 +68,35 @@ export const SECTION_LABELS: Record<SectionType, string> = {
 };
 
 export type SectionDataMap = { [K in SectionType]: z.infer<(typeof sectionData)[K]> };
-export type Section = { [K in SectionType]: { id: string; tipo: K; visibile: boolean; dati: SectionDataMap[K] } }[SectionType];
+export type Section = {
+  [K in SectionType]: { id: string; tipo: K; visibile: boolean; dati: SectionDataMap[K] };
+}[SectionType];
 
 /** Schema che l'IA deve rispettare: un campo per sezione. */
 export const aiLandingSchema = z.object({
-  hero: z.object({ sopratitolo: z.string(), titolo: z.string(), sottotitolo: z.string(), cta: z.string() }),
+  hero: z.object({
+    sopratitolo: z.string(),
+    titolo: z.string(),
+    sottotitolo: z.string(),
+    cta: z.string(),
+  }),
   problema: z.object({ titolo: z.string(), intro: z.string(), punti: z.array(z.string()) }),
-  risultati: z.object({ titolo: z.string(), items: z.array(z.object({ titolo: z.string(), testo: z.string() })) }),
+  risultati: z.object({
+    titolo: z.string(),
+    items: z.array(z.object({ titolo: z.string(), testo: z.string() })),
+  }),
   per_chi: z.object({ titolo: z.string(), si: z.array(z.string()), no: z.array(z.string()) }),
   programma: z.object({ titolo: z.string(), intro: z.string() }),
   docente: z.object({ titolo: z.string() }),
-  bonus: z.object({ titolo: z.string(), items: z.array(z.object({ titolo: z.string(), testo: z.string() })) }),
+  bonus: z.object({
+    titolo: z.string(),
+    items: z.array(z.object({ titolo: z.string(), testo: z.string() })),
+  }),
   garanzia: z.object({ titolo: z.string(), testo: z.string() }),
-  faq: z.object({ titolo: z.string(), items: z.array(z.object({ domanda: z.string(), risposta: z.string() })) }),
+  faq: z.object({
+    titolo: z.string(),
+    items: z.array(z.object({ domanda: z.string(), risposta: z.string() })),
+  }),
   cta_finale: z.object({ titolo: z.string(), testo: z.string(), cta: z.string() }),
 });
 export type AiLanding = z.infer<typeof aiLandingSchema>;
@@ -83,7 +112,8 @@ export function cleanData<K extends SectionType>(tipo: K, raw: unknown): Section
 export function hasContent(sec: Section) {
   const d = sec.dati as Record<string, unknown>;
   if (sec.tipo === "programma" || sec.tipo === "docente") return true;
-  if (sec.tipo === "bonus" || sec.tipo === "risultati" || sec.tipo === "faq") return (d.items as unknown[]).length > 0;
+  if (sec.tipo === "bonus" || sec.tipo === "risultati" || sec.tipo === "faq")
+    return (d.items as unknown[]).length > 0;
   if (sec.tipo === "garanzia") return Boolean(d.testo);
   if (sec.tipo === "problema") return (d.punti as unknown[]).length > 0 || Boolean(d.intro);
   if (sec.tipo === "per_chi") return (d.si as unknown[]).length > 0;
@@ -131,7 +161,9 @@ export type Brief = z.infer<typeof briefSchema>;
 export const REGEN_MODES = {
   rigenera: "Riscrivi la sezione da capo con un taglio diverso, mantenendo i fatti.",
   breve: "Riscrivi la sezione più breve: circa metà delle parole, stesso messaggio.",
-  diretto: "Riscrivi la sezione più diretta e concreta: frasi corte, verbi d'azione, niente giri di parole.",
-  emozionale: "Riscrivi la sezione più coinvolgente: parla della situazione vissuta da chi legge e di come cambia, senza esagerare.",
+  diretto:
+    "Riscrivi la sezione più diretta e concreta: frasi corte, verbi d'azione, niente giri di parole.",
+  emozionale:
+    "Riscrivi la sezione più coinvolgente: parla della situazione vissuta da chi legge e di come cambia, senza esagerare.",
 } as const;
 export type RegenMode = keyof typeof REGEN_MODES;

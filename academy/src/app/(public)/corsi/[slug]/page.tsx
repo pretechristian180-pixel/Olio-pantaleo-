@@ -5,6 +5,8 @@ import { getSessionUser } from "@/lib/auth";
 import { getCourseBySlug } from "@/lib/data/courses";
 import { getMyEnrolledSlugs } from "@/lib/data/student";
 import { isNexoraTenant } from "@/lib/tenant";
+import { getLanding } from "@/lib/data/landing";
+import { LandingView } from "@/components/landing/landing-view";
 import { formatDuration, pluralize } from "@/lib/utils";
 import { Avatar, initials } from "@/components/ui/avatar";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -13,7 +15,7 @@ import { CourseProgram } from "@/components/course/course-program";
 import { InstructorCard } from "@/components/course/instructor-card";
 import { PurchaseCard } from "@/components/course/purchase-card";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ anteprima?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const course = await getCourseBySlug((await params).slug);
@@ -30,13 +32,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CoursePage({ params }: Props) {
+export default async function CoursePage({ params, searchParams }: Props) {
   const course = await getCourseBySlug((await params).slug);
   if (!course) notFound();
   const { outline, docente } = course;
   const [user, nexora] = await Promise.all([getSessionUser(), isNexoraTenant()]);
   const enrolled = user ? (await getMyEnrolledSlugs(user.id)).includes(course.slug) : false;
   const freeLesson = outline.moduli.flatMap((m) => m.lezioni).find((l) => l.isFreePreview);
+  const purchase = (
+    <PurchaseCard
+      prezzoCents={course.prezzo_cents}
+      valuta={course.valuta}
+      enrolled={enrolled}
+      courseHref={`/app/corsi/${course.slug}`}
+      freeLessonHref={freeLesson ? `/app/corsi/${course.slug}/${freeLesson.slug}` : null}
+    />
+  );
+
+  // Landing di vendita: pubblicata per tutti, in bozza solo in anteprima per lo staff.
+  const landing = await getLanding(course.id);
+  const anteprima = (await searchParams).anteprima === "1";
+  if (landing && landing.sezioni.length && (landing.stato === "published" || anteprima)) {
+    return (
+      <>
+        {landing.stato === "draft" && (
+          <p className="bg-blue-tint px-4 py-3 text-center text-sm font-semibold text-nexora-blue-deep">
+            Anteprima della landing in bozza: la vedi solo tu.
+          </p>
+        )}
+        <LandingView course={course} sections={landing.sezioni} purchase={purchase} />
+      </>
+    );
+  }
   const [nomeDocente, ...cognomeDocente] = (docente?.nome ?? "").split(" ");
 
   return (
@@ -82,13 +109,7 @@ export default async function CoursePage({ params }: Props) {
               </div>
             )}
           </div>
-          <PurchaseCard
-            prezzoCents={course.prezzo_cents}
-            valuta={course.valuta}
-            enrolled={enrolled}
-            courseHref={`/app/corsi/${course.slug}`}
-            freeLessonHref={freeLesson ? `/app/corsi/${course.slug}/${freeLesson.slug}` : null}
-          />
+          {purchase}
         </div>
       </section>
 
