@@ -5,7 +5,8 @@ import { requireUser } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { requestHost } from "@/lib/tenant";
-import { academyUrlFrom } from "@/lib/tenant-host";
+import { academyUrlFrom, normalizeHost } from "@/lib/tenant-host";
+import { registerAcademyDomain } from "@/lib/vercel-domains";
 
 const schema = z.object({
   nome: z.string().trim().min(2, "Scrivi il nome della tua academy.").max(120),
@@ -54,6 +55,7 @@ export async function createAcademy(_prev: CreateState, formData: FormData): Pro
           : "Non siamo riusciti a creare l'academy. Riprova tra poco.";
     return { ok: false, error: msg, fields: error.code === "23505" ? { slug: msg } : undefined };
   }
+  await registerAcademyDomain(`${slug}.${normalizeHost(publicEnv.NEXT_PUBLIC_ROOT_DOMAIN)}`);
   return {
     ok: true,
     slug,
