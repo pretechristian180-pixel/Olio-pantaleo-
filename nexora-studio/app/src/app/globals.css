@@ -2,71 +2,123 @@
 @import "tw-animate-css";
 
 /*
- * Design token di Nexora Studio.
- * ATTENZIONE: valori PROVVISORI (neutri) in attesa dei colori e del font ufficiali del brand Nexora.
- * Per cambiare il brand basta aggiornare le variabili qui sotto: i componenti usano solo i token.
+ * ═══════════════════════════════════════════════════════════════════════════
+ * Nexora Studio — design token
+ * Ricavati dal logo Nexora: blu elettrico (con riflesso ciano), argento
+ * metallico, nero profondo. Tema scuro di base (.dark su <html>), chiaro su :root.
  *
- * Tema scuro di base (classe .dark su <html>), tema chiaro su :root.
+ * Regola: i componenti usano solo questi token, mai colori scritti a mano.
+ * Contrasti verificati AA (4.5:1) per testo normale su sfondi e superfici.
+ * ═══════════════════════════════════════════════════════════════════════════
  */
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.75rem;
+  /* Palette di brand (uguale nei due temi) */
+  --nx-blue-300: #6ea4ff;
+  --nx-blue-400: #3d84ff;
+  --nx-blue-500: #0a5cff; /* blu del logo */
+  --nx-blue-600: #0047e0;
+  --nx-blue-700: #0028d0; /* ombra profonda del logo */
+  --nx-cyan-400: #1aa8ff; /* riflesso del logo */
+  --nx-silver-100: #f4f5f7;
+  --nx-silver-300: #c9cbd1;
+  --nx-silver-500: #8a8c93;
+  --nx-ink-950: #05070d;
+  --nx-ink-900: #0a0e17;
+  --nx-ink-850: #0f1420;
+  --nx-ink-800: #151b2a;
+  --nx-ink-700: #1f2638;
 
-  --background: oklch(0.985 0.002 260);
-  --foreground: oklch(0.18 0.01 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 260);
-  --primary: oklch(0.45 0.2 275);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.95 0.005 260);
-  --secondary-foreground: oklch(0.22 0.01 260);
-  --muted: oklch(0.95 0.005 260);
-  --muted-foreground: oklch(0.45 0.01 260);
-  --accent: oklch(0.94 0.02 275);
-  --accent-foreground: oklch(0.22 0.01 260);
-  --destructive: oklch(0.55 0.22 27);
-  --success: oklch(0.52 0.14 150);
-  --warning: oklch(0.62 0.15 70);
-  --border: oklch(0.9 0.005 260);
-  --input: oklch(0.9 0.005 260);
-  --ring: oklch(0.45 0.2 275);
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--nx-cyan-400) 0%,
+    var(--nx-blue-500) 35%,
+    var(--nx-blue-700) 100%
+  );
+  --gradient-silver: linear-gradient(
+    160deg,
+    #ffffff 0%,
+    var(--nx-silver-300) 55%,
+    var(--nx-silver-500) 100%
+  );
+
+  --radius: 0.875rem;
+
+  /* Tema chiaro */
+  --background: #f6f7f9;
+  --foreground: #0a0d14;
+  --card: #ffffff;
+  --card-foreground: #0a0d14;
+  --popover: #ffffff;
+  --popover-foreground: #0a0d14;
+  --primary: var(--nx-blue-500);
+  --primary-foreground: #ffffff;
+  --primary-text: #0047d6; /* link ed etichette in blu su sfondo chiaro */
+  --secondary: #eceef2;
+  --secondary-foreground: #0a0d14;
+  --muted: #eceef2;
+  --muted-foreground: #525866;
+  --accent: #e7efff;
+  --accent-foreground: #0a2a7a;
+  --destructive: #d92d20;
+  --destructive-foreground: #ffffff;
+  --success: #067647;
+  --success-soft: #e3f6ec;
+  --warning: #b54708;
+  --warning-soft: #fdf1e3;
+  --info-soft: #e7efff;
+  --border: #e1e4ea;
+  --input: #d5d9e1;
+  --ring: var(--nx-blue-500);
+  --shadow-glow: 0 0 0 1px rgb(10 92 255 / 0.12), 0 8px 24px -8px rgb(10 92 255 / 0.35);
+  --surface-glass: rgb(255 255 255 / 0.75);
+  /* Argento leggibile su sfondo chiaro: grafite → acciaio */
+  --gradient-silver-text: linear-gradient(160deg, #1d2129 0%, #4a4f5a 55%, #7a7f8a 100%);
 }
 
 .dark {
-  --background: oklch(0.15 0.01 265);
-  --foreground: oklch(0.96 0.005 260);
-  --card: oklch(0.19 0.012 265);
-  --card-foreground: oklch(0.96 0.005 260);
-  --popover: oklch(0.19 0.012 265);
-  --popover-foreground: oklch(0.96 0.005 260);
-  --primary: oklch(0.72 0.15 275);
-  --primary-foreground: oklch(0.15 0.01 265);
-  --secondary: oklch(0.24 0.012 265);
-  --secondary-foreground: oklch(0.96 0.005 260);
-  --muted: oklch(0.24 0.012 265);
-  --muted-foreground: oklch(0.72 0.01 260);
-  --accent: oklch(0.27 0.03 275);
-  --accent-foreground: oklch(0.96 0.005 260);
-  --destructive: oklch(0.65 0.2 25);
-  --success: oklch(0.72 0.15 150);
-  --warning: oklch(0.8 0.14 80);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.72 0.15 275);
+  --background: var(--nx-ink-950);
+  --foreground: #eef0f4;
+  --card: var(--nx-ink-900);
+  --card-foreground: #eef0f4;
+  --popover: var(--nx-ink-850);
+  --popover-foreground: #eef0f4;
+  --primary: var(--nx-blue-500);
+  --primary-foreground: #ffffff;
+  --primary-text: var(--nx-blue-300);
+  --secondary: var(--nx-ink-800);
+  --secondary-foreground: #eef0f4;
+  --muted: var(--nx-ink-800);
+  --muted-foreground: #9aa1b2;
+  --accent: #0d1b3d;
+  --accent-foreground: #dbe7ff;
+  --destructive: #f04438;
+  --destructive-foreground: #ffffff;
+  --success: #47cd89;
+  --success-soft: #0b2a1c;
+  --warning: #fdb022;
+  --warning-soft: #2e2009;
+  --info-soft: #0d1b3d;
+  --border: rgb(255 255 255 / 0.09);
+  --input: rgb(255 255 255 / 0.14);
+  --ring: var(--nx-blue-400);
+  --shadow-glow: 0 0 0 1px rgb(26 168 255 / 0.25), 0 0 32px -6px rgb(10 92 255 / 0.55);
+  --surface-glass: rgb(10 14 23 / 0.72);
+  --gradient-silver-text: var(--gradient-silver);
 }
 
 @theme inline {
-  --font-sans: var(--font-sans-brand), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono-brand), ui-monospace, monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-wordmark: var(--font-michroma), var(--font-sora), sans-serif;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -76,6 +128,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-text: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -83,11 +136,25 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info-soft: var(--info-soft);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-glass: var(--surface-glass);
+
+  --color-nx-blue-300: var(--nx-blue-300);
+  --color-nx-blue-500: var(--nx-blue-500);
+  --color-nx-blue-700: var(--nx-blue-700);
+  --color-nx-cyan-400: var(--nx-cyan-400);
+  --color-nx-silver-300: var(--nx-silver-300);
+  --color-nx-ink-950: var(--nx-ink-950);
+
+  --shadow-glow: var(--shadow-glow);
 }
 
 @layer base {
@@ -96,11 +163,65 @@
   }
   html {
     color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
   }
   html.dark {
     color-scheme: dark;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+}
+
+@utility bg-brand-gradient {
+  background-image: var(--gradient-brand);
+}
+
+@utility text-silver {
+  background-image: var(--gradient-silver-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-brand-gradient {
+  background-image: linear-gradient(
+    120deg,
+    var(--nx-cyan-400),
+    var(--nx-blue-400) 45%,
+    var(--nx-blue-500)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Bagliore blu del logo, solo nel tema scuro. */
+@utility bg-aurora {
+  background-image:
+    radial-gradient(60% 50% at 50% 0%, rgb(10 92 255 / 0.18), transparent 70%),
+    radial-gradient(40% 35% at 85% 10%, rgb(26 168 255 / 0.1), transparent 70%);
+}
+
+/* Spazio per la barra di navigazione in basso su mobile (con notch). */
+@utility pb-safe-nav {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

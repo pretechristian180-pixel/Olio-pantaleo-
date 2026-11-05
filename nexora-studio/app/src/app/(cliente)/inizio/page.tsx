@@ -1,0 +1,129 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, CalendarClock, Clapperboard, FileText, Sparkles, Upload } from "lucide-react";
+
+import { EmptyState } from "@/components/layout/empty-state";
+import { PageContainer } from "@/components/layout/page-header";
+import { UsageMeter } from "@/components/layout/usage-meter";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+export const metadata: Metadata = { title: "Home" };
+
+export default function InizioPage() {
+  return (
+    <PageContainer>
+      {/* Benvenuto con il bagliore del brand */}
+      <section className="relative overflow-hidden rounded-2xl border bg-card p-5 sm:p-7">
+        <div
+          className="pointer-events-none absolute inset-0 bg-aurora opacity-0 dark:opacity-100"
+          aria-hidden
+        />
+        <div className="relative grid gap-4 sm:flex sm:items-end sm:justify-between">
+          <div className="grid gap-2">
+            <Badge variant="info" className="gap-1">
+              <Sparkles aria-hidden />
+              Settimana 45
+            </Badge>
+            <h1 className="text-2xl font-semibold sm:text-3xl">
+              Ciao Mario, ecco la tua settimana
+            </h1>
+            <p className="max-w-xl text-sm text-muted-foreground sm:text-base">
+              Gira i video quando hai un momento: al montaggio e alla pubblicazione pensiamo noi.
+            </p>
+          </div>
+          <Button variant="brand" size="lg" asChild>
+            <Link href="/video/carica">
+              <Upload aria-hidden />
+              Carica il video
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Video da girare questa settimana</CardTitle>
+            <CardDescription>
+              Ogni script ha l&apos;idea, la frase d&apos;apertura e i consigli di ripresa.
+            </CardDescription>
+            <CardAction>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/script">
+                  Tutti <ArrowRight aria-hidden />
+                </Link>
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <EmptyState
+              icon={FileText}
+              title="I tuoi primi script arrivano a breve"
+              description="Appena completi il profilo del brand prepariamo gli script della settimana e ti avvisiamo via email."
+              action={
+                <Button variant="outline" asChild>
+                  <Link href="/brand">Completa il brand</Link>
+                </Button>
+              }
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Il tuo piano</CardTitle>
+            <CardDescription>Prova gratuita</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-5">
+            <UsageMeter
+              label="Video montati"
+              used={0}
+              total={3}
+              hint="Ti restano 3 video gratuiti."
+            />
+            <Button variant="secondary" asChild>
+              <Link href="/piano">Scopri i piani</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Da approvare</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EmptyState
+              icon={Clapperboard}
+              title="Nessun video da approvare"
+              description="Quando un video è montato lo trovi qui e ricevi un'email."
+              className="py-8"
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Prossimi post</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EmptyState
+              icon={CalendarClock}
+              title="Nessun post in programma"
+              description="I video approvati entrano nel calendario nei giorni e negli orari che hai scelto."
+              className="py-8"
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </PageContainer>
+  );
+}

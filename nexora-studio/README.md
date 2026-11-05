@@ -4,7 +4,8 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: **Fase 0 — Setup** completata. Vedi `docs/CHANGELOG.md`.
+> Stato: Fase 0 completata, base grafica pronta, schema della Fase 1 in attesa di approvazione.
+> Vedi `docs/CHANGELOG.md`.
 
 ## Struttura
 
@@ -83,5 +84,6 @@ npm run build
 
 ## Design
 
-Tema scuro di base con versione chiara. I token sono in `app/src/app/globals.css`. Colori e font
-sono **provvisori** in attesa del brand Nexora ufficiale: si cambiano solo lì.
+Base grafica ricavata dal logo Nexora: blu elettrico, argento, nero profondo. Tema scuro di base con
+versione chiara. Token in `app/src/app/globals.css`, guida in `docs/BRAND.md`, anteprima viva su
+`/design-system`.

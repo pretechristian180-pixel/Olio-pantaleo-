@@ -1,5 +1,27 @@
 # Changelog
 
+## Base grafica (2026-11-05)
+
+### Aggiunto
+- Identità visiva dal logo Nexora:
+  - marchio "N" in vettoriale;
+  - favicon, icona app, icona Apple e immagine di anteprima per i link;
+  - manifest per installare l'app sul telefono.
+- Design token definitivi: blu Nexora `#0A5CFF`, riflesso ciano, blu profondo, argento e inchiostro. Gradienti brand e argento, bagliore blu nel tema scuro.
+- Font: Sora (titoli), Inter (testo), Michroma (scritta NEXORA).
+- Tema scuro di base, chiaro e "sistema", con il selettore nel menu account.
+- Libreria UI: pulsanti (variante `brand`), campi di form accessibili, card, badge, avvisi, barra di avanzamento, skeleton, avatar, menu, notifiche.
+- Struttura dell'area cliente:
+  - barra laterale su desktop e barra in basso su mobile, con il tasto "Carica il video";
+  - pagine Home, Script, Video, Carica, Calendario, Brand, Social, Piano e Team, con stati vuoti che spiegano il passo successivo. Per ora mostrano dati dimostrativi, da collegare in Fase 1.
+- Landing provvisoria, pagina `/design-system` e `docs/BRAND.md`.
+
+### Cambiato
+- I colori e il font provvisori della Fase 0 sono sostituiti da quelli del brand.
+
+## Fase 1 — Schema (bozza, non applicata)
+- Migrazione `supabase/migrations/20261105083527_phase1_foundations.sql` e test RLS locali in `supabase/tests/`.
+
 ## Fase 0 — Setup (2026-11-05)
 
 ### Aggiunto
@@ -23,4 +45,3 @@
 
 ### Da fare
 - Deploy di prova su Vercel (rimandato).
-- Colori e font ufficiali del brand Nexora.
