@@ -4,3 +4,6 @@ export * from "./providers/transcription.js";
 export * from "./providers/llm.js";
 export * from "./providers/broll.js";
 export * from "./providers/publishing.js";
+export * from "./scripts/calendar.js";
+export * from "./scripts/schema.js";
+export * from "./scripts/similarity.js";

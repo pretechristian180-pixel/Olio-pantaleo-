@@ -39,11 +39,11 @@ export const JOB_MAX_ATTEMPTS = 3;
 /** Costo di una chiamata a un provider esterno, per il calcolo del costo per video. */
 export interface ProviderCost {
   provider: string;
-  /** Costo in centesimi di euro. */
-  amountCents: number;
-  /** Unità consumate (secondi di audio, token, secondi di video...). */
-  units?: number;
-  unitLabel?: string;
+  model?: string;
+  /** Costo in dollari USA (i fornitori fatturano in USD), con decimali. */
+  costUsd: number;
+  /** Unità consumate, per provider (token, secondi di audio, secondi di video...). */
+  units?: Record<string, number>;
 }
 
 /** Settori proposti nell'onboarding (vincolo `workspaces.sector`). */
