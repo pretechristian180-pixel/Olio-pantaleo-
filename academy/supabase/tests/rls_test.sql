@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(59);
+select plan(64);
 
 -- ---------------------------------------------------------------------------
 -- Utilità: impersonare un utente come fa PostgREST
@@ -298,6 +298,32 @@ select is(
 select is(
   (select count(*)::int from public.profiles where id = 'a0000000-0000-4000-8000-0000000000b2'),
   0, 'admin B: non vede studenti che non sono suoi');
+reset role;
+
+-- ---------------------------------------------------------------------------
+-- Landing di vendita
+-- ---------------------------------------------------------------------------
+insert into public.landing_pages (course_id, stato, sezioni) values
+  ('c0000000-0000-4000-8000-000000000001', 'published', '[{"tipo":"hero"}]'),
+  ('c0000000-0000-4000-8000-000000000003', 'draft', '[]');
+select is(
+  (select tenant_id from public.landing_pages where course_id = 'c0000000-0000-4000-8000-000000000001'),
+  'a0000000-0000-4000-8000-000000000000'::uuid, 'landing: il tenant viene dal corso');
+select tests.anon();
+select is((select count(*)::int from public.landing_pages), 1, 'anon: vede solo le landing pubblicate');
+reset role;
+select tests.login('a0000000-0000-4000-8000-0000000000b2');
+select throws_ok(
+  $$insert into public.landing_pages (course_id) values ('c0000000-0000-4000-8000-000000000002')$$,
+  '42501', null, 'studente: non crea landing');
+reset role;
+select tests.login('a0000000-0000-4000-8000-0000000000a1');
+select lives_ok(
+  $$insert into public.landing_pages (course_id) values ('c0000000-0000-4000-8000-000000000002')$$,
+  'admin A: crea la landing di un suo corso');
+select is(
+  (select count(*)::int from public.landing_pages where course_id = 'c0000000-0000-4000-8000-000000000003'),
+  0, 'admin A: non vede le bozze del tenant B');
 reset role;
 
 select * from finish();
