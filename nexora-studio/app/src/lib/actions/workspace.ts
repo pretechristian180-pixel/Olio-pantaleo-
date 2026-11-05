@@ -1,6 +1,6 @@
 "use server";
 
-import { SECTORS, type EditStyle, type Json } from "@nexora/shared";
+import { firstScriptsWeek, SECTORS, type EditStyle, type Json } from "@nexora/shared";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import type { FormState } from "@/components/forms/form-message";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import { HEX_RE } from "@/lib/upload/colors";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { ACTIVE_WORKSPACE_COOKIE, assertMember, getSessionContext } from "@/lib/workspace";
 
@@ -247,7 +248,19 @@ export async function savePublishing(_prev: FormState, fd: FormData): Promise<Fo
     .eq("id", workspaceId);
   if (error) return { error: "Salvataggio non riuscito. Riprova." };
 
-  if (isOnboarding(fd)) redirect("/onboarding/fatto");
+  if (isOnboarding(fd)) {
+    // La prima settimana di script parte subito (il worker la prende entro pochi secondi).
+    const week = firstScriptsWeek(new Date());
+    const { error: jobError } = await createAdminClient().rpc("enqueue_job", {
+      p_type: "generate_scripts",
+      p_workspace_id: workspaceId,
+      p_payload: { week_start: week },
+      p_dedupe_key: `generate_scripts:${workspaceId}:${week}`,
+    });
+    if (jobError)
+      console.error(JSON.stringify({ msg: "prima generazione non accodata", workspaceId }));
+    redirect("/onboarding/fatto");
+  }
   revalidatePath("/", "layout");
   return { success: "Preferenze di pubblicazione salvate." };
 }

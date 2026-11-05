@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarClock, Clapperboard, FileText, Sparkles, Upload } from "lucide-react";
+import { ArrowRight, CalendarClock, Clapperboard, Sparkles, Upload } from "lucide-react";
 
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageContainer } from "@/components/layout/page-header";
@@ -15,6 +15,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { WeekStatus } from "@/components/scripts/week-status";
+import {
+  defaultWeek,
+  getBatchScripts,
+  getGenerationState,
+  listBatches,
+  STATUS_LABELS,
+} from "@/lib/scripts";
 import { firstName, requireWorkspace } from "@/lib/workspace";
 
 /** Numero della settimana ISO, come sul calendario. */
@@ -33,6 +41,10 @@ export default async function InizioPage() {
   const ws = ctx.active.workspace;
   const isTrial = !ws.plan_id;
   const trialUsed = 3 - ws.trial_videos_left;
+  const week = await defaultWeek(ws.id);
+  const batch = (await listBatches(ws.id, 2)).find((b) => b.week_start === week);
+  const scripts = batch ? await getBatchScripts(batch.id) : [];
+  const generation = scripts.length ? "done" : await getGenerationState(ws.id, week);
 
   return (
     <PageContainer>
@@ -80,16 +92,45 @@ export default async function InizioPage() {
             </CardAction>
           </CardHeader>
           <CardContent>
-            <EmptyState
-              icon={FileText}
-              title="I tuoi primi script arrivano a breve"
-              description="Appena completi il profilo del brand prepariamo gli script della settimana e ti avvisiamo via email."
-              action={
-                <Button variant="outline" asChild>
-                  <Link href="/brand">Completa il brand</Link>
-                </Button>
-              }
-            />
+            {scripts.length > 0 ? (
+              <ul className="grid gap-2">
+                {scripts.slice(0, 4).map((s, i) => (
+                  <li key={s.id}>
+                    <Link
+                      href={`/script/${s.id}`}
+                      className="flex items-center gap-3 rounded-lg border bg-background/40 p-3 transition-colors hover:border-nx-blue-500/50"
+                    >
+                      <span className="font-wordmark text-xs text-primary-text">0{i + 1}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{s.title}</span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          «{s.hook}»
+                        </span>
+                      </span>
+                      <Badge
+                        variant={
+                          s.status === "to_shoot"
+                            ? "warning"
+                            : s.status === "uploaded"
+                              ? "success"
+                              : "secondary"
+                        }
+                      >
+                        {STATUS_LABELS[s.status]}
+                      </Badge>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <WeekStatus
+                state={generation}
+                workspaceId={ws.id}
+                weekStart={week}
+                isOwner={ctx.active.role === "owner"}
+                quotaReached={isTrial && ws.trial_videos_left <= 0}
+              />
+            )}
           </CardContent>
         </Card>
 

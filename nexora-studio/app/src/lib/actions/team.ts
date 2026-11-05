@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { FormState } from "@/components/forms/form-message";
-import { brandedEmail, getEmailProvider } from "@/lib/email";
+import { brandedEmail, getEmailProvider } from "@nexora/shared/server";
 import { publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import {

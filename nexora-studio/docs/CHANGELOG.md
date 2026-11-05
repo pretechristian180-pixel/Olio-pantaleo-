@@ -1,5 +1,50 @@
 # Changelog
 
+## Fase 2 — Script (2026-11-05)
+
+### Aggiunto
+- **Adapter LLM su Anthropic** (`packages/shared/src/providers/anthropic.ts`), modello `claude-opus-5-5`:
+  - output strutturato validato con Zod;
+  - prompt caching sulla parte fissa delle istruzioni;
+  - fallback lato server (`fallbacks: "default"`) se il modello rifiuta;
+  - errori tipizzati: ritentabili oppure no;
+  - costo di ogni chiamata calcolato in USD.
+- **Motore degli script** (`packages/shared/src/scripts/`):
+  - le istruzioni fisse non contengono dati dell'azienda (per la cache); a ogni richiesta si aggiungono brand, città, servizi e cose da non dire;
+  - calendario italiano: Pasqua e feste mobili, Festa della mamma, Black Friday, saldi solo per i negozi, stagione;
+  - ogni script ha hook di 3 secondi, testo da dire, chiusura, note di ripresa strutturate e formato.
+- **Anti-ripetizione su due livelli**: Claude riceve gli script delle ultime 8 settimane, e dopo la generazione un controllo di somiglianza su titoli, hook e temi fa riscrivere quelli troppo vicini.
+- **Riscrittura di un singolo script**, con il motivo facoltativo: massimo 3 a settimana per azienda, e il tentativo viene restituito se l'AI non risponde.
+- **Worker**:
+  - coda `jobs` con presa senza conflitti tra worker, 3 tentativi con attesa crescente (1, 4, 16 minuti), recupero dei job bloccati, avviso email agli admin quando un job fallisce definitivamente;
+  - pianificazione in ora italiana: domenica dalle 18 prepara la settimana dopo; lunedì dalle 8 manda l'email "I tuoi video della settimana" a tutti i membri. Il fine settimana non genera la settimana che sta finendo.
+- **Prima settimana subito**: a fine onboarding la generazione parte in automatico (nel fine settimana per la settimana successiva).
+- **Pagina Script**:
+  - settimana corrente e precedenti;
+  - stato "Stiamo scrivendo i tuoi script", che si aggiorna da solo;
+  - errore con "Riprova" per il titolare; prova gratuita esaurita con invito al piano.
+- **Dettaglio dello script**: frase d'apertura in evidenza, testo riga per riga, note di ripresa (dove, inquadratura, luce, durata, consigli), "Carica il girato", "Salta questo video", "Riscrivi questo script".
+- **Home** con gli script della settimana.
+- **Email del lunedì** nello stile del brand, con versione solo testo. Adapter email spostato in `@nexora/shared/server` e usato da app e worker.
+- **Provider per lo sviluppo**: `LLM_PROVIDER=demo` (script finti, nessun costo) ed `EMAIL_PROVIDER=mailpit`. Sono bloccati in produzione salvo il permesso esplicito `ALLOW_DEMO_PROVIDERS=true`, pensato solo per i test locali.
+
+### Database
+- Migrazione `20261105101922_phase2_scripts_jobs.sql` (approvata):
+  - tabelle `script_batches`, `scripts`, `jobs`, `provider_costs`;
+  - funzioni della coda `enqueue_job`, `claim_job`, `complete_job`, `fail_job`;
+  - contatore delle riscritture, gestito solo dal server.
+
+### Verificato
+- Test automatici:
+  - pacchetto condiviso, 6 test: calendario, somiglianza, sostituzione delle ripetizioni, riscrittura;
+  - worker, 3 test: orari di Roma con ora legale e solare, settimane da preparare, orario dell'email.
+- SQL su Supabase locale:
+  - coda: deduplica, 3 tentativi e poi `failed`, ripresa dei job bloccati;
+  - quarta riscrittura rifiutata;
+  - il collaboratore cambia solo lo stato e non vede la coda;
+  - un'altra azienda non vede niente.
+- End-to-end (`tests/e2e/flow-fase2.cjs`): onboarding, script generati dal worker, pagina Script, Home, dettaglio, riscrittura con il contatore che scende, "Salta", email ricevuta.
+
 ## Fase 1 — Fondamenta (2026-11-05)
 
 ### Aggiunto

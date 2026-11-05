@@ -4,8 +4,8 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: **Fase 1 completata** (accesso, onboarding, brand, team, RLS). Testata su Supabase locale:
-> il progetto Supabase online va ancora creato. Vedi `docs/CHANGELOG.md`.
+> Stato: **Fase 2 completata** (script settimanali con Claude, coda di lavoro, email del lunedì).
+> Testata su Supabase locale: il progetto Supabase online va ancora creato. Vedi `docs/CHANGELOG.md`.
 
 ## Struttura
 
@@ -30,13 +30,13 @@ npm workspaces: un solo `npm install` dalla cartella `nexora-studio/`.
 
 | Adapter | Prima implementazione |
 | --- | --- |
-| `LLMProvider` | Anthropic Claude |
+| `LLMProvider` | Anthropic Claude (`claude-opus-5-5`) |
 | `TranscriptionProvider` | Whisper via API OpenAI |
 | `BrollProvider` | Horacle (AI + stock) |
 | `PublishingProvider` | Metricool |
 
-Le interfacce sono in `packages/shared/src/providers/`. Le implementazioni arrivano nelle fasi
-2-4.
+Le interfacce sono in `packages/shared/src/providers/`. Il codice solo server (SDK Anthropic, servizi,
+email) si importa da `@nexora/shared/server`.
 
 ## Avvio in locale
 
@@ -52,9 +52,12 @@ npm run dev                       # http://localhost:3000
 Worker:
 
 ```bash
-cp .env.example worker/.env
-npm run worker:dev                # Node legge worker/.env solo se esportato nell'ambiente
+cp .env.example worker/.env       # SUPABASE_URL, SUPABASE_SECRET_KEY, ANTHROPIC_API_KEY…
+npm run worker:dev
 ```
+
+Senza chiave Anthropic, in locale: `LLM_PROVIDER=demo` (script finti) ed `EMAIL_PROVIDER=mailpit`
+(email su http://127.0.0.1:54324). Con `next start` serve anche `ALLOW_DEMO_PROVIDERS=true`.
 
 Controlli:
 
@@ -62,6 +65,7 @@ Controlli:
 npm run lint
 npm run typecheck
 npm run build
+npm test -w @nexora/shared && npm test -w @nexora/worker
 ```
 
 `GET /api/health` risponde con lo stato dell'app e indica se Supabase è configurato.

@@ -120,3 +120,18 @@ export function mondayOf(date: Date, timeZone = "Europe/Rome") {
   dt.setUTCDate(dt.getUTCDate() - (dow - 1));
   return dt.toISOString().slice(0, 10);
 }
+
+/**
+ * Settimana per cui preparare gli script di un'azienda appena attivata:
+ * quella in corso da lunedì a venerdì, la successiva nel fine settimana.
+ */
+export function firstScriptsWeek(now: Date, timeZone = "Europe/Rome") {
+  const monday = mondayOf(now, timeZone);
+  const dow = new Intl.DateTimeFormat("en-GB", { timeZone, weekday: "short" }).format(now);
+  if (dow === "Sat" || dow === "Sun") {
+    const d = new Date(`${monday}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + 7);
+    return d.toISOString().slice(0, 10);
+  }
+  return monday;
+}

@@ -156,6 +156,122 @@ export interface Database {
         };
         Relationships: [];
       };
+      script_batches: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          week_start: string;
+          status: "draft" | "sent" | "done";
+          regenerations_used: number;
+          notified_at: Timestamp | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          workspace_id: string;
+          week_start: string;
+          status?: "draft" | "sent" | "done";
+        };
+        Update: { status?: "draft" | "sent" | "done"; notified_at?: Timestamp | null };
+        Relationships: [];
+      };
+      scripts: {
+        Row: {
+          id: string;
+          batch_id: string;
+          workspace_id: string;
+          position: number;
+          title: string;
+          hook: string;
+          body: string;
+          call_to_action: string | null;
+          shooting_notes: Json;
+          format: "talking_head" | "tutorial" | "behind_the_scenes" | "product" | "testimonial";
+          topic_tags: string[];
+          status: "to_shoot" | "uploaded" | "skipped";
+          regenerated: number;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          batch_id: string;
+          workspace_id: string;
+          position?: number;
+          title: string;
+          hook: string;
+          body: string;
+          call_to_action?: string | null;
+          shooting_notes?: Json;
+          format: "talking_head" | "tutorial" | "behind_the_scenes" | "product" | "testimonial";
+          topic_tags?: string[];
+          status?: "to_shoot" | "uploaded" | "skipped";
+        };
+        Update: {
+          title?: string;
+          hook?: string;
+          body?: string;
+          call_to_action?: string | null;
+          shooting_notes?: Json;
+          format?: "talking_head" | "tutorial" | "behind_the_scenes" | "product" | "testimonial";
+          topic_tags?: string[];
+          status?: "to_shoot" | "uploaded" | "skipped";
+          regenerated?: number;
+        };
+        Relationships: [];
+      };
+      jobs: {
+        Row: {
+          id: string;
+          type: "generate_scripts" | "send_email" | "transcribe" | "edit" | "render" | "publish";
+          workspace_id: string | null;
+          payload: Json;
+          status: "queued" | "running" | "done" | "failed";
+          attempts: number;
+          max_attempts: number;
+          last_error: string | null;
+          run_after: Timestamp;
+          locked_by: string | null;
+          locked_at: Timestamp | null;
+          dedupe_key: string | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+          finished_at: Timestamp | null;
+        };
+        Insert: { [_ in never]: never };
+        Update: {
+          status?: "queued" | "running" | "done" | "failed";
+          attempts?: number;
+          run_after?: Timestamp;
+          finished_at?: Timestamp | null;
+          last_error?: string | null;
+        };
+        Relationships: [];
+      };
+      provider_costs: {
+        Row: {
+          id: number;
+          workspace_id: string | null;
+          job_id: string | null;
+          video_id: string | null;
+          operation: string;
+          provider: string;
+          model: string | null;
+          cost_usd: number;
+          units: Json;
+          created_at: Timestamp;
+        };
+        Insert: {
+          workspace_id?: string | null;
+          job_id?: string | null;
+          video_id?: string | null;
+          operation: string;
+          provider: string;
+          model?: string | null;
+          cost_usd: number;
+          units?: Json;
+        };
+        Update: { [_ in never]: never };
+        Relationships: [];
+      };
       audit_log: {
         Row: {
           id: number;
@@ -193,6 +309,24 @@ export interface Database {
         }[];
       };
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      enqueue_job: {
+        Args: {
+          p_type: string;
+          p_workspace_id: string | null;
+          p_payload?: Json;
+          p_dedupe_key?: string | null;
+          p_run_after?: Timestamp;
+        };
+        Returns: string;
+      };
+      claim_job: {
+        Args: { p_worker: string; p_types?: string[] | null };
+        Returns: Database["public"]["Tables"]["jobs"]["Row"][];
+      };
+      complete_job: { Args: { p_job_id: string }; Returns: undefined };
+      fail_job: { Args: { p_job_id: string; p_error: string; p_retryable?: boolean }; Returns: string | null };
+      use_script_regeneration: { Args: { p_script_id: string }; Returns: number };
+      refund_script_regeneration: { Args: { p_script_id: string }; Returns: undefined };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
