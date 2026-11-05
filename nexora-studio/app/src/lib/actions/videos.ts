@@ -148,28 +148,71 @@ export async function requestChanges(_prev: FormState, fd: FormData): Promise<Fo
   if (message.length < 3) return { fieldErrors: { message: "Scrivi cosa vuoi cambiare." } };
   if (video.status !== "review")
     return { error: "Puoi chiedere modifiche solo a un video da approvare." };
-  if (video.change_rounds_used >= MAX_CHANGE_ROUNDS) {
-    return { error: "Hai già usato i 2 giri di modifiche inclusi per questo video." };
+  const admin = createAdminClient();
+  const { data: raw } = await admin
+    .from("raw_uploads")
+    .select("purged_at")
+    .eq("id", video.raw_upload_id)
+    .single();
+  if (raw?.purged_at) {
+    return {
+      error:
+        "Il girato originale si conserva 90 giorni ed è stato cancellato: questo video non si può più rimontare.",
+    };
   }
 
-  const admin = createAdminClient();
+  // Oltre le modifiche incluse (Termini, art. 4.4) la richiesta consuma un video del piano o della prova.
+  let quota: { kind?: "trial" | "plan"; period_start?: string } | null = null;
+  if (video.change_rounds_used >= MAX_CHANGE_ROUNDS) {
+    if (fd.get("extra") !== "1")
+      return { error: "Conferma che questa modifica usa uno dei tuoi video." };
+    const { data } = await admin.rpc("reserve_video", { p_workspace_id: video.workspace_id });
+    const q = (data ?? {}) as {
+      ok?: boolean;
+      reason?: string;
+      kind?: "trial" | "plan";
+      period_start?: string;
+      limit?: number;
+    };
+    if (!q.ok) return { error: quotaMessage(q.reason, q.limit) };
+    quota = q;
+  }
+  const giveBack = async () => {
+    if (quota)
+      await admin.rpc("release_reservation", {
+        p_workspace_id: video.workspace_id,
+        p_period_start: quota.period_start ?? null,
+      });
+  };
+
   // Aggiornamento condizionato: due clic veloci non consumano due giri.
   const { data: updated } = await admin
     .from("videos")
     .update({
       status: "changes_requested",
-      change_rounds_used: video.change_rounds_used + 1,
+      // Conta solo le modifiche incluse; quelle extra si riconoscono da video_feedback.quota_kind.
+      change_rounds_used: Math.min(MAX_CHANGE_ROUNDS, video.change_rounds_used + 1),
       error: null,
     })
     .eq("id", video.id)
     .eq("status", "review")
     .eq("change_rounds_used", video.change_rounds_used)
     .select("id");
-  if (!updated?.length) return { error: "Il video è cambiato nel frattempo: ricarica la pagina." };
+  if (!updated?.length) {
+    await giveBack();
+    return { error: "Il video è cambiato nel frattempo: ricarica la pagina." };
+  }
 
   const { data: fb } = await admin
     .from("video_feedback")
-    .insert({ video_id: video.id, version: video.current_version, user_id: ctx.user.id, message })
+    .insert({
+      video_id: video.id,
+      version: video.current_version,
+      user_id: ctx.user.id,
+      message,
+      quota_kind: quota?.kind ?? null,
+      billed_period_start: quota?.period_start ?? null,
+    })
     .select("id")
     .single();
   await admin.rpc("enqueue_job", {
@@ -181,7 +224,11 @@ export async function requestChanges(_prev: FormState, fd: FormData): Promise<Fo
 
   revalidatePath(`/video/${video.id}`);
   revalidatePath("/video");
-  return { success: "Richiesta inviata: stiamo preparando la nuova versione." };
+  return {
+    success: quota
+      ? "Richiesta inviata: abbiamo usato 1 dei tuoi video e stiamo preparando la nuova versione."
+      : "Richiesta inviata: stiamo preparando la nuova versione.",
+  };
 }
 
 /** Didascalia e hashtag modificabili finché il video non è pubblicato. */

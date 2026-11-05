@@ -73,7 +73,7 @@ export async function getVideoDetail(videoId: string) {
   const { data: video } = await supabase
     .from("videos")
     .select(
-      "*, script:scripts(id, title, hook), raw:raw_uploads(file_name, duration_s, orientation)",
+      "*, script:scripts(id, title, hook), raw:raw_uploads(file_name, duration_s, orientation, purged_at, created_at)",
     )
     .eq("id", videoId)
     .maybeSingle();
@@ -93,7 +93,13 @@ export async function getVideoDetail(videoId: string) {
   return {
     video: video as Video & {
       script: { id: string; title: string; hook: string } | null;
-      raw: { file_name: string; duration_s: number | null; orientation: string | null } | null;
+      raw: {
+        file_name: string;
+        duration_s: number | null;
+        orientation: string | null;
+        purged_at: string | null;
+        created_at: string;
+      } | null;
     },
     versions: (versions ?? []).map((v) => ({
       ...v,
@@ -135,4 +141,13 @@ async function readEditingStage(
     .limit(1);
   if (renders?.length) return "render";
   return "coda";
+}
+
+/** Link per scaricare il video finito (il browser lo salva invece di aprirlo). */
+export async function downloadUrl(path: string, fileName: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.storage
+    .from("output")
+    .createSignedUrl(path, 3600, { download: fileName });
+  return data?.signedUrl ?? null;
 }

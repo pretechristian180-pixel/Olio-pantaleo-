@@ -105,8 +105,14 @@ insert into results select 'b-roll: 98 concessi', public.use_broll_credits(curre
 insert into results select 'b-roll: ne restano 2', public.use_broll_credits(current_setting('test.b3')::uuid, 5) = 2;
 insert into results select 'b-roll: finiti', public.use_broll_credits(current_setting('test.b3')::uuid, 1) = 0;
 
--- Pagamento fallito: propagato ai brand, nuovi montaggi bloccati, nulla cancellato
-update public.workspaces set subscription_status = 'past_due', payment_failed_at = now()
+-- Pagamento fallito da 1 giorno: tolleranza di 2 giorni, si lavora ancora
+update public.workspaces set subscription_status = 'past_due', payment_failed_at = now() - interval '1 day'
+where id = current_setting('test.ws')::uuid;
+insert into results select 'tolleranza: montaggio ancora possibile il 1° giorno', (public.reserve_video(current_setting('test.b3')::uuid)->>'ok')::boolean;
+insert into results select 'tolleranza: b-roll ancora disponibile', public.use_broll_credits(current_setting('test.b2')::uuid, 1) = 1;
+
+-- Pagamento fallito da 3 giorni: propagato ai brand, nuovi montaggi bloccati, nulla cancellato
+update public.workspaces set subscription_status = 'past_due', payment_failed_at = now() - interval '3 days'
 where id = current_setting('test.ws')::uuid;
 insert into results select 'pagamento fallito propagato', (select bool_and(subscription_status = 'past_due') from public.workspaces where billing_workspace_id = current_setting('test.ws')::uuid);
 insert into results select 'pagamento fallito: montaggio bloccato', public.reserve_video(current_setting('test.b3')::uuid)->>'reason' = 'payment_failed';

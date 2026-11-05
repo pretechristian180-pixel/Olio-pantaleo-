@@ -154,9 +154,15 @@ async function onboarding(page, name) {
   check(bad.status === 400, "firma non valida rifiutata");
   const { data: all } = await db.from("workspaces").select("subscription_status").or(`id.eq.${ws.id},billing_workspace_id.eq.${ws.id}`);
   check(all.length === 2 && all.every((x) => x.subscription_status === "past_due"), "pagamento fallito propagato ai brand");
+  // Tolleranza di 2 giorni (Termini art. 5.4): si carica ancora, con l'avviso e la scadenza
+  await page.goto(`${APP}/video/carica`);
+  await page.getByText(/Aggiorna il pagamento entro/).waitFor();
+  check((await page.getByText("Scegli il video").count()) > 0 || (await page.locator('input[type="file"]').count()) > 0, "pagamento fallito: 2 giorni di tolleranza, caricamento ancora possibile");
+  // Dopo 2 giorni: caricamento bloccato
+  await db.from("workspaces").update({ payment_failed_at: new Date(Date.now() - 3 * 86400e3).toISOString() }).eq("id", ws.id);
   await page.goto(`${APP}/video/carica`);
   await page.getByText("L'ultimo pagamento non è andato a buon fine").waitFor();
-  check(true, "pagamento fallito: caricamento bloccato con messaggio");
+  check((await page.locator('input[type="file"]').count()) === 0, "pagamento fallito da 3 giorni: caricamento bloccato con messaggio");
   await mailTo(U.email, (m) => /Pagamento non riuscito/.test(m.Subject));
   check(true, "email «Pagamento non riuscito» ricevuta");
   await shot(page, "f5-05-pagamento-fallito");

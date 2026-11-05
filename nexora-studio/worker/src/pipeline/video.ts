@@ -466,6 +466,13 @@ export async function onVideoJobFailed(job: Job, deps: HandlerDeps, error: strin
   if (!video) return;
   const userMessage = error.startsWith("Il video") ? error : "Il montaggio non è riuscito. Il nostro team è stato avvisato.";
   if (video.current_version > 0) {
+    // Modifica extra a pagamento non riuscita: il video preso dalla quota torna al cliente.
+    let feedbackId = typeof p.feedback_id === "string" ? p.feedback_id : null;
+    if (!feedbackId && typeof p.version_id === "string") {
+      const { data } = await deps.db.from("video_versions").select("feedback_id").eq("id", p.version_id).maybeSingle();
+      feedbackId = data?.feedback_id ?? null;
+    }
+    if (feedbackId) await deps.db.rpc("release_feedback_quota", { p_feedback_id: feedbackId });
     // C'era già una versione pronta: il cliente la ritrova, la modifica non è riuscita.
     await deps.db.from("videos").update({ status: "review", error: "La modifica non è riuscita: riprova o scrivici." }).eq("id", videoId);
   } else {

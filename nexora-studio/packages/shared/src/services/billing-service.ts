@@ -154,7 +154,7 @@ async function handle(db: AdminDb, provider: BillingProvider, event: BillingEven
       }
       const mail = brandedEmail({
         title: "Il pagamento non è andato a buon fine",
-        intro: `Non siamo riusciti a rinnovare l'abbonamento di ${ws.name}. Finché il pagamento non va a buon fine i nuovi montaggi sono in pausa; video, calendario e post restano tutti al loro posto.`,
+        intro: `Non siamo riusciti a rinnovare l'abbonamento di ${ws.name}. Aggiorna il pagamento entro 2 giorni: dopo, i nuovi montaggi si mettono in pausa. Video, calendario e post restano tutti al loro posto.`,
         ctaLabel: "Aggiorna il pagamento",
         ctaUrl: `${opts.appUrl}/piano`,
         outro: "Stripe riproverà da solo nei prossimi giorni. Se hai dubbi rispondi a questa email.",

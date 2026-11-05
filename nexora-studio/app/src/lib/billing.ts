@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { Tables } from "@nexora/shared";
+import { billingAllowsWork, PAYMENT_GRACE_DAYS } from "@nexora/shared/server";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,11 +35,18 @@ export async function getPlanUsage(ws: Workspace) {
   const videosLimit = isTrial ? 3 : (plan?.videos_per_month ?? 0);
 
   let blocked: BlockReason | null = null;
+  const pastDue = ws.subscription_status === "past_due" || ws.subscription_status === "unpaid";
   if (isTrial) blocked = ws.trial_videos_left <= 0 ? "trial_over" : null;
-  else if (ws.subscription_status === "past_due" || ws.subscription_status === "unpaid")
-    blocked = "payment_failed";
-  else if (ws.subscription_status !== "active") blocked = "inactive";
+  else if (!billingAllowsWork(ws)) blocked = pastDue ? "payment_failed" : "inactive";
   else if (videosUsed >= videosLimit) blocked = "limit_reached";
+
+  // Pagamento fallito ma ancora nella tolleranza: si lavora, con un avviso e la scadenza.
+  const graceUntil =
+    !isTrial && pastDue && !blocked && ws.payment_failed_at
+      ? new Date(
+          new Date(ws.payment_failed_at).getTime() + PAYMENT_GRACE_DAYS * 86400e3,
+        ).toISOString()
+      : null;
 
   return {
     isTrial,
@@ -49,6 +57,7 @@ export async function getPlanUsage(ws: Workspace) {
     brollLimit: plan?.broll_credits_month ?? 0,
     periodEnd: ws.period_end,
     blocked,
+    graceUntil,
   };
 }
 

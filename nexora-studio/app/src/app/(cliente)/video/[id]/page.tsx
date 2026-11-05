@@ -10,6 +10,7 @@ import {
   Loader2,
   Upload,
   CalendarClock,
+  Download,
 } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-header";
@@ -27,7 +28,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import type { SocialPlatform } from "@nexora/shared";
 import { cn } from "@/lib/utils";
-import { editingStage, getVideoDetail, MAX_CHANGE_ROUNDS } from "@/lib/videos";
+import { BLOCK_MESSAGES, getPlanUsage } from "@/lib/billing";
+import { downloadUrl, editingStage, getVideoDetail, MAX_CHANGE_ROUNDS } from "@/lib/videos";
 import { requireWorkspace } from "@/lib/workspace";
 
 export const metadata: Metadata = { title: "Video" };
@@ -77,6 +79,28 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
   const stage = working && video.status !== "internal_review" ? await editingStage(video.id) : null;
   const stageIndex = stage ? STAGES.findIndex((s) => s.key === stage) : -1;
   const clientFeedback = feedback.filter((f) => !f.message.startsWith("[Team Nexora]"));
+
+  // Modifiche oltre le incluse (art. 4.4) e girato conservato 90 giorni (art. 6.4)
+  const rawLocked = video.raw?.purged_at
+    ? "Il girato originale si conserva 90 giorni ed è stato cancellato: questo video non si può più rimontare."
+    : null;
+  let extra: { note: string } | { blocked: string } | null = null;
+  if (video.status === "review" && video.change_rounds_used >= MAX_CHANGE_ROUNDS && !rawLocked) {
+    const usage = await getPlanUsage(ctx.active.workspace);
+    const left = Math.max(0, usage.videosLimit - usage.videosUsed);
+    extra = usage.blocked
+      ? { blocked: BLOCK_MESSAGES[usage.blocked].title + "." }
+      : {
+          note: `Questa modifica usa 1 dei tuoi video ${usage.isTrial ? "della prova" : "del mese"}: te ne ${left === 1 ? "resta 1" : `restano ${left}`}.`,
+        };
+  }
+  const download =
+    current?.output_path && !working
+      ? await downloadUrl(
+          current.output_path,
+          `${(video.script?.title ?? "video").replace(/[^\p{L}\p{N}]+/gu, "-").slice(0, 60)}-v${current.version}.mp4`,
+        )
+      : null;
   const supabase = await createClient();
   const { data: postRows } = await supabase
     .from("scheduled_posts")
@@ -146,6 +170,13 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
                 </p>
               )}
             </div>
+          )}
+          {download && (
+            <Button variant="outline" className="mt-3 w-full" asChild>
+              <a href={download} download>
+                <Download aria-hidden /> Scarica il video
+              </a>
+            </Button>
           )}
         </div>
 
@@ -238,6 +269,8 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
                 <ChangeRequest
                   videoId={video.id}
                   remaining={MAX_CHANGE_ROUNDS - video.change_rounds_used}
+                  extra={extra}
+                  locked={rawLocked}
                 />
                 <p className="text-xs text-muted-foreground">
                   Niente viene pubblicato senza la tua approvazione.

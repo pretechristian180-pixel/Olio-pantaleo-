@@ -1,5 +1,32 @@
 # Changelog
 
+## Allineamento ai Termini di servizio (2026-11-05)
+
+### Aggiunto
+- **Tolleranza di 2 giorni dopo un pagamento fallito** (art. 5.4, portato da 7 a 2 giorni nei Termini).
+  - Nei primi 2 giorni si continua a lavorare, con un avviso e la scadenza in Home, Carica e Piano.
+  - Dopo, si fermano i nuovi montaggi, gli script e le clip b-roll. Non si cancella nulla.
+  - Anche l'email di pagamento fallito indica i 2 giorni.
+- **Modifiche oltre le 2 incluse** (art. 4.4).
+  - "Chiedi un'altra modifica" dice quale video si consuma (del piano o della prova) e quanti ne restano.
+  - Se il nuovo montaggio fallisce, il video torna disponibile, una volta sola.
+- **"Scarica il video"** nella pagina del video (art. 6.4).
+- **Marcatura AI** (art. 9.2, AI Act art. 50): ogni video esportato porta nei metadati la dichiarazione di montaggio con AI (`comment`, `ai_generated=edited`, `ai_system`).
+- **Conservazione dei dati**, job notturno `retention`:
+  - il girato originale e la sua trascrizione si cancellano dopo 90 giorni; il video finito resta, ma non si può più rimontare;
+  - abbonamento chiuso: 7 giorni prima l'email "Scarica i tuoi video"; 30 giorni dopo la fine del periodo pagato si cancellano file, video, script e testi del brand;
+  - restano account, fatturazione e registro attività. Chi si riabbona prima non perde nulla, e ogni passaggio finisce nel registro attività.
+
+### Database
+- Migrazione `20261105170000_terms_alignment.sql` (applicata anche online), senza cancellazioni:
+  - nuove colonne: `video_feedback.quota_kind` e `billed_period_start`, `raw_uploads.purged_at`, `workspaces.content_purge_warned_at` e `content_purged_at`;
+  - nuovo tipo di job `retention`;
+  - funzioni `billing_allows_work` e `release_feedback_quota`; `reserve_video` e `use_broll_credits` ora applicano la tolleranza.
+
+### Test
+- `tests/e2e/flow-termini.cjs`: "Scarica il video", modifica extra con restituzione, girato oltre i 90 giorni, cessazione (avviso, email, cancellazione, account conservato).
+- `flow-fase5.cjs` (tolleranza e blocco dopo 3 giorni) e `billing_phase5.sql` (30 controlli) aggiornati.
+
 ## Fase 7 — Rifinitura e lancio (2026-11-05)
 
 ### Aggiunto

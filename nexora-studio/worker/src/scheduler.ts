@@ -15,7 +15,7 @@ import { addDays, romeNow, targetWeeks, weeklyEmailDue } from "./rome-time.js";
 export async function runScheduler(db: AdminDb, config: WorkerConfig, now = new Date()) {
   const { data: workspaces, error } = await db
     .from("workspaces")
-    .select("id, posts_per_week, plan_id, trial_videos_left, subscription_status")
+    .select("id, posts_per_week, plan_id, trial_videos_left, subscription_status, payment_failed_at")
     .not("onboarding_completed_at", "is", null);
   if (error) throw new Error(`Scheduler: ${error.message}`);
 
@@ -60,6 +60,14 @@ export async function runScheduler(db: AdminDb, config: WorkerConfig, now = new 
 
   // Social collegati: sincronizzazione oraria da Metricool
   await enqueueHourlySync(db, now);
+
+  // Conservazione dei dati (girati oltre 90 giorni, aziende cessate): una volta al giorno
+  await db.rpc("enqueue_job", {
+    p_type: "retention",
+    p_workspace_id: null,
+    p_payload: {},
+    p_dedupe_key: `retention:${now.toISOString().slice(0, 10)}`,
+  });
 
   return { activeWorkspaces: active.length, weeks, checked: enqueued };
 }

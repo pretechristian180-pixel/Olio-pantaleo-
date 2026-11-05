@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarClock, Clapperboard, Sparkles, Upload } from "lucide-react";
 
+import { GraceAlert } from "@/components/billing/grace-alert";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageContainer } from "@/components/layout/page-header";
 import { UsageMeter } from "@/components/layout/usage-meter";
@@ -73,6 +74,7 @@ export default async function InizioPage() {
 
   return (
     <PageContainer>
+      <GraceAlert until={usage.graceUntil} />
       {/* Benvenuto con il bagliore del brand */}
       <section className="relative overflow-hidden rounded-2xl border bg-card p-5 sm:p-7">
         <div

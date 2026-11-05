@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, CheckCircle2, Crown, Sparkles, TriangleAlert } from "lucide-react";
 
+import { GraceAlert } from "@/components/billing/grace-alert";
 import { AddBrandForm, ChoosePlanForm, PortalForm } from "@/components/billing/billing-forms";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { UsageMeter } from "@/components/layout/usage-meter";
@@ -64,6 +65,7 @@ export default async function PianoPage(props: PageProps<"/piano">) {
         description="Il tuo piano, quanto hai usato in questo periodo e le fatture."
       />
 
+      <GraceAlert until={usage.graceUntil} />
       {sp.attivato && (
         <Alert variant="success">
           <CheckCircle2 aria-hidden />

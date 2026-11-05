@@ -20,33 +20,58 @@ const SUGGESTIONS = [
 ];
 
 /** "Chiedi una modifica" con suggerimenti rapidi e contatore dei giri inclusi. */
-export function ChangeRequest({ videoId, remaining }: { videoId: string; remaining: number }) {
+export function ChangeRequest({
+  videoId,
+  remaining,
+  extra,
+  locked,
+}: {
+  videoId: string;
+  remaining: number;
+  /** Modifiche oltre le incluse: testo sul video che si consuma, o null se non ci sono video disponibili. */
+  extra?: { note: string } | { blocked: string } | null;
+  /** Girato originale cancellato (90 giorni): niente più modifiche. */
+  locked?: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [state, action] = useActionState<FormState, FormData>(requestChanges, null);
+  const isExtra = remaining <= 0;
 
-  if (remaining <= 0) {
+  if (locked) return <p className="text-sm text-muted-foreground">{locked}</p>;
+  if (isExtra && extra && "blocked" in extra) {
     return (
       <p className="text-sm text-muted-foreground">
-        Hai usato i 2 giri di modifiche inclusi. Per altre richieste scrivici: le valutiamo insieme.
+        Hai usato i 2 giri di modifiche inclusi. {extra.blocked}
       </p>
     );
   }
   if (!open) {
     return (
-      <Button variant="outline" size="lg" onClick={() => setOpen(true)}>
-        <MessageSquareText aria-hidden /> Chiedi una modifica
-      </Button>
+      <div className="grid gap-1.5">
+        <Button variant="outline" size="lg" onClick={() => setOpen(true)}>
+          <MessageSquareText aria-hidden />{" "}
+          {isExtra ? "Chiedi un'altra modifica" : "Chiedi una modifica"}
+        </Button>
+        {isExtra && extra && "note" in extra && (
+          <p className="text-center text-xs text-muted-foreground">{extra.note}</p>
+        )}
+      </div>
     );
   }
   return (
     <ActionForm action={action} className="grid gap-3 rounded-xl border bg-card p-4">
       <input type="hidden" name="video_id" value={videoId} />
+      {isExtra && <input type="hidden" name="extra" value="1" />}
       <FormMessage state={state} />
       <Field
         id="message"
         label="Cosa vuoi cambiare?"
-        hint={`Scrivi a parole tue. Ti ${remaining === 1 ? "resta 1 giro" : `restano ${remaining} giri`} di modifiche.`}
+        hint={
+          isExtra
+            ? `Scrivi a parole tue. ${extra && "note" in extra ? extra.note : ""}`
+            : `Scrivi a parole tue. Ti ${remaining === 1 ? "resta 1 giro" : `restano ${remaining} giri`} di modifiche inclusi.`
+        }
         error={state?.fieldErrors?.message}
       >
         {(p) => (
@@ -77,7 +102,7 @@ export function ChangeRequest({ videoId, remaining }: { videoId: string; remaini
           Annulla
         </Button>
         <SubmitButton variant="brand" pendingLabel="Invio…">
-          Invia la richiesta
+          {isExtra ? "Usa 1 video e invia" : "Invia la richiesta"}
         </SubmitButton>
       </div>
     </ActionForm>

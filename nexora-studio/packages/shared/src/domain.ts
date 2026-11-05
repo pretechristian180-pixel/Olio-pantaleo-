@@ -28,7 +28,7 @@ export const VIDEO_STATUSES = [
 ] as const;
 export type VideoStatus = (typeof VIDEO_STATUSES)[number];
 
-export const JOB_TYPES = ["transcribe", "edit", "render", "publish", "generate_scripts", "send_email"] as const;
+export const JOB_TYPES = ["transcribe", "edit", "render", "publish", "generate_scripts", "send_email", "sync_social", "retention"] as const;
 export type JobType = (typeof JOB_TYPES)[number];
 
 export const JOB_STATUSES = ["queued", "running", "done", "failed"] as const;

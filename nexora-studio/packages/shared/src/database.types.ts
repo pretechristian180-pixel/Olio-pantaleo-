@@ -88,6 +88,8 @@ export interface Database {
           billing_interval: "month" | "year" | null;
           cancel_at_period_end: boolean;
           payment_failed_at: Timestamp | null;
+          content_purge_warned_at: Timestamp | null;
+          content_purged_at: Timestamp | null;
           created_by: string | null;
           created_at: Timestamp;
           updated_at: Timestamp;
@@ -121,6 +123,8 @@ export interface Database {
           cancel_at_period_end?: boolean;
           payment_failed_at?: Timestamp | null;
           founding_member?: boolean;
+          content_purge_warned_at?: Timestamp | null;
+          content_purged_at?: Timestamp | null;
         };
         Relationships: [];
       };
@@ -280,7 +284,7 @@ export interface Database {
       jobs: {
         Row: {
           id: string;
-          type: "generate_scripts" | "send_email" | "transcribe" | "edit" | "render" | "publish" | "sync_social";
+          type: "generate_scripts" | "send_email" | "transcribe" | "edit" | "render" | "publish" | "sync_social" | "retention";
           workspace_id: string | null;
           payload: Json;
           status: "queued" | "running" | "done" | "failed";
@@ -349,6 +353,7 @@ export interface Database {
           status: "uploaded" | "processing" | "ready" | "error";
           error: string | null;
           transcript: Json | null;
+          purged_at: Timestamp | null;
           created_at: Timestamp;
           updated_at: Timestamp;
         };
@@ -370,6 +375,7 @@ export interface Database {
           status?: "uploaded" | "processing" | "ready" | "error";
           error?: string | null;
           transcript?: Json | null;
+          purged_at?: Timestamp | null;
         };
         Relationships: [];
       };
@@ -475,9 +481,18 @@ export interface Database {
           version: number;
           user_id: string | null;
           message: string;
+          quota_kind: "trial" | "plan" | null;
+          billed_period_start: Timestamp | null;
           created_at: Timestamp;
         };
-        Insert: { video_id: string; version: number; user_id: string; message: string };
+        Insert: {
+          video_id: string;
+          version: number;
+          user_id: string;
+          message: string;
+          quota_kind?: "trial" | "plan" | null;
+          billed_period_start?: Timestamp | null;
+        };
         Update: { [_ in never]: never };
         Relationships: [];
       };
@@ -618,6 +633,7 @@ export interface Database {
       reserve_video: { Args: { p_workspace_id: string }; Returns: Json };
       release_video: { Args: { p_video_id: string }; Returns: undefined };
       release_reservation: { Args: { p_workspace_id: string; p_period_start: Timestamp | null }; Returns: undefined };
+      release_feedback_quota: { Args: { p_feedback_id: string }; Returns: undefined };
       use_broll_credits: { Args: { p_workspace_id: string; p_count: number }; Returns: number };
       create_brand: {
         Args: { p_billing_workspace_id: string; p_name: string };

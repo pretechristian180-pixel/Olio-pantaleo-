@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CreditCard } from "lucide-react";
 
+import { GraceAlert } from "@/components/billing/grace-alert";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ export default async function CaricaPage(props: PageProps<"/video/carica">) {
   const ws = ctx.active.workspace;
   const { script } = await props.searchParams;
 
-  const { blocked } = await getPlanUsage(ws);
+  const { blocked, graceUntil } = await getPlanUsage(ws);
   const block = blocked ? BLOCK_MESSAGES[blocked] : null;
 
   // Script ancora da girare della settimana mostrata (più quello indicato nel link)
@@ -35,6 +36,7 @@ export default async function CaricaPage(props: PageProps<"/video/carica">) {
         title="Carica il video"
         description="Scegli il video dal telefono o dal computer. Al montaggio pensiamo noi."
       />
+      <GraceAlert until={graceUntil} />
       {block ? (
         <EmptyState
           icon={CreditCard}

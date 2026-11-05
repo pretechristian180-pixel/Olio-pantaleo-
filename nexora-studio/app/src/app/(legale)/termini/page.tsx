@@ -93,7 +93,7 @@ export default function TerminiPage() {
         </p>
         <p>
           5.4 Se un pagamento non va a buon fine, Nexora può sospendere la creazione di nuovi video
-          dopo 7 giorni, senza cancellare i dati del Cliente.
+          dopo 2 giorni, senza cancellare i dati del Cliente.
         </p>
         <p>
           5.5 Le fatture sono emesse elettronicamente sulla base dei dati fiscali forniti dal

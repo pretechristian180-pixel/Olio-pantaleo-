@@ -85,19 +85,34 @@ export async function loadPastScripts(
     .sort((a, b) => a.weekStart.localeCompare(b.weekStart));
 }
 
+/** Giorni di tolleranza dopo un pagamento fallito (Termini, art. 5.4): come billing_allows_work in SQL. */
+export const PAYMENT_GRACE_DAYS = 2;
+
+/** Abbonamento che consente di lavorare: attivo, o pagamento fallito da meno di 2 giorni. */
+export function billingAllowsWork(
+  ws: { subscription_status: string; payment_failed_at?: string | null },
+  now = new Date(),
+) {
+  if (ws.subscription_status === "active") return true;
+  if (ws.subscription_status !== "past_due" && ws.subscription_status !== "unpaid") return false;
+  const failed = ws.payment_failed_at ? new Date(ws.payment_failed_at) : now;
+  return now.getTime() - failed.getTime() < PAYMENT_GRACE_DAYS * 86400e3;
+}
+
 /**
  * Quanti script preparare: la frequenza scelta, ma mai più dei video ancora disponibili.
  * Prova gratuita: al massimo i video di prova rimasti. Abbonamento non attivo (pagamento
- * fallito, disdetto): nessuno script, finché non torna attivo.
+ * fallito oltre la tolleranza, disdetto): nessuno script, finché non torna attivo.
  */
 export function scriptQuota(ws: {
   posts_per_week: number;
   plan_id: string | null;
   trial_videos_left: number;
   subscription_status: string;
+  payment_failed_at?: string | null;
 }) {
   if (!ws.plan_id) return Math.max(0, Math.min(ws.posts_per_week, ws.trial_videos_left));
-  if (ws.subscription_status !== "active") return 0;
+  if (!billingAllowsWork(ws)) return 0;
   return ws.posts_per_week;
 }
 
@@ -127,7 +142,7 @@ export async function generateScriptsForWeek(
 ): Promise<{ batchId: string | null; created: number; skipped?: string }> {
   const { data: ws, error } = await db
     .from("workspaces")
-    .select("id, posts_per_week, plan_id, trial_videos_left, subscription_status, onboarding_completed_at")
+    .select("id, posts_per_week, plan_id, trial_videos_left, subscription_status, payment_failed_at, onboarding_completed_at")
     .eq("id", args.workspaceId)
     .single();
   if (error || !ws) throw new Error(`Azienda ${args.workspaceId} non trovata`);
