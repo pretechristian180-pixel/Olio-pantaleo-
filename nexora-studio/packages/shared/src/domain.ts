@@ -18,6 +18,7 @@ export type ScriptFormat = (typeof SCRIPT_FORMATS)[number];
 export const VIDEO_STATUSES = [
   "queued",
   "editing",
+  "internal_review",
   "review",
   "changes_requested",
   "approved",
@@ -27,7 +28,7 @@ export const VIDEO_STATUSES = [
 ] as const;
 export type VideoStatus = (typeof VIDEO_STATUSES)[number];
 
-export const JOB_TYPES = ["transcribe", "edit", "render", "publish", "generate_scripts"] as const;
+export const JOB_TYPES = ["transcribe", "edit", "render", "publish", "generate_scripts", "send_email"] as const;
 export type JobType = (typeof JOB_TYPES)[number];
 
 export const JOB_STATUSES = ["queued", "running", "done", "failed"] as const;

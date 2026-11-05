@@ -14,6 +14,7 @@ const PROTECTED_PREFIXES = [
   "/piano",
   "/team",
   "/onboarding",
+  "/admin",
 ];
 
 /** Pagine di accesso: chi è già dentro va alla Home. */

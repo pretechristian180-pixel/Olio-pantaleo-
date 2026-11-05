@@ -1,41 +1,56 @@
 import type { Metadata } from "next";
-import { Smartphone, Upload } from "lucide-react";
+import Link from "next/link";
+import { CreditCard } from "lucide-react";
 
+import { EmptyState } from "@/components/layout/empty-state";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Uploader } from "@/components/videos/uploader";
+import { defaultWeek, getBatchScripts, listBatches } from "@/lib/scripts";
+import { requireWorkspace } from "@/lib/workspace";
 
 export const metadata: Metadata = { title: "Carica il video" };
 
-export default function CaricaPage() {
+export default async function CaricaPage(props: PageProps<"/video/carica">) {
+  const ctx = await requireWorkspace();
+  const ws = ctx.active.workspace;
+  const { script } = await props.searchParams;
+
+  const trialOver = !ws.plan_id && ws.trial_videos_left <= 0;
+
+  // Script ancora da girare della settimana mostrata (più quello indicato nel link)
+  const week = await defaultWeek(ws.id);
+  const batch = (await listBatches(ws.id, 2)).find((b) => b.week_start === week);
+  const scripts = batch
+    ? (await getBatchScripts(batch.id)).filter((s) => s.status === "to_shoot" || s.id === script)
+    : [];
+  const defaultScriptId =
+    typeof script === "string" && scripts.some((s) => s.id === script) ? script : null;
+
   return (
     <PageContainer className="max-w-2xl">
       <PageHeader
         title="Carica il video"
-        description="Scegli il video dal telefono o dal computer. Lo montiamo noi."
+        description="Scegli il video dal telefono o dal computer. Al montaggio pensiamo noi."
       />
-      <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-nx-blue-500/40 bg-accent/40 px-6 py-12 text-center">
-        <div className="flex size-14 items-center justify-center rounded-full bg-brand-gradient text-white shadow-glow">
-          <Upload className="size-6" aria-hidden />
-        </div>
-        <div className="grid gap-1">
-          <p className="font-display text-lg font-semibold">Trascina qui il video</p>
-          <p className="text-sm text-muted-foreground">
-            oppure sceglilo dalla galleria. Fino a 10 minuti.
-          </p>
-        </div>
-        <Button variant="brand" size="lg" disabled>
-          Scegli il video
-        </Button>
-      </div>
-      <Alert variant="info">
-        <Smartphone aria-hidden />
-        <AlertTitle>Gira in verticale</AlertTitle>
-        <AlertDescription>
-          Tieni il telefono in verticale: i video per i social sono 9:16. Se giri in orizzontale te
-          lo segnaliamo prima del montaggio.
-        </AlertDescription>
-      </Alert>
+      {trialOver ? (
+        <EmptyState
+          icon={CreditCard}
+          title="Hai usato i 3 video della prova"
+          description="Scegli un piano per continuare a ricevere i video montati ogni settimana."
+          action={
+            <Button variant="brand" asChild>
+              <Link href="/piano">Scegli il piano</Link>
+            </Button>
+          }
+        />
+      ) : (
+        <Uploader
+          workspaceId={ws.id}
+          scripts={scripts.map((s) => ({ id: s.id, title: s.title }))}
+          defaultScriptId={defaultScriptId}
+        />
+      )}
     </PageContainer>
   );
 }

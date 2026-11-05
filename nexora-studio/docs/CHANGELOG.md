@@ -1,5 +1,50 @@
 # Changelog
 
+## Fase 3 — Caricamento e montaggio (2026-11-05)
+
+### Aggiunto
+- **Motore di montaggio** `packages/video-engine`. È un modulo indipendente, pronto da spostare nel repository `nexora-video-engine`:
+  - `edit_spec`: la timeline di un montaggio, validata con Zod;
+  - tagli per intervalli di parole, con le pause lunghe accorciate in automatico;
+  - sottotitoli animati (`.ass`): stile pulito, evidenziato o karaoke; tre grandezze; parole chiave nel colore del brand;
+  - **i sottotitoli e la frase d'apertura evitano i volti**: rilevamento con YuNet/OpenCV, 2 fotogrammi al secondo, posizione scelta blocco per blocco;
+  - render FFmpeg in 9:16 (riempimento per i video verticali, sfondo sfocato per gli orizzontali), musica che si abbassa quando si parla, volume a -14 LUFS, chiusura con il logo, b-roll già previsto nella timeline;
+  - copertina ed estrazione dell'audio per la trascrizione.
+- **Libreria musicale originale**: 6 brani (energica, rilassata, elegante) composti da un generatore procedurale (`python/music_gen.py`), nessun diritto di terzi. Il worker li genera durante la build Docker.
+- **Trascrizione**: adapter Whisper (`whisper-1`, parola per parola, costo registrato) e trascrittore dimostrativo per lo sviluppo.
+- **Decisioni di montaggio con Claude** (`worker/src/pipeline/plan.ts`):
+  - riceve la trascrizione numerata e decide cosa tenere (false partenze, ripetizioni, errori), parole da evidenziare, frase d'apertura, musica, didascalia e hashtag;
+  - nelle modifiche riceve il montaggio precedente e la richiesta del cliente;
+  - le decisioni diventano una timeline al centesimo di secondo, con controlli e un ripiego (solo taglio dei silenzi) se la risposta non è valida.
+- **Pipeline nel worker**: `transcribe` → `edit` → `render`, ogni passo ripetibile.
+  - il girato viene scaricato in streaming e tenuto in cache sul worker, i volti calcolati una volta per girato;
+  - errore definitivo: stato "Problema", video di prova restituito, avviso al team. Se una modifica fallisce, il cliente ritrova la versione precedente.
+- **Caricamento** (`/video/carica`):
+  - scelta dello script (o "video libero");
+  - controlli nel browser: formato, 2 GB, 10 minuti, avviso per i video orizzontali;
+  - caricamento riprendibile (TUS) con avanzamento; avvio del montaggio e consumo di un video di prova.
+- **Pagina Video**:
+  - schede per stato e copertine con link firmati;
+  - dettaglio con player, avanzamento del montaggio, **Approva**, **Chiedi una modifica** (con suggerimenti, massimo 2 giri), didascalia e hashtag modificabili, storico delle versioni;
+  - email "Il tuo video è pronto da approvare".
+- **Revisione del team Nexora** (`/admin/revisione`, solo `is_admin`): video in controllo interno di tutte le aziende, note del montaggio, "Invia al cliente" e "Rimonta" (non consuma i giri del cliente).
+- **Home** con i video da approvare.
+
+### Database
+- Migrazione `20261105104604_phase3_uploads_videos.sql` (approvata), con una correzione: il cliente vede la scheda del video anche durante il controllo interno (come "In montaggio"), ma non le versioni finché il team non le invia.
+
+### Verificato
+- Test del motore (9): timeline, tagli, sottotitoli, posizione anti-volto, conversioni di inquadratura, argomenti FFmpeg, e un **render reale con un volto vero** in alto e in basso.
+- End-to-end (`tests/e2e/flow-fase3.cjs`), circa 35 secondi in tutto:
+  - onboarding con logo, script, caricamento, trascrizione, montaggio, render;
+  - revisione del team e email al cliente;
+  - modifica della didascalia, richiesta "sottotitoli più grandi" che produce la versione 2, approvazione.
+- Prestazioni su un girato di 3 minuti (4 core): rilevamento volti 19 s, render 39 s. Il requisito è sotto i 15 minuti.
+
+### Non ancora fatto
+- B-roll con Horacle: la timeline e il render lo supportano già; manca l'adapter, in attesa della documentazione dell'API. La prova gratuita non ha crediti b-roll.
+- Build Docker del worker non verificata in questo ambiente (pacchetti Debian non raggiungibili dal sandbox).
+
 ## Fase 2 — Script (2026-11-05)
 
 ### Aggiunto

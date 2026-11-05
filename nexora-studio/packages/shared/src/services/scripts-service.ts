@@ -15,13 +15,14 @@ export const HISTORY_WEEKS = 8;
 export async function recordCosts(
   db: AdminDb,
   costs: ProviderCost[],
-  ctx: { workspaceId: string | null; jobId?: string | null; operation: string },
+  ctx: { workspaceId: string | null; jobId?: string | null; videoId?: string | null; operation: string },
 ) {
   if (costs.length === 0) return;
   const { error } = await db.from("provider_costs").insert(
     costs.map((c) => ({
       workspace_id: ctx.workspaceId,
       job_id: ctx.jobId ?? null,
+      video_id: ctx.videoId ?? null,
       operation: ctx.operation,
       provider: c.provider,
       model: c.model ?? null,

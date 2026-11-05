@@ -1,6 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Nexora Studio — Fase 3: girati, video montati, versioni, richieste di modifica
--- BOZZA da approvare.
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- ───────────────────────────────────────────────────────────────────────────
@@ -139,14 +138,12 @@ revoke insert on public.raw_uploads from authenticated;
 grant insert (workspace_id, script_id, uploaded_by, storage_path, file_name, size_bytes, mime_type, source)
   on public.raw_uploads to authenticated;
 
--- Video: lettura membri. Le azioni (approva, chiedi modifica, didascalia) passano dal server,
--- che controlla stato e limiti: nessuna scrittura diretta dal client.
+-- Video: lettura membri (un video in controllo interno appare come "in montaggio").
+-- Le azioni (approva, chiedi modifica, didascalia) passano dal server, che controlla stato e
+-- limiti: nessuna scrittura diretta dal client.
 create policy "videos: lettura membri o admin"
   on public.videos for select to authenticated
-  using (
-    (public.is_workspace_member(workspace_id) and status <> 'internal_review')
-    or public.is_admin()
-  );
+  using (public.is_workspace_member(workspace_id) or public.is_admin());
 
 create policy "versions: lettura membri o admin"
   on public.video_versions for select to authenticated

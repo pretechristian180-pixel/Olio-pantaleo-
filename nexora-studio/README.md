@@ -4,7 +4,7 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: **Fase 2 completata** (script settimanali con Claude, coda di lavoro, email del lunedì).
+> Stato: **Fase 3 completata** (caricamento, montaggio AI, revisione e modifiche); b-roll in attesa delle API Horacle.
 > Testata su Supabase locale: il progetto Supabase online va ancora creato. Vedi `docs/CHANGELOG.md`.
 
 ## Struttura
@@ -20,6 +20,8 @@ nexora-studio/
                      pubblicazione) → Railway (Dockerfile + railway.json)
   packages/shared/   Tipi di dominio e interfacce degli adapter, usati da app e worker:
                      TranscriptionProvider, LLMProvider, BrollProvider, PublishingProvider
+  packages/video-engine/  Motore di montaggio (timeline, sottotitoli anti-volto, render FFmpeg,
+                     libreria musicale): futuro repository nexora-video-engine
   supabase/          Configurazione della CLI e migrazioni SQL
   docs/              CHANGELOG e documentazione
 ```
@@ -31,7 +33,7 @@ npm workspaces: un solo `npm install` dalla cartella `nexora-studio/`.
 | Adapter | Prima implementazione |
 | --- | --- |
 | `LLMProvider` | Anthropic Claude (`claude-opus-5-5`) |
-| `TranscriptionProvider` | Whisper via API OpenAI |
+| `TranscriptionProvider` | Whisper via API OpenAI (`whisper-1`) |
 | `BrollProvider` | Horacle (AI + stock) |
 | `PublishingProvider` | Metricool |
 

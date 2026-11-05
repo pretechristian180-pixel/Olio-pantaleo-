@@ -8,11 +8,12 @@ import { promisify } from "node:util";
 
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@nexora/shared";
-import { createLLMProvider, LLMError, type LLMProvider } from "@nexora/shared/server";
+import { createLLMProvider, type LLMProvider } from "@nexora/shared/server";
 
 import { loadConfig } from "./config.js";
 import { alertAdmins, handleJob, type HandlerDeps } from "./handlers.js";
 import { log } from "./log.js";
+import { isRetryable, onVideoJobFailed } from "./pipeline/video.js";
 import { runScheduler } from "./scheduler.js";
 
 const run = promisify(execFile);
@@ -84,14 +85,19 @@ async function main() {
       log("info", "job completato", { job: job.id, type: job.type, ms: Date.now() - started });
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      const retryable = e instanceof LLMError ? e.retryable : true;
+      const retryable = isRetryable(e);
       const { data: outcome } = await db.rpc("fail_job", {
         p_job_id: job.id,
         p_error: message,
         p_retryable: retryable,
       });
       log("warn", "job non riuscito", { job: job.id, type: job.type, attempt: job.attempts, outcome, error: message });
-      if (outcome === "failed") await alertAdmins(job, message, deps).catch(() => undefined);
+      if (outcome === "failed") {
+        if (["transcribe", "edit", "render"].includes(job.type)) {
+          await onVideoJobFailed(job, deps, message).catch((err) => log("error", "stato errore non salvato", { error: String(err) }));
+        }
+        await alertAdmins(job, message, deps).catch(() => undefined);
+      }
     }
   }
 }

@@ -5,7 +5,6 @@ export interface TranscriptWord {
   /** Secondi dall'inizio del file. */
   start: number;
   end: number;
-  confidence?: number;
 }
 
 export interface Transcript {
@@ -16,9 +15,12 @@ export interface Transcript {
 }
 
 export interface TranscriptionInput {
-  /** URL firmato e temporaneo del file audio/video. */
-  mediaUrl: string;
+  /** File audio locale (estratto dal girato dal worker). */
+  filePath: string;
+  durationS: number;
   language?: string;
+  /** Testo atteso (lo script), usato solo dal provider dimostrativo. */
+  hintText?: string;
 }
 
 export interface TranscriptionProvider {

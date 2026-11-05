@@ -272,6 +272,152 @@ export interface Database {
         Update: { [_ in never]: never };
         Relationships: [];
       };
+      raw_uploads: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          script_id: string | null;
+          uploaded_by: string | null;
+          storage_path: string;
+          file_name: string;
+          size_bytes: number | null;
+          mime_type: string | null;
+          duration_s: number | null;
+          width: number | null;
+          height: number | null;
+          orientation: "portrait" | "landscape" | "square" | null;
+          source: "upload" | "drive";
+          status: "uploaded" | "processing" | "ready" | "error";
+          error: string | null;
+          transcript: Json | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          workspace_id: string;
+          script_id?: string | null;
+          uploaded_by: string;
+          storage_path: string;
+          file_name: string;
+          size_bytes?: number | null;
+          mime_type?: string | null;
+          source?: "upload" | "drive";
+        };
+        Update: {
+          duration_s?: number | null;
+          width?: number | null;
+          height?: number | null;
+          orientation?: "portrait" | "landscape" | "square" | null;
+          status?: "uploaded" | "processing" | "ready" | "error";
+          error?: string | null;
+          transcript?: Json | null;
+        };
+        Relationships: [];
+      };
+      videos: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          script_id: string | null;
+          raw_upload_id: string;
+          status: "queued" | "editing" | "internal_review" | "review" | "changes_requested" | "approved" | "scheduled" | "published" | "error";
+          current_version: number;
+          change_rounds_used: number;
+          caption: string | null;
+          hashtags: string[];
+          broll_credits_used: number;
+          error: string | null;
+          approved_by: string | null;
+          approved_at: Timestamp | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          workspace_id: string;
+          script_id?: string | null;
+          raw_upload_id: string;
+          status?: "queued" | "editing" | "internal_review" | "review" | "changes_requested" | "approved" | "scheduled" | "published" | "error";
+        };
+        Update: {
+          status?: "queued" | "editing" | "internal_review" | "review" | "changes_requested" | "approved" | "scheduled" | "published" | "error";
+          current_version?: number;
+          change_rounds_used?: number;
+          caption?: string | null;
+          hashtags?: string[];
+          broll_credits_used?: number;
+          error?: string | null;
+          approved_by?: string | null;
+          approved_at?: Timestamp | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "videos_raw_upload_id_fkey";
+            columns: ["raw_upload_id"];
+            isOneToOne: true;
+            referencedRelation: "raw_uploads";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "videos_script_id_fkey";
+            columns: ["script_id"];
+            isOneToOne: false;
+            referencedRelation: "scripts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "videos_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      video_versions: {
+        Row: {
+          id: string;
+          video_id: string;
+          workspace_id: string;
+          version: number;
+          edit_spec: Json | null;
+          feedback_id: string | null;
+          status: "pending" | "ready" | "error";
+          output_path: string | null;
+          thumbnail_path: string | null;
+          duration_s: number | null;
+          render_ms: number | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          video_id: string;
+          workspace_id: string;
+          version: number;
+          edit_spec?: Json | null;
+          feedback_id?: string | null;
+        };
+        Update: {
+          status?: "pending" | "ready" | "error";
+          output_path?: string | null;
+          thumbnail_path?: string | null;
+          duration_s?: number | null;
+          render_ms?: number | null;
+          edit_spec?: Json | null;
+        };
+        Relationships: [];
+      };
+      video_feedback: {
+        Row: {
+          id: string;
+          video_id: string;
+          version: number;
+          user_id: string | null;
+          message: string;
+          created_at: Timestamp;
+        };
+        Insert: { video_id: string; version: number; user_id: string; message: string };
+        Update: { [_ in never]: never };
+        Relationships: [];
+      };
       audit_log: {
         Row: {
           id: number;
@@ -327,6 +473,8 @@ export interface Database {
       fail_job: { Args: { p_job_id: string; p_error: string; p_retryable?: boolean }; Returns: string | null };
       use_script_regeneration: { Args: { p_script_id: string }; Returns: number };
       refund_script_regeneration: { Args: { p_script_id: string }; Returns: undefined };
+      reserve_trial_video: { Args: { p_workspace_id: string }; Returns: boolean };
+      release_trial_video: { Args: { p_workspace_id: string }; Returns: undefined };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

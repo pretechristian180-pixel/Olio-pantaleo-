@@ -10,6 +10,7 @@ import type { Tables } from "@nexora/shared";
 
 import type { WorkerConfig } from "./config.js";
 import { log } from "./log.js";
+import { editJob, renderJob, transcribeJob } from "./pipeline/video.js";
 
 export type Job = Tables<"jobs">;
 
@@ -100,6 +101,12 @@ export async function handleJob(job: Job, deps: HandlerDeps) {
       if (kind === "weekly_scripts") return sendWeeklyScripts(job, deps);
       throw new Error(`Tipo di email sconosciuto: ${String(kind)}`);
     }
+    case "transcribe":
+      return transcribeJob(job, deps);
+    case "edit":
+      return editJob(job, deps);
+    case "render":
+      return renderJob(job, deps);
     default:
       throw new Error(`Tipo di job non gestito in questa fase: ${job.type}`);
   }

@@ -38,10 +38,31 @@ function demoProvider(): LLMProvider {
     /- Nome: (.+)/.exec(req.messages[0]?.content ?? "")?.[1] ?? "noi";
   const countOf = (req: LLMObjectRequest<unknown>) =>
     Number(/Scrivi (\d+) script/.exec(req.messages[0]?.content ?? "")?.[1] ?? 1);
-  const respond = (req: LLMObjectRequest<unknown>) =>
-    /Scrivi un solo script/.test(req.messages[0]?.content ?? "")
+  const editPlan = (req: LLMObjectRequest<unknown>) => {
+    const content = req.messages[0]?.content ?? "";
+    const total = Number(/PAROLE TOTALI: (\d+)/.exec(content)?.[1] ?? 0);
+    const feedback = /RICHIESTA DI MODIFICA DEL CLIENTE\n([^\n]+)/.exec(content)?.[1]?.toLowerCase() ?? "";
+    const dropFirst = /(togli|taglia).*(inizi|prima)/.test(feedback);
+    return {
+      keep: total ? [{ from_word: dropFirst ? Math.min(3, total - 1) : 0, to_word: total - 1 }] : [],
+      highlight_words: Array.from({ length: Math.floor(total / 5) }, (_, i) => i * 5 + 2).filter((i) => i < total),
+      hook_overlay: "Guarda fino alla fine",
+      music_mood: "energica",
+      subtitle_size: /pi[uù] grand/.test(feedback) ? "grandi" : null,
+      subtitle_style: null,
+      music_volume: /musica.*(bassa|pi[uù] piano)/.test(feedback) ? "bassa" : null,
+      caption: `Un minuto con ${companyOf(req)}: salva il video e passa a trovarci!`,
+      hashtags: ["video", "pmi", "italia", "dietrolequinte", "consigli"],
+      notes: dropFirst ? "Tolte le prime parole su richiesta del cliente." : "Tolte le pause lunghe.",
+    };
+  };
+  const respond = (req: LLMObjectRequest<unknown>) => {
+    const content = req.messages[0]?.content ?? "";
+    if (/PAROLE TOTALI:/.test(content)) return editPlan(req);
+    return /Scrivi un solo script/.test(content)
       ? { script: one(companyOf(req)) }
       : { scripts: Array.from({ length: countOf(req) }, () => one(companyOf(req))) };
+  };
   return {
     name: "demo",
     async generateObject(req) {

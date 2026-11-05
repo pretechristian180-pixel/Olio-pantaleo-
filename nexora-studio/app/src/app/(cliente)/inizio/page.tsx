@@ -23,6 +23,7 @@ import {
   listBatches,
   STATUS_LABELS,
 } from "@/lib/scripts";
+import { listVideos } from "@/lib/videos";
 import { firstName, requireWorkspace } from "@/lib/workspace";
 
 /** Numero della settimana ISO, come sul calendario. */
@@ -45,6 +46,11 @@ export default async function InizioPage() {
   const batch = (await listBatches(ws.id, 2)).find((b) => b.week_start === week);
   const scripts = batch ? await getBatchScripts(batch.id) : [];
   const generation = scripts.length ? "done" : await getGenerationState(ws.id, week);
+  const videos = await listVideos(ws.id);
+  const toApprove = videos.filter((v) => v.status === "review");
+  const inProgress = videos.filter((v) =>
+    ["queued", "editing", "changes_requested", "internal_review"].includes(v.status),
+  ).length;
 
   return (
     <PageContainer>
@@ -167,12 +173,42 @@ export default async function InizioPage() {
             <CardTitle>Da approvare</CardTitle>
           </CardHeader>
           <CardContent>
-            <EmptyState
-              icon={Clapperboard}
-              title="Nessun video da approvare"
-              description="Quando un video è montato lo trovi qui e ricevi un'email."
-              className="py-8"
-            />
+            {toApprove.length > 0 ? (
+              <ul className="grid gap-2">
+                {toApprove.slice(0, 3).map((v) => (
+                  <li key={v.id}>
+                    <Link
+                      href={`/video/${v.id}`}
+                      className="flex items-center gap-3 rounded-lg border bg-background/40 p-2.5 transition-colors hover:border-nx-blue-500/50"
+                    >
+                      {v.thumbnailUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- URL firmato
+                        <img
+                          src={v.thumbnailUrl}
+                          alt=""
+                          className="h-14 w-8 rounded object-cover"
+                        />
+                      ) : (
+                        <span className="h-14 w-8 rounded bg-muted" />
+                      )}
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {v.script?.title ?? "Video libero"}
+                      </span>
+                      <Badge variant="warning">Da approvare</Badge>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                icon={Clapperboard}
+                title={
+                  inProgress ? `${inProgress} video in montaggio` : "Nessun video da approvare"
+                }
+                description="Quando un video è montato lo trovi qui e ricevi un'email."
+                className="py-8"
+              />
+            )}
           </CardContent>
         </Card>
 
