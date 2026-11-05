@@ -7,6 +7,7 @@ import type { FormState } from "@/components/forms/form-message";
 import { publicEnv } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { autoSchedule } from "@/lib/scheduling";
 import { MAX_CHANGE_ROUNDS } from "@/lib/videos";
 import { assertMember, getSessionContext } from "@/lib/workspace";
 
@@ -112,11 +113,15 @@ async function loadVideoForAction(videoId: string) {
 export async function approveVideo(fd: FormData) {
   const { video, ctx } = await loadVideoForAction(str(fd, "video_id"));
   if (video.status !== "review") return;
-  await createAdminClient()
+  const { data: approved } = await createAdminClient()
     .from("videos")
     .update({ status: "approved", approved_by: ctx.user.id, approved_at: new Date().toISOString() })
     .eq("id", video.id)
-    .eq("status", "review");
+    .eq("status", "review")
+    .select("id");
+  // Entra subito nel calendario, nel primo spazio libero (se ci sono social collegati).
+  if (approved?.length) await autoSchedule(video.id);
+  revalidatePath("/calendario");
   revalidatePath(`/video/${video.id}`);
   revalidatePath("/video");
   revalidatePath("/inizio");

@@ -1,6 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Nexora Studio — Fase 4: social collegati, calendario e pubblicazione (Metricool)
--- BOZZA da approvare.
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- Collegamento Metricool per azienda: un "brand" Metricool per workspace (una sola pagina

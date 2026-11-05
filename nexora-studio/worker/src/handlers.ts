@@ -10,6 +10,7 @@ import type { Tables } from "@nexora/shared";
 
 import type { WorkerConfig } from "./config.js";
 import { log } from "./log.js";
+import { publishJob, syncSocialJob } from "./pipeline/publish.js";
 import { editJob, renderJob, transcribeJob } from "./pipeline/video.js";
 
 export type Job = Tables<"jobs">;
@@ -107,6 +108,10 @@ export async function handleJob(job: Job, deps: HandlerDeps) {
       return editJob(job, deps);
     case "render":
       return renderJob(job, deps);
+    case "publish":
+      return publishJob(job, deps);
+    case "sync_social":
+      return syncSocialJob(job, deps);
     default:
       throw new Error(`Tipo di job non gestito in questa fase: ${job.type}`);
   }

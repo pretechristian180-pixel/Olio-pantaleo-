@@ -1,35 +1,44 @@
 import type { ProviderCost, SocialPlatform } from "../domain.js";
 
 export interface ConnectedAccount {
-  providerAccountId: string;
   platform: SocialPlatform;
-  handle: string;
-  status: "connected" | "expired" | "error";
+  handle: string | null;
+  providerAccountId: string | null;
 }
 
 export interface PublishRequest {
-  providerAccountId: string;
-  platform: SocialPlatform;
-  /** URL firmato del video finale. */
+  /** Riferimento del "brand" presso il fornitore (Metricool: blogId). */
+  brandRef: string;
+  platforms: SocialPlatform[];
+  /** URL (firmato, valido almeno 24 h) del video finale e della copertina. */
   videoUrl: string;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string | null;
   caption: string;
   hashtags: string[];
-  /** ISO 8601. Se assente il provider pubblica subito. */
-  scheduledAt?: string;
+  /** Titolo breve (YouTube/Facebook). */
+  title: string;
+  publishAt: Date;
+  timezone: string;
 }
 
-export interface PublishResult {
-  providerPostId: string;
-  status: "scheduled" | "published";
-  cost?: ProviderCost;
+export type PostNetworkStatus = "pending" | "published" | "failed";
+
+export interface PublishStatus {
+  networks: { platform: SocialPlatform; status: PostNetworkStatus; url?: string | null; error?: string | null }[];
 }
 
 export interface PublishingProvider {
   readonly name: string;
-  /** Link o flusso con cui l'azienda collega un account social. */
-  getConnectUrl(workspaceId: string, platform: SocialPlatform): Promise<string>;
-  listAccounts(workspaceId: string): Promise<ConnectedAccount[]>;
-  publish(request: PublishRequest): Promise<PublishResult>;
-  cancel(providerPostId: string): Promise<void>;
+  /** Social collegati al brand. */
+  listAccounts(brandRef: string): Promise<ConnectedAccount[]>;
+  /** Programma il post presso il fornitore (pubblicazione automatica all'orario). */
+  schedule(request: PublishRequest): Promise<{ providerPostId: string; cost?: ProviderCost }>;
+  status(brandRef: string, providerPostId: string, publishAt: Date, timezone: string): Promise<PublishStatus>;
+  cancel(brandRef: string, providerPostId: string): Promise<void>;
+}
+
+/** Testo del post: didascalia + hashtag. */
+export function postText(caption: string, hashtags: string[]) {
+  const tags = hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ");
+  return [caption.trim(), tags].filter(Boolean).join("\n\n");
 }

@@ -13,6 +13,7 @@ import { createLLMProvider, type LLMProvider } from "@nexora/shared/server";
 import { loadConfig } from "./config.js";
 import { alertAdmins, handleJob, type HandlerDeps } from "./handlers.js";
 import { log } from "./log.js";
+import { onPublishJobFailed } from "./pipeline/publish.js";
 import { isRetryable, onVideoJobFailed } from "./pipeline/video.js";
 import { runScheduler } from "./scheduler.js";
 
@@ -95,6 +96,9 @@ async function main() {
       if (outcome === "failed") {
         if (["transcribe", "edit", "render"].includes(job.type)) {
           await onVideoJobFailed(job, deps, message).catch((err) => log("error", "stato errore non salvato", { error: String(err) }));
+        }
+        if (job.type === "publish") {
+          await onPublishJobFailed(job, deps, message).catch((err) => log("error", "stato pubblicazione non salvato", { error: String(err) }));
         }
         await alertAdmins(job, message, deps).catch(() => undefined);
       }

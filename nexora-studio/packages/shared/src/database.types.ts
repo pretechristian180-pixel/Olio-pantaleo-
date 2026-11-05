@@ -70,6 +70,9 @@ export interface Database {
           manual_review: boolean;
           onboarding_step: number;
           onboarding_completed_at: Timestamp | null;
+          metricool_blog_id: string | null;
+          metricool_connect_url: string | null;
+          metricool_connect_expires: Timestamp | null;
           created_by: string | null;
           created_at: Timestamp;
           updated_at: Timestamp;
@@ -221,7 +224,7 @@ export interface Database {
       jobs: {
         Row: {
           id: string;
-          type: "generate_scripts" | "send_email" | "transcribe" | "edit" | "render" | "publish";
+          type: "generate_scripts" | "send_email" | "transcribe" | "edit" | "render" | "publish" | "sync_social";
           workspace_id: string | null;
           payload: Json;
           status: "queued" | "running" | "done" | "failed";
@@ -417,6 +420,83 @@ export interface Database {
         Insert: { video_id: string; version: number; user_id: string; message: string };
         Update: { [_ in never]: never };
         Relationships: [];
+      };
+      social_accounts: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          platform: "instagram" | "facebook" | "tiktok" | "youtube" | "linkedin";
+          handle: string | null;
+          provider_account_id: string | null;
+          status: "connected" | "expired" | "error" | "disconnected";
+          enabled: boolean;
+          connected_at: Timestamp;
+          last_checked_at: Timestamp | null;
+        };
+        Insert: {
+          workspace_id: string;
+          platform: "instagram" | "facebook" | "tiktok" | "youtube" | "linkedin";
+          handle?: string | null;
+          provider_account_id?: string | null;
+          status?: "connected" | "expired" | "error" | "disconnected";
+          enabled?: boolean;
+          last_checked_at?: Timestamp | null;
+        };
+        Update: {
+          handle?: string | null;
+          provider_account_id?: string | null;
+          status?: "connected" | "expired" | "error" | "disconnected";
+          enabled?: boolean;
+          last_checked_at?: Timestamp | null;
+        };
+        Relationships: [];
+      };
+      scheduled_posts: {
+        Row: {
+          id: string;
+          video_id: string;
+          workspace_id: string;
+          social_account_id: string;
+          scheduled_at: Timestamp;
+          status: "scheduled" | "publishing" | "published" | "failed" | "canceled";
+          provider_post_id: string | null;
+          permalink: string | null;
+          error: string | null;
+          published_at: Timestamp | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          video_id: string;
+          workspace_id: string;
+          social_account_id: string;
+          scheduled_at: Timestamp;
+          status?: "scheduled" | "publishing" | "published" | "failed" | "canceled";
+        };
+        Update: {
+          scheduled_at?: Timestamp;
+          status?: "scheduled" | "publishing" | "published" | "failed" | "canceled";
+          provider_post_id?: string | null;
+          permalink?: string | null;
+          error?: string | null;
+          published_at?: Timestamp | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_posts_social_account_id_fkey";
+            columns: ["social_account_id"];
+            isOneToOne: false;
+            referencedRelation: "social_accounts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "scheduled_posts_video_id_fkey";
+            columns: ["video_id"];
+            isOneToOne: false;
+            referencedRelation: "videos";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       audit_log: {
         Row: {

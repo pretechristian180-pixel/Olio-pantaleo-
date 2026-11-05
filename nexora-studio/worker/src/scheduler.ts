@@ -2,6 +2,7 @@ import { type AdminDb, scriptQuota } from "@nexora/shared/server";
 
 import type { WorkerConfig } from "./config.js";
 import { log } from "./log.js";
+import { enqueueHourlySync } from "./pipeline/publish.js";
 import { addDays, romeNow, targetWeeks, weeklyEmailDue } from "./rome-time.js";
 
 /**
@@ -56,6 +57,9 @@ export async function runScheduler(db: AdminDb, config: WorkerConfig, now = new 
       p_dedupe_key: `weekly_email:${b.id}`,
     });
   }
+
+  // Social collegati: sincronizzazione oraria da Metricool
+  await enqueueHourlySync(db, now);
 
   return { activeWorkspaces: active.length, weeks, checked: enqueued };
 }

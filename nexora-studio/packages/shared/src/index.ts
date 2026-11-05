@@ -7,3 +7,4 @@ export * from "./providers/publishing.js";
 export * from "./scripts/calendar.js";
 export * from "./scripts/schema.js";
 export * from "./scripts/similarity.js";
+export * from "./calendar/slots.js";
