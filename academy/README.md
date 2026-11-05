@@ -13,6 +13,16 @@ Progetto `nexora-academy` (ref `vxgfjfxfoyulpjwtqjlw`, Francoforte) nell'organiz
 migration e seed già applicati. URL e chiave pubblica vanno in `.env.local` e su Vercel; la chiave
 segreta si copia da Project Settings → API Keys.
 
+## Deploy (Vercel)
+
+Progetto Vercel `nexora-academy` (cartella `academy`, regione funzioni Francoforte), collegato al
+repository: ogni push sul branch di produzione pubblica una nuova versione. Variabili impostate:
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_TENANT_SLUG`,
+`NEXT_PUBLIC_ROOT_DOMAIN`. Gli indirizzi `*.vercel.app` sono protetti da Vercel Authentication.
+
+Per le academy dei clienti serve il dominio jolly `*.academy.nexoragruppodigitale.it` sul progetto
+(piano Vercel Pro) e, su Supabase, gli URL di ritorno in Authentication → URL Configuration.
+
 ## Avvio in locale
 
 ```bash
@@ -56,6 +66,8 @@ npm run db:types    # rigenera i tipi TypeScript dal database
 | `/admin`         | Panoramica admin; `/admin/corsi` elenco corsi |
 | `/design-system` | Token e componenti                            |
 | `/accedi`, `/registrati`, `/password-dimenticata` | Accesso (Fase 2)  |
+| `/prezzi`, `/crea-academy` | Piani e creazione self-service di un'academy |
+| `/admin/impostazioni` | Indirizzo, piano, stato e marchio dell'academy |
 | `/app/corsi/[slug]/[lezione]` | Player della lezione (Fase 2)    |
 
 ## Avanzamento
