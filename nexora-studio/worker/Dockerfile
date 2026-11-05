@@ -7,12 +7,16 @@ COPY packages/shared/package.json packages/shared/
 COPY packages/video-engine/package.json packages/video-engine/
 COPY worker/package.json worker/
 COPY app/package.json app/
-RUN npm ci --workspace @nexora/worker --workspace @nexora/shared --workspace @nexora/video-engine --include-workspace-root=false
+# --ignore-scripts: il postinstall del monorepo compila @nexora/shared, ma qui i sorgenti non
+# sono ancora copiati. La compilazione avviene due passi sotto.
+RUN npm ci --ignore-scripts --no-audit --no-fund \
+    --workspace @nexora/worker --workspace @nexora/shared --workspace @nexora/video-engine --include-workspace-root=false
 COPY packages/shared packages/shared
 COPY packages/video-engine packages/video-engine
 COPY worker worker
 RUN npm run build -w @nexora/shared && npm run build -w @nexora/video-engine && npm run build -w @nexora/worker \
-  && npm prune --omit=dev --workspace @nexora/worker --workspace @nexora/shared --workspace @nexora/video-engine
+  && npm prune --omit=dev --ignore-scripts --no-audit --no-fund \
+    --workspace @nexora/worker --workspace @nexora/shared --workspace @nexora/video-engine --include-workspace-root=false
 
 FROM node:22-bookworm-slim
 # FFmpeg (render), Python + OpenCV (rilevamento volti YuNet), numpy (libreria musicale), font Inter (sottotitoli)
