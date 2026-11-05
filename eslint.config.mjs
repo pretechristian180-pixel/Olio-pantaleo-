@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Nexora Studio è un progetto separato con il suo lint.
+    "nexora-studio/**",
   ]),
 ]);
 

@@ -1,0 +1,25 @@
+{
+  "name": "nexora-studio",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "app",
+    "worker",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w app",
+    "build": "npm run build -w @nexora/shared && npm run build -w app && npm run build -w worker",
+    "lint": "npm run lint -w app && npm run lint -w worker",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "worker:dev": "npm run dev -w worker",
+    "postinstall": "npm run build -w @nexora/shared",
+    "db:types": "supabase gen types typescript --linked --schema public > packages/shared/src/database.types.ts"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "supabase": "^3.0.0"
+  }
+}

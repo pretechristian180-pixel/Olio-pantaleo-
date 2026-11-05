@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Design token di Nexora Studio.
+ * ATTENZIONE: valori PROVVISORI (neutri) in attesa dei colori e del font ufficiali del brand Nexora.
+ * Per cambiare il brand basta aggiornare le variabili qui sotto: i componenti usano solo i token.
+ *
+ * Tema scuro di base (classe .dark su <html>), tema chiaro su :root.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.985 0.002 260);
+  --foreground: oklch(0.18 0.01 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 260);
+  --primary: oklch(0.45 0.2 275);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.95 0.005 260);
+  --secondary-foreground: oklch(0.22 0.01 260);
+  --muted: oklch(0.95 0.005 260);
+  --muted-foreground: oklch(0.45 0.01 260);
+  --accent: oklch(0.94 0.02 275);
+  --accent-foreground: oklch(0.22 0.01 260);
+  --destructive: oklch(0.55 0.22 27);
+  --success: oklch(0.52 0.14 150);
+  --warning: oklch(0.62 0.15 70);
+  --border: oklch(0.9 0.005 260);
+  --input: oklch(0.9 0.005 260);
+  --ring: oklch(0.45 0.2 275);
+}
+
+.dark {
+  --background: oklch(0.15 0.01 265);
+  --foreground: oklch(0.96 0.005 260);
+  --card: oklch(0.19 0.012 265);
+  --card-foreground: oklch(0.96 0.005 260);
+  --popover: oklch(0.19 0.012 265);
+  --popover-foreground: oklch(0.96 0.005 260);
+  --primary: oklch(0.72 0.15 275);
+  --primary-foreground: oklch(0.15 0.01 265);
+  --secondary: oklch(0.24 0.012 265);
+  --secondary-foreground: oklch(0.96 0.005 260);
+  --muted: oklch(0.24 0.012 265);
+  --muted-foreground: oklch(0.72 0.01 260);
+  --accent: oklch(0.27 0.03 275);
+  --accent-foreground: oklch(0.96 0.005 260);
+  --destructive: oklch(0.65 0.2 25);
+  --success: oklch(0.72 0.15 150);
+  --warning: oklch(0.8 0.14 80);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.72 0.15 275);
+}
+
+@theme inline {
+  --font-sans: var(--font-sans-brand), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-brand), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
