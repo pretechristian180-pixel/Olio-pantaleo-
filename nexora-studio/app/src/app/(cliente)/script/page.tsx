@@ -15,6 +15,7 @@ import {
   weekLabel,
 } from "@/lib/scripts";
 import { cn } from "@/lib/utils";
+import { BLOCK_MESSAGES, getPlanUsage } from "@/lib/billing";
 import { requireWorkspace } from "@/lib/workspace";
 
 export const metadata: Metadata = { title: "Script" };
@@ -24,6 +25,8 @@ const WEEK_RE = /^\d{4}-\d{2}-\d{2}$/;
 export default async function ScriptPage(props: PageProps<"/script">) {
   const ctx = await requireWorkspace();
   const ws = ctx.active.workspace;
+  const { blocked } = await getPlanUsage(ws);
+  const scriptBlock = blocked && blocked !== "limit_reached" ? BLOCK_MESSAGES[blocked] : null;
   const { settimana } = await props.searchParams;
 
   const batches = await listBatches(ws.id);
@@ -89,7 +92,7 @@ export default async function ScriptPage(props: PageProps<"/script">) {
           workspaceId={ws.id}
           weekStart={week}
           isOwner={ctx.active.role === "owner"}
-          quotaReached={!ws.plan_id && ws.trial_videos_left <= 0}
+          block={scriptBlock}
         />
       )}
     </PageContainer>

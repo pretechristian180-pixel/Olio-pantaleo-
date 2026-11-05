@@ -73,6 +73,10 @@ export interface Database {
           metricool_blog_id: string | null;
           metricool_connect_url: string | null;
           metricool_connect_expires: Timestamp | null;
+          billing_workspace_id: string | null;
+          billing_interval: "month" | "year" | null;
+          cancel_at_period_end: boolean;
+          payment_failed_at: Timestamp | null;
           created_by: string | null;
           created_at: Timestamp;
           updated_at: Timestamp;
@@ -95,7 +99,45 @@ export interface Database {
           metricool_blog_id?: string | null;
           metricool_connect_url?: string | null;
           metricool_connect_expires?: Timestamp | null;
+          // Solo server (service role): abbonamento
+          plan_id?: string | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          subscription_status?: "trial" | "active" | "past_due" | "canceled" | "incomplete" | "unpaid";
+          period_start?: Timestamp | null;
+          period_end?: Timestamp | null;
+          billing_interval?: "month" | "year" | null;
+          cancel_at_period_end?: boolean;
+          payment_failed_at?: Timestamp | null;
+          founding_member?: boolean;
         };
+        Relationships: [];
+      };
+      usage_counters: {
+        Row: {
+          workspace_id: string;
+          period_start: Timestamp;
+          period_end: Timestamp;
+          videos_used: number;
+          broll_credits_used: number;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: { [_ in never]: never };
+        Update: { [_ in never]: never };
+        Relationships: [];
+      };
+      stripe_events: {
+        Row: {
+          id: string;
+          type: string;
+          payload: Json;
+          received_at: Timestamp;
+          processed_at: Timestamp | null;
+          error: string | null;
+        };
+        Insert: { id: string; type: string; payload: Json };
+        Update: { processed_at?: Timestamp | null; error?: string | null };
         Relationships: [];
       };
       workspace_members: {
@@ -335,6 +377,8 @@ export interface Database {
           error: string | null;
           approved_by: string | null;
           approved_at: Timestamp | null;
+          quota_kind: "trial" | "plan" | null;
+          billed_period_start: Timestamp | null;
           created_at: Timestamp;
           updated_at: Timestamp;
         };
@@ -343,6 +387,8 @@ export interface Database {
           script_id?: string | null;
           raw_upload_id: string;
           status?: "queued" | "editing" | "internal_review" | "review" | "changes_requested" | "approved" | "scheduled" | "published" | "error";
+          quota_kind?: "trial" | "plan" | null;
+          billed_period_start?: Timestamp | null;
         };
         Update: {
           status?: "queued" | "editing" | "internal_review" | "review" | "changes_requested" | "approved" | "scheduled" | "published" | "error";
@@ -558,6 +604,14 @@ export interface Database {
       refund_script_regeneration: { Args: { p_script_id: string }; Returns: undefined };
       reserve_trial_video: { Args: { p_workspace_id: string }; Returns: boolean };
       release_trial_video: { Args: { p_workspace_id: string }; Returns: undefined };
+      reserve_video: { Args: { p_workspace_id: string }; Returns: Json };
+      release_video: { Args: { p_video_id: string }; Returns: undefined };
+      release_reservation: { Args: { p_workspace_id: string; p_period_start: Timestamp | null }; Returns: undefined };
+      use_broll_credits: { Args: { p_workspace_id: string; p_count: number }; Returns: number };
+      create_brand: {
+        Args: { p_billing_workspace_id: string; p_name: string };
+        Returns: Database["public"]["Tables"]["workspaces"]["Row"];
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

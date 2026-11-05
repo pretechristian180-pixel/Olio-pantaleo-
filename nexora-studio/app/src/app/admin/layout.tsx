@@ -26,6 +26,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin/social" className="text-foreground">
               Social
             </Link>
+            <Link href="/admin/abbonamenti" className="text-foreground">
+              Abbonamenti
+            </Link>
             <Link href="/inizio" className="text-muted-foreground hover:text-foreground">
               Area cliente
             </Link>

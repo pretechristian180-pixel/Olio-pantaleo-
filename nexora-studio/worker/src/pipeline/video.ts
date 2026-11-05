@@ -248,12 +248,23 @@ async function attachBroll(
   }
   const kept: EditSpec["broll"] = [];
   const used: string[] = [];
+  let creditsUsed = 0;
+  let creditsLeft = true;
   for (const b of spec.broll) {
     const reuse = previousSpec?.broll.find((p) => p.query === b.query && p.storagePath);
     if (reuse) {
       kept.push({ ...b, storagePath: reuse.storagePath });
       continue;
     }
+    // Ogni clip nuova consuma un credito b-roll del piano; finiti i crediti il video esce senza.
+    if (!creditsLeft) continue;
+    const { data: granted } = await deps.db.rpc("use_broll_credits", { p_workspace_id: workspaceId, p_count: 1 });
+    if (!granted) {
+      creditsLeft = false;
+      log("info", "crediti b-roll finiti", { video: videoId });
+      continue;
+    }
+    creditsUsed += 1;
     try {
       const { clip, cost } = await broll.find({ query: b.query, durationS: b.duration, aspectRatio: "9:16", source: "stock", excludeIds: used });
       await recordCosts(deps.db, [cost], { workspaceId, jobId, videoId, operation: "broll" });
@@ -276,6 +287,10 @@ async function attachBroll(
     }
   }
   spec.broll = kept;
+  if (creditsUsed) {
+    const { data: v } = await deps.db.from("videos").select("broll_credits_used").eq("id", videoId).single();
+    await deps.db.from("videos").update({ broll_credits_used: (v?.broll_credits_used ?? 0) + creditsUsed }).eq("id", videoId);
+  }
 }
 
 async function execDemoClip(out: string, seconds: number) {
@@ -437,7 +452,7 @@ async function notifyInternalReview(deps: HandlerDeps, videoId: string, companyN
   await getEmailProvider().send({ to: deps.config.adminAlertEmail, subject: `[Nexora Studio] Video da controllare: ${companyName}`, html, text });
 }
 
-/** Fallimento definitivo di un job video: stato errore e video di prova restituito. */
+/** Fallimento definitivo di un job video: stato errore e video restituito alla quota. */
 export async function onVideoJobFailed(job: Job, deps: HandlerDeps, error: string) {
   const p = payload(job);
   let videoId = typeof p.video_id === "string" ? p.video_id : null;
@@ -456,7 +471,7 @@ export async function onVideoJobFailed(job: Job, deps: HandlerDeps, error: strin
   } else {
     await deps.db.from("videos").update({ status: "error", error: userMessage }).eq("id", videoId);
     await deps.db.from("raw_uploads").update({ status: "error", error: userMessage }).eq("id", video.raw_upload_id);
-    await deps.db.rpc("release_trial_video", { p_workspace_id: video.workspace_id });
+    await deps.db.rpc("release_video", { p_video_id: videoId });
   }
 }
 

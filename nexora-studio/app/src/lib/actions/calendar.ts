@@ -1,7 +1,8 @@
 "use server";
 
 import { zonedToUtc } from "@nexora/shared";
-import { brandedEmail, getEmailProvider } from "@nexora/shared/server";
+import { brandedEmail, getEmailProvider, socialLimit } from "@nexora/shared/server";
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { publicEnv } from "@/lib/env";
@@ -85,10 +86,20 @@ export async function toggleSocialAction(fd: FormData) {
     .maybeSingle();
   if (!account) return;
   await assertMember(account.workspace_id, "owner");
-  await createAdminClient()
-    .from("social_accounts")
-    .update({ enabled: !account.enabled })
-    .eq("id", id);
+  const admin = createAdminClient();
+  if (!account.enabled) {
+    const limit = await socialLimit(admin, account.workspace_id);
+    const { count } = await admin
+      .from("social_accounts")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", account.workspace_id)
+      .eq("status", "connected")
+      .eq("enabled", true);
+    if (limit !== null && (count ?? 0) >= limit) {
+      redirect(`/social?limite=${limit}`);
+    }
+  }
+  await admin.from("social_accounts").update({ enabled: !account.enabled }).eq("id", id);
   revalidatePath("/social");
 }
 

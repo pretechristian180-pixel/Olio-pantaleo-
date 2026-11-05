@@ -65,12 +65,15 @@ export async function registerUpload(input: {
   if (rawError || !raw) return { error: "Non siamo riusciti a registrare il video. Riprova." };
 
   const admin = createAdminClient();
-  const { data: allowed } = await admin.rpc("reserve_trial_video", {
-    p_workspace_id: input.workspaceId,
-  });
-  if (!allowed) {
-    return { error: "Hai usato i 3 video della prova gratuita. Scegli un piano per continuare." };
-  }
+  const { data: quota } = await admin.rpc("reserve_video", { p_workspace_id: input.workspaceId });
+  const q = (quota ?? {}) as {
+    ok?: boolean;
+    reason?: string;
+    kind?: "trial" | "plan";
+    period_start?: string;
+    limit?: number;
+  };
+  if (!q.ok) return { error: quotaMessage(q.reason, q.limit) };
 
   const { data: video, error: videoError } = await admin
     .from("videos")
@@ -79,11 +82,16 @@ export async function registerUpload(input: {
       script_id: scriptId,
       raw_upload_id: raw.id,
       status: "queued",
+      quota_kind: q.kind ?? null,
+      billed_period_start: q.period_start ?? null,
     })
     .select("id")
     .single();
   if (videoError || !video) {
-    await admin.rpc("release_trial_video", { p_workspace_id: input.workspaceId });
+    await admin.rpc("release_reservation", {
+      p_workspace_id: input.workspaceId,
+      p_period_start: q.period_start ?? null,
+    });
     return { error: "Non siamo riusciti ad avviare il montaggio. Riprova." };
   }
 
@@ -286,4 +294,21 @@ export async function adminRequestRework(_prev: FormState, fd: FormData): Promis
   });
   revalidatePath("/admin/revisione");
   return { success: "Nuovo montaggio richiesto." };
+}
+
+/** Messaggio per un montaggio non consentito dal piano. */
+function quotaMessage(reason?: string, limit?: number) {
+  switch (reason) {
+    case "trial_over":
+      return "Hai usato i 3 video della prova gratuita. Scegli un piano per continuare.";
+    case "payment_failed":
+      return "L'ultimo pagamento non è andato a buon fine: aggiorna la carta in Piano e fatturazione per riprendere i montaggi. I tuoi video restano tutti al loro posto.";
+    case "limit_reached":
+      return `Hai montato i ${limit ?? ""} video del mese previsti dal tuo piano. Passa a un piano superiore o aspetta il rinnovo.`.replace(
+        "i  video",
+        "i video",
+      );
+    default:
+      return "L'abbonamento non è attivo: riattivalo in Piano e fatturazione per caricare nuovi video.";
+  }
 }

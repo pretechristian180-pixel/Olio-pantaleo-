@@ -14,6 +14,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "worker:dev": "npm run dev -w worker",
     "postinstall": "npm run build -w @nexora/shared",
+    "stripe:setup": "node --env-file-if-exists=app/.env.local scripts/stripe-setup.mjs",
     "db:types": "supabase gen types typescript --linked --schema public > packages/shared/src/database.types.ts"
   },
   "engines": {

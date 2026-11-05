@@ -3,6 +3,7 @@ import {
   type AdminDb,
   brandedEmail,
   createPublishingProvider,
+  enforceSocialLimit,
   getEmailProvider,
   type PublishingProvider,
   recordCosts,
@@ -252,7 +253,8 @@ export async function syncSocialJob(job: Job, deps: HandlerDeps) {
       await deps.db.from("social_accounts").update({ status: "disconnected", last_checked_at: now }).eq("id", e.id);
     }
   }
-  log("info", "social sincronizzati", { workspace: workspaceId, connected: [...connected] });
+  const excluded = await enforceSocialLimit(deps.db, workspaceId);
+  log("info", "social sincronizzati", { workspace: workspaceId, connected: [...connected], excluded });
 }
 
 export async function enqueueHourlySync(db: AdminDb, now = new Date()) {

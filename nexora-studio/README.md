@@ -4,9 +4,9 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: **Fase 4 completata** (calendario e pubblicazione con Metricool). Online in anteprima su Vercel;
-> worker su Railway da attivare.
-> Testata su Supabase locale: il progetto Supabase online va ancora creato. Vedi `docs/CHANGELOG.md`.
+> Stato: **Fase 5 completata** (abbonamenti con Stripe, limiti per piano, brand multipli). Online in
+> anteprima su Vercel con il database Supabase online; worker su Railway e chiavi Stripe da attivare.
+> Vedi `docs/CHANGELOG.md`.
 
 ## Struttura
 
@@ -37,6 +37,7 @@ npm workspaces: un solo `npm install` dalla cartella `nexora-studio/`.
 | `TranscriptionProvider` | Whisper via API OpenAI (`whisper-1`) |
 | `BrollProvider` | Pexels (stock gratuito); Horacle in futuro per il b-roll AI |
 | `PublishingProvider` | Metricool (vedi `docs/METRICOOL.md`) |
+| `BillingProvider` | Stripe (vedi `docs/STRIPE.md`) |
 
 Le interfacce sono in `packages/shared/src/providers/`. Il codice solo server (SDK Anthropic, servizi,
 email) si importa da `@nexora/shared/server`.

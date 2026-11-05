@@ -87,8 +87,8 @@ export async function loadPastScripts(
 
 /**
  * Quanti script preparare: la frequenza scelta, ma mai più dei video ancora disponibili.
- * Prova gratuita: al massimo i video di prova rimasti. (I limiti del piano a pagamento
- * arrivano con i contatori della Fase 5.)
+ * Prova gratuita: al massimo i video di prova rimasti. Abbonamento non attivo (pagamento
+ * fallito, disdetto): nessuno script, finché non torna attivo.
  */
 export function scriptQuota(ws: {
   posts_per_week: number;
@@ -97,7 +97,7 @@ export function scriptQuota(ws: {
   subscription_status: string;
 }) {
   if (!ws.plan_id) return Math.max(0, Math.min(ws.posts_per_week, ws.trial_videos_left));
-  if (["canceled", "unpaid", "incomplete"].includes(ws.subscription_status)) return 0;
+  if (ws.subscription_status !== "active") return 0;
   return ws.posts_per_week;
 }
 

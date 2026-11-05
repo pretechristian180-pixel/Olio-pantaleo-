@@ -27,7 +27,8 @@ const dateFmt = new Intl.DateTimeFormat("it-IT", {
   minute: "2-digit",
 });
 
-export default async function SocialPage() {
+export default async function SocialPage(props: PageProps<"/social">) {
+  const { limite } = await props.searchParams;
   const ctx = await requireWorkspace();
   const ws = ctx.active.workspace;
   const isOwner = ctx.active.role === "owner";
@@ -101,13 +102,19 @@ export default async function SocialPage() {
         </CardContent>
       </Card>
 
-      {plan && connectedCount > plan.social_accounts_max && (
+      {plan && (limite || connectedCount > plan.social_accounts_max) && (
         <Alert variant="warning">
           <TriangleAlert aria-hidden />
-          <AlertTitle>Hai più social del tuo piano</AlertTitle>
+          <AlertTitle>
+            {limite ? "Hai già incluso tutti i social del piano" : "Hai più social del tuo piano"}
+          </AlertTitle>
           <AlertDescription>
-            Il piano {plan.name} include {plan.social_accounts_max} social. Escludine qualcuno o
-            passa a un piano superiore.
+            Il piano {plan.name} include {plan.social_accounts_max} social per brand: quelli in più
+            restano collegati ma non li usiamo. Escludine uno per includerne un altro, oppure{" "}
+            <a href="/piano" className="font-medium underline underline-offset-4">
+              passa a un piano superiore
+            </a>
+            .
           </AlertDescription>
         </Alert>
       )}

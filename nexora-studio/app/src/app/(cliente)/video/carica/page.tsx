@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/layout/empty-state";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Uploader } from "@/components/videos/uploader";
+import { BLOCK_MESSAGES, getPlanUsage } from "@/lib/billing";
 import { defaultWeek, getBatchScripts, listBatches } from "@/lib/scripts";
 import { requireWorkspace } from "@/lib/workspace";
 
@@ -16,7 +17,8 @@ export default async function CaricaPage(props: PageProps<"/video/carica">) {
   const ws = ctx.active.workspace;
   const { script } = await props.searchParams;
 
-  const trialOver = !ws.plan_id && ws.trial_videos_left <= 0;
+  const { blocked } = await getPlanUsage(ws);
+  const block = blocked ? BLOCK_MESSAGES[blocked] : null;
 
   // Script ancora da girare della settimana mostrata (più quello indicato nel link)
   const week = await defaultWeek(ws.id);
@@ -33,14 +35,14 @@ export default async function CaricaPage(props: PageProps<"/video/carica">) {
         title="Carica il video"
         description="Scegli il video dal telefono o dal computer. Al montaggio pensiamo noi."
       />
-      {trialOver ? (
+      {block ? (
         <EmptyState
           icon={CreditCard}
-          title="Hai usato i 3 video della prova"
-          description="Scegli un piano per continuare a ricevere i video montati ogni settimana."
+          title={block.title}
+          description={block.text}
           action={
             <Button variant="brand" asChild>
-              <Link href="/piano">Scegli il piano</Link>
+              <Link href="/piano">{block.cta}</Link>
             </Button>
           }
         />

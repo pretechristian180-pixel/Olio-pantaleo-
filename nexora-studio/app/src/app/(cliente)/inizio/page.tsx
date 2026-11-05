@@ -23,6 +23,7 @@ import {
   listBatches,
   STATUS_LABELS,
 } from "@/lib/scripts";
+import { BLOCK_MESSAGES, dateFmt, getPlanUsage } from "@/lib/billing";
 import { getCalendar } from "@/lib/calendar";
 import { listVideos } from "@/lib/videos";
 import { firstName, requireWorkspace } from "@/lib/workspace";
@@ -54,8 +55,9 @@ export const metadata: Metadata = { title: "Home" };
 export default async function InizioPage() {
   const ctx = await requireWorkspace();
   const ws = ctx.active.workspace;
-  const isTrial = !ws.plan_id;
-  const trialUsed = 3 - ws.trial_videos_left;
+  const usage = await getPlanUsage(ws);
+  const block = usage.blocked ? BLOCK_MESSAGES[usage.blocked] : null;
+  const scriptBlock = block && usage.blocked !== "limit_reached" ? block : null;
   const week = await defaultWeek(ws.id);
   const batch = (await listBatches(ws.id, 2)).find((b) => b.week_start === week);
   const scripts = batch ? await getBatchScripts(batch.id) : [];
@@ -151,7 +153,7 @@ export default async function InizioPage() {
                 workspaceId={ws.id}
                 weekStart={week}
                 isOwner={ctx.active.role === "owner"}
-                quotaReached={isTrial && ws.trial_videos_left <= 0}
+                block={scriptBlock}
               />
             )}
           </CardContent>
@@ -160,27 +162,29 @@ export default async function InizioPage() {
         <Card>
           <CardHeader>
             <CardTitle>Il tuo piano</CardTitle>
-            <CardDescription>{isTrial ? "Prova gratuita" : "Abbonamento attivo"}</CardDescription>
+            <CardDescription>
+              {usage.isTrial
+                ? "Prova gratuita"
+                : `${usage.plan?.name ?? "Abbonamento"}${ws.period_end ? ` · rinnovo il ${dateFmt.format(new Date(ws.period_end))}` : ""}`}
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
-            {isTrial ? (
-              <UsageMeter
-                label="Video montati"
-                used={trialUsed}
-                total={3}
-                hint={
-                  ws.trial_videos_left > 0
-                    ? `Ti restano ${ws.trial_videos_left} video gratuiti.`
-                    : "Hai usato i video gratuiti: scegli un piano per continuare."
-                }
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Il dettaglio dei consumi arriva con la fatturazione.
-              </p>
-            )}
-            <Button variant="secondary" asChild>
-              <Link href="/piano">Scopri i piani</Link>
+            <UsageMeter
+              label={usage.isTrial ? "Video della prova" : "Video del periodo"}
+              used={usage.videosUsed}
+              total={usage.videosLimit}
+              hint={
+                block
+                  ? block.title
+                  : usage.isTrial
+                    ? `Ti restano ${usage.videosLimit - usage.videosUsed} video gratuiti.`
+                    : `Ne restano ${usage.videosLimit - usage.videosUsed}.`
+              }
+            />
+            <Button variant={block ? "brand" : "secondary"} asChild>
+              <Link href="/piano">
+                {block ? block.cta : usage.isTrial ? "Scopri i piani" : "Gestisci il piano"}
+              </Link>
             </Button>
           </CardContent>
         </Card>

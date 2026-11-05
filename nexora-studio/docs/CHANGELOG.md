@@ -1,5 +1,38 @@
 # Changelog
 
+## Fase 5 — Abbonamenti (2026-11-05)
+
+### Aggiunto
+- **Adapter dei pagamenti con Stripe** (`packages/shared/src/providers/stripe.ts`): pagina di pagamento ospitata da Stripe, portale clienti (carta, fatture, disdetta), cambio piano con conguaglio, webhook con firma verificata. C'è anche un provider dimostrativo (`BILLING_PROVIDER=demo`) per sviluppo e test. Guida in `docs/STRIPE.md`.
+- **Webhook** `/api/billing/webhook`:
+  - ogni evento è elaborato una sola volta (`stripe_events`); un evento ripetuto viene ignorato, uno fallito viene rielaborato al nuovo invio di Stripe;
+  - lo stato dell'abbonamento viene sempre riletto da Stripe, perché gli eventi possono arrivare in disordine;
+  - pagamento fallito: email al titolare con il link per aggiornare la carta.
+- **Limiti per piano**, letti dalla tabella `plans` e validi per ciascun brand:
+  - video al mese: raggiunto il limite, il caricamento si ferma con un messaggio e l'invito all'upgrade;
+  - social inclusi: oltre il limite i più recenti restano collegati ma esclusi dalla pubblicazione;
+  - clip b-roll: finite le clip, il video esce comunque, senza b-roll.
+- **Contatori per periodo** (`usage_counters`): ripartono a ogni rinnovo e lo storico resta. Un montaggio fallito restituisce il video, una volta sola.
+- **Prova gratuita**: 3 video senza carta, poi blocco con "Scegli il piano". Un utente può creare da solo una sola azienda: i brand in più passano dall'abbonamento.
+- **Blocchi**: con pagamento fallito, abbonamento disdetto o non attivo si fermano i nuovi montaggi e gli script settimanali. Video, calendario e post programmati restano.
+- **Piano Business con più brand**: un solo abbonamento copre fino a 3 brand ("Aggiungi brand" nella pagina del piano, poi l'onboarding del nuovo brand). Piano, stato e periodo arrivano ai brand collegati in automatico.
+- **Pagina "Piano e fatturazione"**: piano attuale, consumi del periodo, scelta mensile o annuale (10 mesi invece di 12), cambio piano, portale Stripe, elenco dei brand.
+- **Messaggi chiari in Home, Carica e Script** quando un limite è raggiunto, con il pulsante giusto (scegli, aggiorna il pagamento, riattiva, vedi i piani).
+- **Founding member**: il team lo attiva in `/admin/abbonamenti`; al checkout si applica il coupon permanente (`STRIPE_FOUNDING_COUPON_ID`).
+- **`npm run stripe:setup`**: crea prodotti e prezzi dai piani e scrive gli id nella tabella `plans`. Crea anche il coupon founding, il webhook e la configurazione del portale. Si può rilanciare senza duplicare nulla.
+
+### Database
+- Migrazione `20261105150000_phase5_billing.sql` (applicata anche online). Nessun dato cancellato.
+  - `workspaces`: `billing_workspace_id`, `billing_interval`, `cancel_at_period_end`, `payment_failed_at`.
+  - Nuove tabelle `usage_counters` (lettura per i membri) e `stripe_events` (solo server).
+  - `videos`: `quota_kind`, `billed_period_start`.
+- Funzioni solo server: `reserve_video`, `release_video`, `release_reservation`, `use_broll_credits`. Per gli utenti: `create_brand`, che controlla titolare, abbonamento attivo e numero di brand. `create_workspace` ora rifiuta una seconda azienda.
+
+### Test
+- `supabase/tests/billing_phase5.sql`: 28 controlli SQL (prova, limiti per brand, brand in più, permessi, restituzione, b-roll, pagamento fallito, rinnovo, disdetta).
+- `tests/e2e/flow-fase5.cjs`: flusso completo, dalla prova finita alla scelta del piano, upgrade, secondo brand, webhook (pagamento fallito, evento ripetuto, firma non valida), rinnovo e disdetta.
+- Test unitari dell'adapter (stati Stripe, periodo nelle API vecchie e nuove, firma demo): 15 test in `@nexora/shared`.
+
 ## Fase 4 — Calendario e pubblicazione (2026-11-05)
 
 ### Aggiunto

@@ -12,6 +12,7 @@ SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=... \
   node tests/e2e/isolamento.mjs <email-titolare> <email-collaboratore>   # 21 controlli RLS
 ```
 
+- `flow-fase5.cjs`: prova finita → piano Pro (pagamento simulato) → limite del mese → upgrade a Business → secondo brand → webhook di pagamento fallito, ripetuto e con firma sbagliata → rinnovo → disdetta. Nell'app `BILLING_PROVIDER=demo` e `STRIPE_WEBHOOK_SECRET` (stesso valore passato al test). Non serve il worker. I controlli SQL sono in `supabase/tests/billing_phase5.sql`.
 - `flow-fase4.cjs`: approvazione senza social (resta da programmare) → il team collega il brand Metricool in `/admin/social` → programmazione nel primo spazio libero → trascinamento sul calendario → "Sposta" a meno di 20 minuti rifiutato → consegna e verifica della pubblicazione. Nel worker `PUBLISHING_PROVIDER=demo`; serve `SUPABASE_SECRET_KEY` per accorciare l'attesa. Dura fino a ~15 minuti.
 - `flow-fase3.cjs`: caricamento del girato → montaggio → revisione del team → modifica → approvazione. Prima: `crea-admin.mjs team@nexora.test Team2026!`; nel worker `TRANSCRIPTION_PROVIDER=demo`, `MUSIC_DIR`, `PYTHON_BIN` (Python con opencv). File in `E2E_ASSETS`: `logo.png`, `girato-verticale.mov`.
 - `flow-fase2.cjs`: onboarding → script generati dal worker → pagina Script → riscrittura → email. Richiede il worker attivo con `LLM_PROVIDER=demo`, `EMAIL_PROVIDER=mailpit` e `ALLOW_DEMO_PROVIDERS=true` (anche nell'app).

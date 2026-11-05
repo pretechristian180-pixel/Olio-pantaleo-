@@ -15,13 +15,14 @@ export function WeekStatus({
   workspaceId,
   weekStart,
   isOwner,
-  quotaReached,
+  block,
 }: {
   state: GenerationState;
   workspaceId: string;
   weekStart: string;
   isOwner: boolean;
-  quotaReached: boolean;
+  /** Script sospesi (prova finita, pagamento fallito, abbonamento non attivo). */
+  block?: { title: string; text: string; cta: string } | null;
 }) {
   if (state === "queued" || state === "running") {
     return (
@@ -67,15 +68,15 @@ export function WeekStatus({
       </Alert>
     );
   }
-  if (quotaReached) {
+  if (block) {
     return (
       <EmptyState
         icon={FileText}
-        title="Hai usato i video della prova gratuita"
-        description="Scegli un piano per ricevere ogni settimana nuovi script e i video montati."
+        title={block.title}
+        description={block.text}
         action={
           <Button variant="brand" asChild>
-            <Link href="/piano">Scegli il piano</Link>
+            <Link href="/piano">{block.cta}</Link>
           </Button>
         }
       />
