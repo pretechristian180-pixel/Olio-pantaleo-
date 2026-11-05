@@ -15,7 +15,7 @@
 | 9 | Metricool | Piano con API, token e user id nel worker (vedi `docs/METRICOOL.md`) | da fare |
 | 10 | Sentry | Progetto Next.js, DSN su Vercel e Railway | da fare |
 | 11 | GitHub → Secrets | `NEXORA_DB_URL`, `NEXORA_BACKUP_PASSPHRASE` (vedi `docs/BACKUP.md`) | da fare |
-| 12 | Pagine legali | Testi definitivi di termini, privacy e cookie | in attesa dei testi |
+| 12 | Pagine legali | Termini, privacy, cookie e accordo sul trattamento dei dati pubblicati; mancano PEC e conferma delle regioni dei fornitori | quasi fatto |
 
 Per andare dal vivo: `BILLING_PROVIDER=stripe` con chiavi `sk_live_…`, e nessun provider `demo`
 (`ALLOW_DEMO_PROVIDERS` non impostata).

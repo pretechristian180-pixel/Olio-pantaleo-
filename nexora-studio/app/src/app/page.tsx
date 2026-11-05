@@ -457,7 +457,10 @@ export default async function Home(props: PageProps<"/">) {
 
       <footer className="relative border-t">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Nexora Gruppo Digitale</p>
+          <p>
+            © {new Date().getFullYear()} Nexora Gruppo Digitale · CPECOMGROUP di Prete Christian ·
+            P.IVA IT03436340735
+          </p>
           <nav aria-label="Note legali" className="flex gap-4">
             <Link href="/termini" className="hover:text-foreground">
               Termini
@@ -467,6 +470,9 @@ export default async function Home(props: PageProps<"/">) {
             </Link>
             <Link href="/cookie" className="hover:text-foreground">
               Cookie
+            </Link>
+            <Link href="/trattamento-dati" className="hover:text-foreground">
+              Trattamento dati
             </Link>
           </nav>
         </div>

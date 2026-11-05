@@ -17,8 +17,13 @@
 - **Dominio** `studio.nexoragruppodigitale.it` (CNAME su Aruba) come indirizzo dell'app su Vercel.
 - **`docs/LANCIO.md`**: configurazione da completare, stato dei criteri di accettazione dell'MVP, prove da fare prima di aprire ai clienti.
 
-### In attesa
-- Testi definitivi di termini, privacy e cookie (forniti da Nexora).
+- **Pagine legali** con i testi di Nexora:
+  - Termini e condizioni, Informativa privacy, Cookie policy (con l'elenco reale dei cookie e del local storage usati) e Accordo sul trattamento dei dati (`/trattamento-dati`, nuovo);
+  - i link stanno nel piè di pagina, nella mappa del sito e in `robots.txt`.
+- **Registrazione**: due caselle obbligatorie.
+  - La prima: attività con partita IVA, Termini, accordo sul trattamento dei dati e presa visione della privacy.
+  - La seconda: approvazione specifica delle clausole (artt. 1341 e 1342 c.c.).
+  - Versione dei testi e momento dell'accettazione restano salvati sull'utente.
 
 ## Fase 6 — Area admin e metriche (2026-11-05)
 

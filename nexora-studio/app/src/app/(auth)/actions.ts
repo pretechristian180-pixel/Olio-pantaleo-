@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import type { FormState } from "@/components/forms/form-message";
+import { LEGAL_VERSION } from "@/components/legal/legal";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { publicEnv } from "@/lib/env";
 import { safeNext } from "@/lib/safe-redirect";
@@ -26,6 +27,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
   const email = str(formData, "email").toLowerCase();
   const password = formData.get("password")?.toString() ?? "";
   const accepted = formData.get("terms") === "on";
+  const clauses = formData.get("clauses") === "on";
 
   const fieldErrors: Record<string, string> = {};
   if (fullName.length < 2) fieldErrors.full_name = "Scrivi nome e cognome.";
@@ -33,6 +35,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
   const pwError = validatePassword(password);
   if (pwError) fieldErrors.password = pwError;
   if (!accepted) fieldErrors.terms = "Serve il consenso per creare l'account.";
+  if (!clauses) fieldErrors.clauses = "Serve l'approvazione specifica delle clausole.";
   if (Object.keys(fieldErrors).length) return { fieldErrors };
 
   const next = safeNext(formData.get("next"), "/onboarding");
@@ -41,7 +44,14 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     email,
     password,
     options: {
-      data: { full_name: fullName },
+      // Prova dell'accettazione: versione dei testi e momento (Termini, DPA, clausole artt. 1341-1342 c.c.)
+      data: {
+        full_name: fullName,
+        terms_version: LEGAL_VERSION,
+        terms_accepted_at: new Date().toISOString(),
+        business_declared: true,
+        clauses_approved_at: new Date().toISOString(),
+      },
       emailRedirectTo: `${publicEnv.appUrl}/auth/conferma?next=${encodeURIComponent(next)}`,
     },
   });

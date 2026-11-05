@@ -40,6 +40,7 @@ async function shot(page, name, full = false) {
   await page.fill("#email", A.email);
   await page.fill("#password", A.pw);
   await page.check('input[name="terms"]');
+  await page.check('input[name="clauses"]');
   await page.click('button[type="submit"]');
   await page.getByText("Ti abbiamo mandato un'email").waitFor();
   await shot(page, "01-registrato");
@@ -141,6 +142,7 @@ async function shot(page, name, full = false) {
   await pb.fill("#email", B.email);
   await pb.fill("#password", B.pw);
   await pb.check('input[name="terms"]');
+  await pb.check('input[name="clauses"]');
   await pb.click('button[type="submit"]');
   await pb.getByText("Ti abbiamo mandato un'email").waitFor();
   const confB = await confirmLink(B.email);

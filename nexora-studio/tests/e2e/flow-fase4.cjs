@@ -54,6 +54,7 @@ const shot = (p, n, full = false) => p.screenshot({ path: `${DIR}/${n}.png`, ful
   await page.fill("#email", U.email);
   await page.fill("#password", U.pw);
   await page.check('input[name="terms"]');
+  await page.check('input[name="clauses"]');
   await page.click('button[type="submit"]');
   const conf = await mailTo(U.email, (m) => /token_hash/.test(m.HTML));
   await page.goto(conf.HTML.match(/href="([^"]*token_hash[^"]*)"/)[1].replace(/&amp;/g, "&"));
