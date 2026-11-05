@@ -1,5 +1,14 @@
 # Changelog
 
+## Aziende create dal team (2026-11-05)
+
+### Aggiunto
+- **`/admin/aziende`**: il team crea l'azienda di un cliente e ne compila l'onboarding (azienda, brand, esempi, pubblicazione). Poi invita il cliente come titolare con un'email.
+- Il cliente si registra dal link, accetta e trova tutto pronto. Il team passa da solo da titolare a collaboratore, quindi non riceve più le email di fatturazione. Il cliente sceglie e paga il piano in app con Stripe, e può togliere il team dalla pagina Team.
+- Elenco "Aziende che segui tu" (stato del profilo, invito, piano) e "Tutte le altre aziende".
+- Nessuna migrazione: l'admin poteva già creare più aziende (`create_workspace`).
+- Test `tests/e2e/flow-aziende.cjs`.
+
 ## Allineamento ai Termini di servizio (2026-11-05)
 
 ### Aggiunto

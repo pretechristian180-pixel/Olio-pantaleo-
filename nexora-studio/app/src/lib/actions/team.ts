@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import type { FormState } from "@/components/forms/form-message";
 import { brandedEmail, getEmailProvider } from "@nexora/shared/server";
 import { publicEnv } from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
   ACTIVE_WORKSPACE_COOKIE,
@@ -146,6 +147,7 @@ export async function acceptInvitation(fd: FormData) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("accept_invitation", { p_token: token });
   if (error || !data) redirect(`/invito/${token}?errore=1`);
+  await handOverFromTeam(data, token, ctx.user.id);
   (await cookies()).set(ACTIVE_WORKSPACE_COOKIE, data, {
     path: "/",
     httpOnly: true,
@@ -154,4 +156,37 @@ export async function acceptInvitation(fd: FormData) {
     maxAge: 60 * 60 * 24 * 365,
   });
   redirect("/inizio");
+}
+
+/**
+ * Azienda preparata dal team Nexora: quando il cliente accetta l'invito da titolare, i membri
+ * del team che ne erano titolari restano come collaboratori (non ricevono più email di
+ * fatturazione e non gestiscono il piano). Il cliente può rimuoverli dalla pagina Team.
+ */
+async function handOverFromTeam(workspaceId: string, token: string, newOwnerId: string) {
+  const admin = createAdminClient();
+  const { data: inv } = await admin
+    .from("workspace_invitations")
+    .select("role")
+    .eq("token", token)
+    .maybeSingle();
+  if (inv?.role !== "owner") return;
+  const { data: owners } = await admin
+    .from("workspace_members")
+    .select("user_id")
+    .eq("workspace_id", workspaceId)
+    .eq("role", "owner")
+    .neq("user_id", newOwnerId);
+  const ids = (owners ?? []).map((o) => o.user_id);
+  const { data: admins } = ids.length
+    ? await admin.from("profiles").select("user_id").in("user_id", ids).eq("is_admin", true)
+    : { data: [] as { user_id: string }[] };
+  const team = admins ?? [];
+  for (const o of team) {
+    await admin
+      .from("workspace_members")
+      .update({ role: "member" })
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", o.user_id);
+  }
 }

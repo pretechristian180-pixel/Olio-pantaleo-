@@ -12,6 +12,7 @@ SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=... \
   node tests/e2e/isolamento.mjs <email-titolare> <email-collaboratore>   # 21 controlli RLS
 ```
 
+- `flow-aziende.cjs`: il team crea l'azienda di un cliente, compila il profilo e invita il titolare; il cliente accetta e il team diventa collaboratore.
 - `flow-termini.cjs`: regole dei Termini (modifica extra, download, girato oltre 90 giorni, cancellazione dopo la cessazione). Usa e poi svuota un'azienda creata da `flow-fase3.cjs`; serve il worker attivo.
 - `flow-fase6.cjs`: area admin con `team@nexora.test`: dashboard, riprova e annulla nella coda dei job (serve il worker attivo), costi per video, modifica di un piano, 404 per un cliente. Conviene lanciarlo dopo `flow-fase3`/`flow-fase4`, così ci sono video e costi.
 - `flow-fase5.cjs`: prova finita → piano Pro (pagamento simulato) → limite del mese → upgrade a Business → secondo brand → webhook di pagamento fallito, ripetuto e con firma sbagliata → rinnovo → disdetta. Nell'app `BILLING_PROVIDER=demo` e `STRIPE_WEBHOOK_SECRET` (stesso valore passato al test). Non serve il worker. I controlli SQL sono in `supabase/tests/billing_phase5.sql`.

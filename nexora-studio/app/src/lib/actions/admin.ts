@@ -2,9 +2,14 @@
 
 import type { Json } from "@nexora/shared";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
+import { inviteMember, type InviteState } from "@/lib/actions/team";
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { ACTIVE_WORKSPACE_COOKIE } from "@/lib/workspace";
 
 const VIDEO_JOBS = new Set(["transcribe", "edit", "render"]);
 
@@ -190,4 +195,72 @@ export async function updatePlanAction(
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Operazione non riuscita." };
   }
+}
+
+/**
+ * Nuova azienda per un cliente: la crea il team (che ne diventa titolare per compilare il
+ * profilo), poi invita il cliente come titolare. All'accettazione il team passa a collaboratore.
+ */
+export async function adminCreateClientWorkspaceAction(
+  _prev: AdminActionResult | null,
+  fd: FormData,
+): Promise<AdminActionResult> {
+  let id: string;
+  try {
+    await assertAdmin();
+    const name = String(fd.get("name") ?? "")
+      .trim()
+      .slice(0, 120);
+    if (name.length < 2) return { error: "Scrivi il nome dell'azienda." };
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("create_workspace", { p_name: name });
+    if (error || !data) return { error: "Non siamo riusciti a creare l'azienda." };
+    id = data.id;
+    // Si parte dal primo passo dell'onboarding: settore, città, sito.
+    await supabase.from("workspaces").update({ onboarding_step: 1 }).eq("id", id);
+    await audit((await assertAdmin()).user.id, id, "admin.workspace.created_for_client", { name });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Operazione non riuscita." };
+  }
+  (await cookies()).set(ACTIVE_WORKSPACE_COOKIE, id, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  redirect("/onboarding");
+}
+
+/** Il team apre un'azienda di cui fa parte (cambio dell'azienda attiva). */
+export async function adminOpenWorkspaceAction(fd: FormData) {
+  const ctx = await assertAdmin();
+  const id = String(fd.get("workspace_id"));
+  if (!ctx.memberships.some((m) => m.workspace.id === id))
+    throw new Error("Non fai parte di questa azienda.");
+  (await cookies()).set(ACTIVE_WORKSPACE_COOKIE, id, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  const ws = ctx.memberships.find((m) => m.workspace.id === id)!.workspace;
+  redirect(ws.onboarding_completed_at ? "/inizio" : "/onboarding");
+}
+
+/** Invita il cliente come titolare dell'azienda preparata dal team. */
+export async function adminInviteOwnerAction(
+  _prev: InviteState,
+  fd: FormData,
+): Promise<InviteState> {
+  try {
+    await assertAdmin();
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Solo il team Nexora." };
+  }
+  fd.set("role", "owner");
+  const res = await inviteMember(null, fd);
+  revalidatePath("/admin/aziende");
+  return res;
 }

@@ -15,6 +15,7 @@ Profili con `is_admin`, da `/admin`:
 
 | Pagina | A cosa serve |
 | --- | --- |
+| Aziende | Crea l'azienda di un cliente, compila tu il profilo e invita il titolare (all'accettazione il team diventa collaboratore) |
 | Dashboard | Ricavi ricorrenti, aziende abbonate e in prova, margine, video al giorno, tempi di montaggio (obiettivo 15 minuti), costo medio per video, salute della coda e avviso se il worker è fermo |
 | Revisione | Video in controllo interno prima dell'invio al cliente |
 | Job | Coda del worker con filtri, errori, "Riprova" (job falliti) e "Annulla" (job in coda) |

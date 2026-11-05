@@ -7,6 +7,7 @@ import { getSessionContext } from "@/lib/workspace";
 
 const ADMIN_LINKS = [
   ["/admin", "Dashboard"],
+  ["/admin/aziende", "Aziende"],
   ["/admin/revisione", "Revisione"],
   ["/admin/job", "Job"],
   ["/admin/costi", "Costi"],
