@@ -41,8 +41,16 @@
   - modifica della didascalia, richiesta "sottotitoli più grandi" che produce la versione 2, approvazione.
 - Prestazioni su un girato di 3 minuti (4 core): rilevamento volti 19 s, render 39 s. Il requisito è sotto i 15 minuti.
 
+### B-roll (Pexels)
+- Adapter `BrollProvider` con Pexels: clip verticali stock, licenza gratuita per uso commerciale, nessun credito consumato. C'è anche un provider dimostrativo per lo sviluppo.
+- Claude propone dove mettere le clip e cosa mostrare (ricerca in inglese) entro il massimo dello stile scelto ("mai" 0, "ogni tanto" 2, "spesso" 4). Regole fisse: niente nei primi 3 secondi né nell'ultimo, 2-4 secondi per clip, almeno 1,5 secondi tra due clip.
+- Le clip vengono salvate accanto al video e riusate nelle versioni successive. Senza chiave Pexels il video esce senza b-roll. Verificato con un render reale.
+
+### Messa online
+- Migrazioni delle Fasi 1-3 applicate al progetto Supabase `nexora studio` (eu-west-1).
+- `20261105122500_security_hardening.sql`: chiude le funzioni interne segnalate dal linter Supabase. Le funzioni dei trigger non sono più richiamabili via API; gli helper della RLS non lo sono più per gli anonimi.
+
 ### Non ancora fatto
-- B-roll con Horacle: la timeline e il render lo supportano già; manca l'adapter, in attesa della documentazione dell'API. La prova gratuita non ha crediti b-roll.
 - Build Docker del worker non verificata in questo ambiente (pacchetti Debian non raggiungibili dal sandbox).
 
 ## Fase 2 — Script (2026-11-05)

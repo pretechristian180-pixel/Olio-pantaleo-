@@ -1,6 +1,7 @@
 import type { EditStyle, LLMProvider, ProviderCost } from "@nexora/shared/server";
 import {
   defaultFraming,
+  remapWords,
   type EditSpec,
   EditSpecSchema,
   type MusicMood,
@@ -25,6 +26,15 @@ export const EditPlanSchema = z.object({
   subtitle_size: z.enum(["piccoli", "medi", "grandi"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
   subtitle_style: z.enum(["pulito", "evidenziato", "karaoke"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
   music_volume: z.enum(["bassa", "media", "alta"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
+  broll: z
+    .array(
+      z.object({
+        at_word: z.number().int().describe("Indice della parola su cui far partire la clip (la voce continua sotto)"),
+        duration_s: z.number().describe("Durata della clip in secondi, 2-4"),
+        query_en: z.string().describe("Cosa mostrare, 2-4 parole in inglese, concreto (es. 'pizza oven fire')"),
+      }),
+    )
+    .describe("Immagini di supporto (stock) nei punti in cui si parla di qualcosa che si può mostrare"),
   caption: z.string().describe("Didascalia per i social in italiano, 1-3 frasi, con invito all'azione, senza hashtag"),
   hashtags: z.array(z.string()).describe("5-8 hashtag in italiano senza #, anche locali"),
   notes: z.string().describe("In una frase: cosa hai tagliato e perché (per il team)"),
@@ -40,6 +50,7 @@ Il tuo compito:
 - highlight_words: 1 parola chiave ogni 4-8 parole al massimo (numeri, promesse, nomi di prodotti). Mai parole vuote.
 - hook_overlay: una scritta breve (max 6 parole) che rinforza l'apertura, oppure null se il video parla già da solo.
 - music_mood: scegli in base al tono del brand e del contenuto; "nessuna" se la musica disturberebbe.
+- broll: clip stock a schermo intero nei punti in cui si parla di qualcosa di concreto da mostrare (un prodotto, un luogo, un'azione). Mai nei primi 3 secondi, mai mentre il titolare mostra lui stesso qualcosa. Rispetta il numero massimo indicato.
 - caption e hashtags: in italiano, coerenti con il brand e la città; niente promesse o dati non detti nel video.
 - subtitle_size, subtitle_style, music_volume: lasciali null, salvo che la richiesta di modifica del cliente li riguardi.
 
@@ -66,7 +77,7 @@ export function editUserPrompt(ctx: PlanContext) {
   const style = ctx.brand.editStyle;
   const parts = [
     `AZIENDA\n- Nome: ${ctx.brand.companyName}${ctx.brand.city ? `\n- Città: ${ctx.brand.city}` : ""}${ctx.brand.toneOfVoice ? `\n- Tono: ${ctx.brand.toneOfVoice}` : ""}${ctx.brand.doNotSay ? `\n- Da non dire: ${ctx.brand.doNotSay}` : ""}`,
-    `STILE DI MONTAGGIO PREFERITO\n- Ritmo: ${style.pace ?? "medio"}\n- Musica: ${style.music?.mood ?? "energica"}`,
+    `STILE DI MONTAGGIO PREFERITO\n- Ritmo: ${style.pace ?? "medio"}\n- Musica: ${style.music?.mood ?? "energica"}\n- B-roll: massimo ${maxBroll(style)} clip`,
     ctx.script
       ? `SCRIPT DI RIFERIMENTO (il titolare può essersi discostato)\n- Titolo: ${ctx.script.title}\n- Apertura prevista: ${ctx.script.hook}\n- Testo: ${ctx.script.body.replace(/\n+/g, " ")}`
       : "SCRIPT DI RIFERIMENTO\n- Nessuno: video libero.",
@@ -81,6 +92,11 @@ export function editUserPrompt(ctx: PlanContext) {
     parts.push("RICHIESTA\nDecidi il montaggio.");
   }
   return parts.join("\n\n");
+}
+
+/** Numero massimo di clip b-roll secondo lo stile scelto dall'azienda. */
+export function maxBroll(style: EditStyle) {
+  return { nessuno: 0, poco: 2, spesso: 4 }[style.broll_usage ?? "poco"];
 }
 
 export async function planEdit(llm: LLMProvider, ctx: PlanContext): Promise<{ plan: EditPlan; cost: ProviderCost }> {
@@ -141,7 +157,31 @@ export function planToSpec(args: {
     hookOverlay: plan.hook_overlay?.trim() ? plan.hook_overlay.trim().slice(0, 60) : null,
     outroLogo: (editStyle.logo_outro ?? true) && args.hasLogo,
     framing: defaultFraming(source),
-    broll: [],
+    broll: placeBroll(plan, words, segments, maxBroll(editStyle)),
   };
   return EditSpecSchema.parse(spec);
+}
+
+/**
+ * Dalle proposte del modello alle posizioni nel video montato, con regole fisse:
+ * dopo la frase d'apertura (3 s), mai nell'ultimo secondo, 2-4 s ciascuna, almeno 1,5 s tra due clip.
+ */
+export function placeBroll(plan: EditPlan, words: Word[], segments: { start: number; end: number }[], max: number) {
+  if (max <= 0) return [];
+  const timed = remapWords(words, segments);
+  const total = totalDuration(segments);
+  const placed: EditSpec["broll"] = [];
+  const sorted = [...plan.broll].sort((a, b) => a.at_word - b.at_word);
+  for (const b of sorted) {
+    if (placed.length >= Math.min(max, Math.floor(total / 8))) break;
+    const w = timed.find((t) => t.index >= b.at_word);
+    if (!w || !b.query_en.trim()) continue;
+    const duration = Math.min(4, Math.max(2, b.duration_s || 3));
+    const at = Math.max(3, w.start);
+    if (at + duration > total - 1) continue;
+    const last = placed[placed.length - 1];
+    if (last && at < last.at + last.duration + 1.5) continue;
+    placed.push({ at: Math.round(at * 100) / 100, duration, query: b.query_en.trim().slice(0, 60), storagePath: null });
+  }
+  return placed;
 }

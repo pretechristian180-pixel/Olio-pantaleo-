@@ -51,6 +51,7 @@ function demoProvider(): LLMProvider {
       subtitle_size: /pi[uù] grand/.test(feedback) ? "grandi" : null,
       subtitle_style: null,
       music_volume: /musica.*(bassa|pi[uù] piano)/.test(feedback) ? "bassa" : null,
+      broll: total > 20 ? [{ at_word: Math.floor(total * 0.45), duration_s: 3, query_en: "small business owner" }] : [],
       caption: `Un minuto con ${companyOf(req)}: salva il video e passa a trovarci!`,
       hashtags: ["video", "pmi", "italia", "dietrolequinte", "consigli"],
       notes: dropFirst ? "Tolte le prime parole su richiesta del cliente." : "Tolte le pause lunghe.",

@@ -8,3 +8,4 @@ export * from "./providers/factory.js";
 export * from "./services/scripts-service.js";
 export * from "./email/index.js";
 export * from "./providers/whisper.js";
+export * from "./providers/pexels.js";

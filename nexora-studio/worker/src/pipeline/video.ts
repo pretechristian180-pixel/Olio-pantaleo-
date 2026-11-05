@@ -5,6 +5,8 @@ import type { Json, Tables } from "@nexora/shared";
 import {
   type AdminDb,
   brandedEmail,
+  type BrollProvider,
+  createBrollProvider,
   createTranscriptionProvider,
   type EditStyle,
   getEmailProvider,
@@ -196,6 +198,8 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     previousSpec,
   });
 
+  await attachBroll(deps, spec, previousSpec, video.workspace_id, video.id, job.id);
+
   const nextVersion = (last?.version ?? 0) + 1;
   const { data: version, error } = await deps.db
     .from("video_versions")
@@ -219,6 +223,70 @@ export async function editJob(job: Job, deps: HandlerDeps) {
   }
   await enqueueRender(deps, video.workspace_id, version.id);
   log("info", "montaggio deciso", { video: video.id, version: nextVersion, segments: spec.segments.length, notes: plan.notes });
+}
+
+let broll: BrollProvider | null | undefined;
+
+/**
+ * Cerca e salva le clip b-roll (bucket "output", accanto al video). Le clip di una versione
+ * precedente con la stessa ricerca vengono riusate. Senza provider, o se una ricerca fallisce,
+ * quella clip viene tolta: il video esce comunque.
+ */
+async function attachBroll(
+  deps: HandlerDeps,
+  spec: EditSpec,
+  previousSpec: EditSpec | null,
+  workspaceId: string,
+  videoId: string,
+  jobId: string,
+) {
+  if (!spec.broll.length) return;
+  if (broll === undefined) broll = createBrollProvider();
+  if (!broll) {
+    spec.broll = [];
+    return;
+  }
+  const kept: EditSpec["broll"] = [];
+  const used: string[] = [];
+  for (const b of spec.broll) {
+    const reuse = previousSpec?.broll.find((p) => p.query === b.query && p.storagePath);
+    if (reuse) {
+      kept.push({ ...b, storagePath: reuse.storagePath });
+      continue;
+    }
+    try {
+      const { clip, cost } = await broll.find({ query: b.query, durationS: b.duration, aspectRatio: "9:16", source: "stock", excludeIds: used });
+      await recordCosts(deps.db, [cost], { workspaceId, jobId, videoId, operation: "broll" });
+      if (!clip) continue;
+      used.push(clip.id);
+      const local = join(workDir(), videoId, `broll-${kept.length}.mp4`);
+      await mkdir(join(workDir(), videoId), { recursive: true });
+      if (clip.downloadUrl.startsWith("demo:")) {
+        await execDemoClip(local, b.duration + 1);
+      } else {
+        const res = await fetch(clip.downloadUrl);
+        if (!res.ok) continue;
+        await writeFile(local, Buffer.from(await res.arrayBuffer()));
+      }
+      const path = `${workspaceId}/${videoId}/broll/${clip.id.replace(/[^a-z0-9]+/gi, "-")}.mp4`;
+      await uploadFile(deps.db, "output", path, local, "video/mp4");
+      kept.push({ ...b, storagePath: path });
+    } catch (e) {
+      log("warn", "b-roll non trovato", { video: videoId, query: b.query, error: String(e) });
+    }
+  }
+  spec.broll = kept;
+}
+
+async function execDemoClip(out: string, seconds: number) {
+  const { execFile } = await import("node:child_process");
+  await new Promise<void>((resolve, reject) =>
+    execFile(
+      "ffmpeg",
+      ["-y", "-v", "error", "-f", "lavfi", "-i", `testsrc2=s=1080x1920:d=${seconds}:r=30`, "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", out],
+      (err) => (err ? reject(err) : resolve()),
+    ),
+  );
 }
 
 function stripPlan(spec: EditSpec & { _plan?: unknown }) {
@@ -273,6 +341,13 @@ export async function renderJob(job: Job, deps: HandlerDeps) {
       logoPath = await downloadToFile(deps.db, "brand", ws.logo_url, join(out, `logo.${ws.logo_url.split(".").pop()}`)).catch(() => null);
     }
     const track = spec.music ? (await music()).find((t) => t.id === spec.music!.trackId) : null;
+    const brollPaths = await Promise.all(
+      spec.broll.map((b, i) =>
+        b.storagePath
+          ? downloadToFile(deps.db, "output", b.storagePath, join(out, `broll-${i}.mp4`)).catch(() => null)
+          : Promise.resolve(null),
+      ),
+    );
 
     const outputFile = join(out, "video.mp4");
     const res = await renderVideo({
@@ -285,6 +360,7 @@ export async function renderJob(job: Job, deps: HandlerDeps) {
       outputPath: outputFile,
       musicPath: track?.path ?? null,
       logoPath,
+      brollPaths,
     });
     const thumbFile = join(out, "thumb.jpg");
     await extractThumbnail(outputFile, thumbFile, spec.hookOverlay ? 1.2 : 0.8);
