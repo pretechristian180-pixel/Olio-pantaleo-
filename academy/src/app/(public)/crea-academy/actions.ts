@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 import { requestHost } from "@/lib/tenant";
 import { academyUrlFrom, normalizeHost } from "@/lib/tenant-host";
 import { registerAcademyDomain } from "@/lib/vercel-domains";
+import { TERMINI_VERSIONE } from "@/lib/legal";
+import { optionalServerEnv } from "@/lib/env.server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import { academyWelcome } from "@/lib/email-templates";
 import { tenantUrl } from "@/lib/tenant-host";
@@ -44,7 +47,7 @@ export async function createAcademy(_prev: CreateState, formData: FormData): Pro
   }
   const { nome, slug, piano } = parsed.data;
   const supabase = await createClient();
-  const { error } = await supabase.rpc("create_tenant", {
+  const { data: tenantId, error } = await supabase.rpc("create_tenant", {
     p_nome: nome,
     p_slug: slug,
     p_piano: piano,
@@ -58,6 +61,15 @@ export async function createAcademy(_prev: CreateState, formData: FormData): Pro
           : "Non siamo riusciti a creare l'academy. Riprova tra poco.";
     return { ok: false, error: msg, fields: error.code === "23505" ? { slug: msg } : undefined };
   }
+  // Prova dell'accettazione delle condizioni (versione e data).
+  if (optionalServerEnv("SUPABASE_SECRET_KEY"))
+    await createAdminClient()
+      .from("tenants")
+      .update({
+        termini_versione: TERMINI_VERSIONE,
+        termini_accettati_il: new Date().toISOString(),
+      })
+      .eq("id", tenantId as string);
   await registerAcademyDomain(`${slug}.${normalizeHost(publicEnv.NEXT_PUBLIC_ROOT_DOMAIN)}`);
   await sendEmail({
     to: user.email,

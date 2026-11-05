@@ -9,6 +9,9 @@ import { PaymentsCard, SubscriptionCard } from "@/components/admin/billing-secti
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { BrandForm } from "@/components/admin/brand-form";
+import { LegalForm } from "@/components/admin/legal-form";
+import { Alert } from "@/components/ui/alert";
+import { isLegalComplete } from "@/lib/legal";
 
 /** Dati di fatturazione (non leggibili dal browser): solo con chiave segreta configurata. */
 async function getBilling(tenantId: string) {
@@ -80,6 +83,22 @@ export default async function SettingsPage({
           />
         </>
       )}
+      <Card>
+        <CardBody className="space-y-4 sm:p-8">
+          <CardTitle>Dati legali</CardTitle>
+          <p className="text-sm text-ink-muted">
+            Chi vende ai tuoi studenti. Compaiono nel piè di pagina e generano le tue pagine
+            «Condizioni di vendita» e «Privacy».
+          </p>
+          {!isLegalComplete(tenant.legal) && (
+            <Alert>
+              Completa almeno ragione sociale, partita IVA, sede ed email prima di vendere: per
+              legge chi compra deve sapere da chi compra.
+            </Alert>
+          )}
+          <LegalForm initial={tenant.legal} />
+        </CardBody>
+      </Card>
       <Card>
         <CardBody className="sm:p-8">
           <CardTitle>Marchio</CardTitle>

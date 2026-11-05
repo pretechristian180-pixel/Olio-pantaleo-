@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireTenantAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentTenant } from "@/lib/tenant";
+import { legalSchema } from "@/lib/legal";
 
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Colore non valido: usa il formato #RRGGBB.");
 
@@ -57,6 +58,31 @@ export async function updateBrand(_prev: BrandState, formData: FormData): Promis
     })
     .eq("id", tenant.id);
   if (error) return { ok: false, error: "Non siamo riusciti a salvare. Riprova." };
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export type LegalState = null | { ok: true } | { ok: false; error: string };
+
+/** Dati legali dell'academy: compaiono nel footer e nelle pagine legali. */
+export async function updateLegal(_prev: LegalState, formData: FormData): Promise<LegalState> {
+  await requireTenantAdmin();
+  const tenant = await getCurrentTenant();
+  if (!tenant) return { ok: false, error: "Academy non trovata." };
+  const raw = Object.fromEntries(formData);
+  const data = legalSchema.parse(raw);
+  if (data.email && !z.string().email().safeParse(data.email).success)
+    return { ok: false, error: "L'email di contatto non è valida." };
+  if (data.pec && !z.string().email().safeParse(data.pec).success)
+    return { ok: false, error: "La PEC non è valida." };
+  if (data.piva && !/^[A-Z]{0,2}[0-9A-Z]{8,15}$/i.test(data.piva.replace(/\s/g, "")))
+    return { ok: false, error: "La partita IVA non sembra valida." };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("tenants")
+    .update({ dati_legali: data })
+    .eq("id", tenant.id);
+  if (error) return { ok: false, error: "Dati non salvati. Riprova." };
   revalidatePath("/", "layout");
   return { ok: true };
 }

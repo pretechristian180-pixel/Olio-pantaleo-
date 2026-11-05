@@ -13,7 +13,7 @@ import { getCurrentTenant, isNexoraTenant, isTenantOpen, requestHost } from "@/l
  * I corsi Nexora si pagano sul conto della piattaforma, quelli dei clienti sul loro conto
  * collegato, senza commissioni per Nexora.
  */
-export async function buyCourse(slug: string) {
+export async function buyCourse(slug: string, formData: FormData) {
   const back = `/corsi/${encodeURIComponent(slug)}`;
   const user = await requireUser(back);
   const tenant = await getCurrentTenant();
@@ -52,6 +52,10 @@ export async function buyCourse(slug: string) {
     stripeAccount = data.stripe_account_id;
   }
 
+  // Contenuto digitale con accesso immediato: serve la rinuncia espressa al recesso.
+  if (course.prezzo_cents > 0 && formData.get("recesso") !== "on")
+    redirect(`${back}?acquisto=recesso`);
+
   // Corso gratuito: accesso immediato, niente pagamento.
   if (course.prezzo_cents <= 0) {
     await db
@@ -72,6 +76,7 @@ export async function buyCourse(slug: string) {
       email: user.email,
       importo_cents: course.prezzo_cents,
       valuta: course.valuta,
+      recesso_rinuncia_il: new Date().toISOString(),
     })
     .select("id")
     .single();

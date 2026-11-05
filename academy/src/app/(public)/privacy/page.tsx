@@ -1,49 +1,124 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/layout/page-header";
+import Link from "next/link";
+import { LegalPage, V } from "@/components/legal/legal-page";
+import { getCurrentTenant, isNexoraTenant } from "@/lib/tenant";
+import { SUBPROCESSORS, TERMINI_VERSIONE } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Informativa privacy",
   alternates: { canonical: "/privacy" },
 };
 
-// BOZZA da far verificare: i campi tra [ ] vanno completati con i dati societari reali.
-export default function PrivacyPage() {
+/** Informativa privacy (art. 13 GDPR). Su un'academy cliente il titolare è il cliente. */
+export default async function PrivacyPage() {
+  const [tenant, nexora] = await Promise.all([getCurrentTenant(), isNexoraTenant()]);
+  const l = tenant?.legal;
+  if (!tenant || !l) return null;
+  const titolare = <V v={l.ragione_sociale} label="ragione sociale" />;
   return (
-    <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-      <PageHeader eyebrow="Note legali" title="Informativa privacy" />
-      <div className="mt-8 space-y-6 text-[15px] leading-7 [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold">
+    <LegalPage title="Informativa privacy" updated={TERMINI_VERSIONE}>
+      <p>
+        Questa informativa spiega come vengono trattati i tuoi dati quando usi{" "}
+        {nexora ? "Nexora Academy" : `l'academy di ${tenant.nome}`}, ai sensi dell&apos;art. 13 del
+        Regolamento UE 2016/679 (GDPR).
+      </p>
+
+      <h2>Titolare del trattamento</h2>
+      <p>
+        {titolare}, P.IVA <V v={l.piva} label="P.IVA" />, sede <V v={l.sede} label="sede" />.
+        Contatti: <V v={l.email} label="email" />
+        {l.pec ? `, PEC ${l.pec}` : ""}.
+      </p>
+      {!nexora && (
         <p>
-          Questa pagina spiega quali dati raccogliamo quando usi Nexora Academy, perché e per quanto
-          tempo li teniamo.
+          La piattaforma è fornita da Nexora Academy, che tratta i dati per conto del titolare come
+          responsabile del trattamento (art. 28 GDPR).
         </p>
-        <h2>Chi tratta i tuoi dati</h2>
-        <p>Nexora Gruppo Digitale, [ragione sociale, sede, P.IVA], email [privacy@dominio].</p>
-        <h2>Quali dati e perché</h2>
-        <ul className="list-disc space-y-2 pl-5">
-          <li>Nome, cognome ed email: per creare il tuo account e darti accesso ai corsi.</li>
-          <li>
-            Avanzamento, note e domande: per farti riprendere le lezioni e rispondere ai tuoi dubbi.
+      )}
+
+      <h2>Quali dati, perché e su quale base</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Dati</th>
+            <th>Finalità</th>
+            <th>Base giuridica</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nome, cognome, email, password (cifrata)</td>
+            <td>Creare l&apos;account e darti accesso</td>
+            <td>Contratto</td>
+          </tr>
+          <tr>
+            <td>Avanzamento, note, domande, attestati</td>
+            <td>Farti seguire i corsi, rispondere alle domande, rilasciare gli attestati</td>
+            <td>Contratto</td>
+          </tr>
+          <tr>
+            <td>Ordini (corso, importo, esito)</td>
+            <td>Gestire gli acquisti e gli obblighi fiscali</td>
+            <td>Contratto e obbligo di legge</td>
+          </tr>
+          <tr>
+            <td>Email per comunicazioni promozionali</td>
+            <td>Inviarti novità sui corsi</td>
+            <td>Consenso, revocabile dal profilo</td>
+          </tr>
+          <tr>
+            <td>Dati tecnici (cookie tecnici, log di sicurezza)</td>
+            <td>Far funzionare il servizio e proteggerlo</td>
+            <td>Legittimo interesse</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        I dati della carta li inserisci direttamente su Stripe: il titolare non li vede e non li
+        conserva.
+      </p>
+
+      <h2>Per quanto tempo</h2>
+      <ul>
+        <li>
+          Account, avanzamento e attestati: finché hai un account; dopo la cancellazione, entro 90
+          giorni.
+        </li>
+        <li>Ordini e fatture: 10 anni, come richiesto dalla normativa fiscale.</li>
+        <li>Consenso promozionale: fino a quando lo revochi.</li>
+      </ul>
+
+      <h2>A chi li comunichiamo</h2>
+      <p>
+        Solo ai fornitori che rendono possibile il servizio, vincolati da contratto al rispetto del
+        GDPR. Alcuni hanno sede fuori dall&apos;UE: il trasferimento avviene con le clausole
+        contrattuali standard della Commissione europea o il Data Privacy Framework.
+      </p>
+      <ul>
+        {SUBPROCESSORS.map((s) => (
+          <li key={s.nome}>
+            {s.nome}: {s.servizio.toLowerCase()} ({s.luogo})
           </li>
-          <li>Dati di pagamento: li gestisce Stripe, noi non vediamo il numero della carta.</li>
-          <li>
-            Email di marketing: solo se le hai chieste, e puoi smettere quando vuoi dal profilo.
-          </li>
-        </ul>
-        <h2>Per quanto tempo</h2>
-        <p>
-          Finché hai un account. Gli ordini restano per gli anni previsti dagli obblighi fiscali.
-        </p>
-        <h2>I tuoi diritti</h2>
-        <p>
-          Puoi chiedere di vedere, correggere, esportare o cancellare i tuoi dati scrivendo a
-          [privacy@dominio]. Puoi anche rivolgerti al Garante per la protezione dei dati personali.
-        </p>
-        <h2>Fornitori</h2>
-        <p>
-          Supabase (database, server in UE), Bunny (video), Stripe (pagamenti), Resend (email),
-          Vercel (hosting).
-        </p>
-      </div>
-    </div>
+        ))}
+      </ul>
+      <p>I dati non vengono venduti né usati per profilazione pubblicitaria.</p>
+
+      <h2>I tuoi diritti</h2>
+      <p>
+        Puoi chiedere accesso, rettifica, cancellazione, limitazione, portabilità dei dati e opporti
+        al trattamento scrivendo a <V v={l.email} label="email" />. Puoi revocare il consenso
+        promozionale in ogni momento dal tuo profilo. Hai diritto di presentare reclamo al Garante
+        per la protezione dei dati personali (garanteprivacy.it).
+      </p>
+
+      <h2>Cookie</h2>
+      <p>
+        Usiamo solo cookie tecnici: trovi i dettagli nella pagina{" "}
+        <Link href="/cookie" className="text-nexora-blue underline">
+          Cookie
+        </Link>
+        .
+      </p>
+    </LegalPage>
   );
 }

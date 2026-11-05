@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { parseBrand, type Brand } from "@/lib/brand";
+import { parseLegal, type LegalData } from "@/lib/legal";
 import { resolveHost, type HostMatch } from "@/lib/tenant-host";
 
 export type TenantStatus = "prova" | "attivo" | "insoluto" | "sospeso" | "chiuso";
@@ -16,6 +17,8 @@ export type Tenant = {
   brand: Brand;
   dominioPersonalizzato: string | null;
   provaFineIl: string | null;
+  /** Dati legali di chi vende (pagine legali, footer). */
+  legal: LegalData;
   /** Il conto Stripe del cliente può ricevere i pagamenti dei corsi. */
   pagamentiAttivi: boolean;
   piano: {
@@ -35,6 +38,7 @@ type Row = {
   dominio_personalizzato: string | null;
   prova_fine_il: string | null;
   stripe_pagamenti_attivi: boolean;
+  dati_legali: unknown;
   platform_plans: {
     codice: string;
     nome: string;
@@ -44,7 +48,7 @@ type Row = {
 };
 
 const COLUMNS =
-  "id, nome, slug, stato, brand, dominio_personalizzato, prova_fine_il, stripe_pagamenti_attivi, platform_plans(codice, nome, senza_marchio_nexora, dominio_personalizzato)";
+  "id, nome, slug, stato, brand, dominio_personalizzato, prova_fine_il, stripe_pagamenti_attivi, dati_legali, platform_plans(codice, nome, senza_marchio_nexora, dominio_personalizzato)";
 
 export async function requestHost() {
   const h = await headers();
@@ -78,6 +82,7 @@ export const getCurrentTenant = cache(async (): Promise<Tenant | null> => {
     dominioPersonalizzato: row.dominio_personalizzato,
     provaFineIl: row.prova_fine_il,
     pagamentiAttivi: row.stripe_pagamenti_attivi,
+    legal: parseLegal(row.dati_legali),
     piano: row.platform_plans
       ? {
           codice: row.platform_plans.codice,
