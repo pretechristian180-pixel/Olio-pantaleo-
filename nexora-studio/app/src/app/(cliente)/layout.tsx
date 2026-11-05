@@ -16,7 +16,11 @@ export default async function ClienteLayout({ children }: { children: React.Reac
 
   return (
     <AppShell
-      user={{ name: displayName(ctx), email: ctx.user.email }}
+      user={{
+        name: displayName(ctx),
+        email: ctx.user.email,
+        isAdmin: Boolean(ctx.profile?.is_admin),
+      }}
       workspace={{ id: ws.id, name: ws.name, planLabel }}
       workspaces={ctx.memberships.map((m) => ({ id: m.workspace.id, name: m.workspace.name }))}
     >

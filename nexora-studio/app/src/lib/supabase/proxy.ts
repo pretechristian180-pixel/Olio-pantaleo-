@@ -66,7 +66,21 @@ export async function updateSession(request: NextRequest) {
   };
 
   if (!isLoggedIn && matches(pathname, PROTECTED_PREFIXES)) return redirectTo("/accedi");
-  if (isLoggedIn && matches(pathname, AUTH_PAGES)) return redirectTo("/inizio");
+  if (isLoggedIn && matches(pathname, AUTH_PAGES)) {
+    // Già dentro: si va dove chiedeva il link (es. /accedi?next=/admin), altrimenti alla Home.
+    const next = request.nextUrl.searchParams.get("next");
+    const safe =
+      next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\")
+        ? next
+        : null;
+    const url = safe ? new URL(safe, request.nextUrl.origin) : null;
+    if (url && url.origin === request.nextUrl.origin) {
+      const redirect = NextResponse.redirect(url);
+      response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
+      return redirect;
+    }
+    return redirectTo("/inizio");
+  }
 
   return response;
 }

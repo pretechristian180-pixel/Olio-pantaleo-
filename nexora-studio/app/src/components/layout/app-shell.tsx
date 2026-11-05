@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Check, LogOut, Plus, Upload } from "lucide-react";
+import { Building2, Check, LogOut, Plus, ShieldCheck, Upload } from "lucide-react";
 
 import { NexoraLogo, NexoraMark } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -25,6 +25,8 @@ import { isActive, primaryNav, settingsNav, uploadHref, type NavItem } from "./n
 export interface ShellUser {
   name: string;
   email: string;
+  /** Team Nexora: mostra il collegamento all'area admin. */
+  isAdmin?: boolean;
 }
 
 export interface ShellWorkspace {
@@ -125,6 +127,17 @@ function AccountMenu({
           ))}
           <DropdownMenuSeparator />
         </div>
+        {user.isAdmin && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/admin">
+                <ShieldCheck aria-hidden />
+                Area team Nexora
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <div className="px-1.5 py-1">
           <ThemeToggle className="w-full justify-between" />
         </div>
@@ -201,6 +214,17 @@ export function AppShell({
               <SidebarLink key={item.href} item={item} pathname={pathname} />
             ))}
           </div>
+          {user.isAdmin && (
+            <div className="grid gap-0.5">
+              <p className="px-3 pb-1.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                Team Nexora
+              </p>
+              <SidebarLink
+                item={{ href: "/admin", label: "Area team", icon: ShieldCheck }}
+                pathname={pathname}
+              />
+            </div>
+          )}
         </nav>
         <div className="border-t p-3">
           <p className="px-2 pb-2 text-xs text-muted-foreground">
