@@ -26,7 +26,13 @@ async function takenDays(workspaceId: string, timeZone: string, exceptVideoId?: 
     .eq("workspace_id", workspaceId)
     .in("status", ["scheduled", "publishing", "published"])
     .gte("scheduled_at", new Date(Date.now() - 24 * 3600e3).toISOString());
-  return [...new Set((data ?? []).filter((p) => p.video_id !== exceptVideoId).map((p) => localParts(new Date(p.scheduled_at), timeZone).date))];
+  return [
+    ...new Set(
+      (data ?? [])
+        .filter((p) => p.video_id !== exceptVideoId)
+        .map((p) => localParts(new Date(p.scheduled_at), timeZone).date),
+    ),
+  ];
 }
 
 export type ScheduleResult = { at: Date } | { needsSocial: true } | { error: string };
@@ -38,7 +44,11 @@ export type ScheduleResult = { at: Date } | { needsSocial: true } | { error: str
  */
 export async function autoSchedule(videoId: string): Promise<ScheduleResult> {
   const admin = createAdminClient();
-  const { data: video } = await admin.from("videos").select("id, workspace_id, status").eq("id", videoId).single();
+  const { data: video } = await admin
+    .from("videos")
+    .select("id, workspace_id, status")
+    .eq("id", videoId)
+    .single();
   if (!video || video.status !== "approved") return { error: "Il video non è approvato." };
   const { data: ws } = await admin
     .from("workspaces")
@@ -81,15 +91,27 @@ export async function autoSchedule(videoId: string): Promise<ScheduleResult> {
 }
 
 /** Sposta tutti i post di un video a una nuova data/ora (finché non sono in consegna). */
-export async function moveVideoTo(videoId: string, at: Date): Promise<{ ok: true } | { error: string }> {
+export async function moveVideoTo(
+  videoId: string,
+  at: Date,
+): Promise<{ ok: true } | { error: string }> {
   if (at.getTime() < Date.now() + MIN_LEAD_MINUTES * 60000) {
     return { error: `Scegli un orario ad almeno ${MIN_LEAD_MINUTES} minuti da adesso.` };
   }
   const admin = createAdminClient();
-  const { data: posts } = await admin.from("scheduled_posts").select("id, status, workspace_id").eq("video_id", videoId).neq("status", "canceled");
+  const { data: posts } = await admin
+    .from("scheduled_posts")
+    .select("id, status, workspace_id")
+    .eq("video_id", videoId)
+    .neq("status", "canceled");
   if (!posts?.length) return { error: "Il video non è in calendario." };
-  if (posts.some((p) => p.status !== "scheduled")) return { error: "Il video è già in pubblicazione: non si può più spostare." };
-  await admin.from("scheduled_posts").update({ scheduled_at: at.toISOString() }).eq("video_id", videoId).eq("status", "scheduled");
+  if (posts.some((p) => p.status !== "scheduled"))
+    return { error: "Il video è già in pubblicazione: non si può più spostare." };
+  await admin
+    .from("scheduled_posts")
+    .update({ scheduled_at: at.toISOString() })
+    .eq("video_id", videoId)
+    .eq("status", "scheduled");
   await enqueuePublish(posts[0]!.workspace_id, videoId, at);
   return { ok: true };
 }
@@ -97,9 +119,17 @@ export async function moveVideoTo(videoId: string, at: Date): Promise<{ ok: true
 /** Toglie il video dal calendario (torna "approvato"). */
 export async function unscheduleVideo(videoId: string): Promise<{ ok: true } | { error: string }> {
   const admin = createAdminClient();
-  const { data: posts } = await admin.from("scheduled_posts").select("status").eq("video_id", videoId);
-  if (posts?.some((p) => p.status === "publishing")) return { error: "Il video è già in pubblicazione." };
+  const { data: posts } = await admin
+    .from("scheduled_posts")
+    .select("status")
+    .eq("video_id", videoId);
+  if (posts?.some((p) => p.status === "publishing"))
+    return { error: "Il video è già in pubblicazione." };
   await admin.from("scheduled_posts").delete().eq("video_id", videoId).eq("status", "scheduled");
-  await admin.from("videos").update({ status: "approved" }).eq("id", videoId).eq("status", "scheduled");
+  await admin
+    .from("videos")
+    .update({ status: "approved" })
+    .eq("id", videoId)
+    .eq("status", "scheduled");
   return { ok: true };
 }

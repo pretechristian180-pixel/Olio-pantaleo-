@@ -23,8 +23,22 @@ import {
   listBatches,
   STATUS_LABELS,
 } from "@/lib/scripts";
+import { getCalendar } from "@/lib/calendar";
 import { listVideos } from "@/lib/videos";
 import { firstName, requireWorkspace } from "@/lib/workspace";
+
+const upcomingFmt = new Intl.DateTimeFormat("it-IT", {
+  weekday: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Rome",
+});
+
+/** Intervallo [adesso, adesso + n settimane] (fuori dal render per la regola di purezza). */
+function nextWeeks(n: number): [Date, Date] {
+  const now = new Date();
+  return [now, new Date(now.getTime() + n * 7 * 86400e3)];
+}
 
 /** Numero della settimana ISO, come sul calendario. */
 function isoWeek(date: Date) {
@@ -48,6 +62,9 @@ export default async function InizioPage() {
   const generation = scripts.length ? "done" : await getGenerationState(ws.id, week);
   const videos = await listVideos(ws.id);
   const toApprove = videos.filter((v) => v.status === "review");
+  const upcoming = (await getCalendar(ws.id, ...nextWeeks(3), ws.timezone)).filter(
+    (p) => p.status === "scheduled" || p.status === "publishing",
+  );
   const inProgress = videos.filter((v) =>
     ["queued", "editing", "changes_requested", "internal_review"].includes(v.status),
   ).length;
@@ -217,12 +234,33 @@ export default async function InizioPage() {
             <CardTitle>Prossimi post</CardTitle>
           </CardHeader>
           <CardContent>
-            <EmptyState
-              icon={CalendarClock}
-              title="Nessun post in programma"
-              description="I video approvati entrano nel calendario nei giorni e negli orari che hai scelto."
-              className="py-8"
-            />
+            {upcoming.length > 0 ? (
+              <ul className="grid gap-2">
+                {upcoming.slice(0, 4).map((p) => (
+                  <li key={p.videoId}>
+                    <Link
+                      href={`/video/${p.videoId}`}
+                      className="flex items-center gap-3 rounded-lg border bg-background/40 p-2.5 transition-colors hover:border-nx-blue-500/50"
+                    >
+                      <span className="w-20 shrink-0 text-xs font-semibold text-primary-text capitalize">
+                        {upcomingFmt.format(new Date(p.scheduledAt))}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{p.title}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {p.platforms.length} social
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                icon={CalendarClock}
+                title="Nessun post in programma"
+                description="I video approvati entrano nel calendario nei giorni e negli orari che hai scelto."
+                className="py-8"
+              />
+            )}
           </CardContent>
         </Card>
       </div>

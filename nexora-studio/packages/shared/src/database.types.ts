@@ -92,6 +92,9 @@ export interface Database {
           timezone?: string;
           onboarding_step?: number;
           onboarding_completed_at?: Timestamp | null;
+          metricool_blog_id?: string | null;
+          metricool_connect_url?: string | null;
+          metricool_connect_expires?: Timestamp | null;
         };
         Relationships: [];
       };

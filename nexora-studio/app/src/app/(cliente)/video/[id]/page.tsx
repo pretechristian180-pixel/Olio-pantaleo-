@@ -9,6 +9,7 @@ import {
   FileText,
   Loader2,
   Upload,
+  CalendarClock,
 } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-header";
@@ -19,7 +20,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CaptionForm, ChangeRequest } from "@/components/videos/review-actions";
+import { scheduleVideoAction, unscheduleVideoAction } from "@/lib/actions/calendar";
 import { approveVideo } from "@/lib/actions/videos";
+import { PLATFORM_LABELS } from "@/lib/calendar";
+import { createClient } from "@/lib/supabase/server";
+import { Badge } from "@/components/ui/badge";
+import type { SocialPlatform } from "@nexora/shared";
 import { cn } from "@/lib/utils";
 import { editingStage, getVideoDetail, MAX_CHANGE_ROUNDS } from "@/lib/videos";
 import { requireWorkspace } from "@/lib/workspace";
@@ -39,6 +45,21 @@ const dateFmt = new Intl.DateTimeFormat("it-IT", {
   hour: "2-digit",
   minute: "2-digit",
 });
+const postDateFmt = new Intl.DateTimeFormat("it-IT", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Rome",
+});
+const POST_BADGE = {
+  scheduled: { label: "Programmato", variant: "info" },
+  publishing: { label: "In pubblicazione", variant: "warning" },
+  published: { label: "Pubblicato", variant: "success" },
+  failed: { label: "Non pubblicato", variant: "destructive" },
+  canceled: { label: "Annullato", variant: "secondary" },
+} as const;
 
 export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
   const { id } = await props.params;
@@ -56,6 +77,17 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
   const stage = working && video.status !== "internal_review" ? await editingStage(video.id) : null;
   const stageIndex = stage ? STAGES.findIndex((s) => s.key === stage) : -1;
   const clientFeedback = feedback.filter((f) => !f.message.startsWith("[Team Nexora]"));
+  const supabase = await createClient();
+  const { data: postRows } = await supabase
+    .from("scheduled_posts")
+    .select("id, scheduled_at, status, permalink, error, account:social_accounts(platform)")
+    .eq("video_id", video.id)
+    .neq("status", "canceled")
+    .order("scheduled_at");
+  const posts = (postRows ?? []).map((p) => ({
+    ...p,
+    platform: (p.account as { platform: SocialPlatform } | null)?.platform ?? "instagram",
+  }));
 
   return (
     <PageContainer className="max-w-5xl">
@@ -214,17 +246,89 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
             </Card>
           )}
 
-          {(video.status === "approved" || video.status === "scheduled") && (
-            <Alert variant="success">
-              <CheckCircle2 aria-hidden />
-              <AlertTitle>Video approvato</AlertTitle>
-              <AlertDescription>
-                {video.approved_at
-                  ? `Approvato il ${dateFmt.format(new Date(video.approved_at))}. `
-                  : ""}
-                La programmazione sui social arriva con il calendario.
-              </AlertDescription>
-            </Alert>
+          {["approved", "scheduled", "published"].includes(video.status) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Pubblicazione</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-3 text-sm">
+                {posts.length > 0 ? (
+                  <>
+                    <p className="flex items-center gap-2">
+                      <CalendarClock className="size-4 text-primary-text" aria-hidden />
+                      <span>
+                        {video.status === "published" ? "Pubblicato" : "Esce"}{" "}
+                        <strong>{postDateFmt.format(new Date(posts[0]!.scheduled_at))}</strong>
+                      </span>
+                    </p>
+                    <ul className="grid gap-1.5">
+                      {posts.map((p) => (
+                        <li
+                          key={p.id}
+                          className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                        >
+                          <span>{PLATFORM_LABELS[p.platform]}</span>
+                          {p.status === "published" && p.permalink ? (
+                            <a
+                              href={p.permalink}
+                              target="_blank"
+                              rel="noopener"
+                              className="text-xs font-medium text-primary-text hover:underline"
+                            >
+                              Vedi il post
+                            </a>
+                          ) : (
+                            <Badge variant={POST_BADGE[p.status].variant}>
+                              {POST_BADGE[p.status].label}
+                            </Badge>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                    {posts.some((p) => p.error) && (
+                      <p className="text-xs text-destructive">
+                        {posts.find((p) => p.error)?.error}
+                      </p>
+                    )}
+                    {video.status === "scheduled" &&
+                      posts.every((p) => p.status === "scheduled") && (
+                        <div className="flex flex-wrap gap-2">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href="/calendario">Sposta nel calendario</Link>
+                          </Button>
+                          <form action={unscheduleVideoAction}>
+                            <input type="hidden" name="video_id" value={video.id} />
+                            <Button variant="ghost" size="sm" type="submit">
+                              Togli dal calendario
+                            </Button>
+                          </form>
+                        </div>
+                      )}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground">
+                      Video approvato
+                      {video.approved_at
+                        ? ` il ${dateFmt.format(new Date(video.approved_at))}`
+                        : ""}
+                      . Non è ancora in calendario.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <form action={scheduleVideoAction}>
+                        <input type="hidden" name="video_id" value={video.id} />
+                        <Button size="sm" type="submit">
+                          Programma nel primo spazio libero
+                        </Button>
+                      </form>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href="/social">Collega i social</Link>
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {(current || video.caption) && (

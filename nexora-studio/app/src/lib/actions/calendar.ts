@@ -12,7 +12,11 @@ import { assertMember, getSessionContext } from "@/lib/workspace";
 
 async function ownVideo(videoId: string) {
   const supabase = await createClient();
-  const { data } = await supabase.from("videos").select("id, workspace_id, status").eq("id", videoId).maybeSingle();
+  const { data } = await supabase
+    .from("videos")
+    .select("id, workspace_id, status")
+    .eq("id", videoId)
+    .maybeSingle();
   if (!data) throw new Error("Video non trovato.");
   const { ctx } = await assertMember(data.workspace_id);
   return { video: data, ctx };
@@ -28,15 +32,25 @@ function refresh(videoId?: string) {
 export type CalendarActionResult = { ok?: boolean; error?: string; message?: string };
 
 /** Sposta un video (trascinamento nel calendario o "Sposta"). Data e ora in fuso dell'azienda. */
-export async function moveVideoAction(videoId: string, date: string, time: string): Promise<CalendarActionResult> {
+export async function moveVideoAction(
+  videoId: string,
+  date: string,
+  time: string,
+): Promise<CalendarActionResult> {
   try {
     const { video } = await ownVideo(videoId);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return { error: "Data o ora non valide." };
-    const { data: ws } = await createAdminClient().from("workspaces").select("timezone").eq("id", video.workspace_id).single();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time))
+      return { error: "Data o ora non valide." };
+    const { data: ws } = await createAdminClient()
+      .from("workspaces")
+      .select("timezone")
+      .eq("id", video.workspace_id)
+      .single();
     const at = zonedToUtc(date, time, ws?.timezone ?? "Europe/Rome");
     if (video.status === "approved") {
       const res = await autoSchedule(videoId);
-      if ("needsSocial" in res) return { error: "Collega almeno un social per programmare i video." };
+      if ("needsSocial" in res)
+        return { error: "Collega almeno un social per programmare i video." };
       if ("error" in res) return { error: res.error };
     }
     const res = await moveVideoTo(videoId, at);
@@ -64,10 +78,17 @@ export async function unscheduleVideoAction(fd: FormData) {
 export async function toggleSocialAction(fd: FormData) {
   const supabase = await createClient();
   const id = String(fd.get("account_id"));
-  const { data: account } = await supabase.from("social_accounts").select("id, workspace_id, enabled").eq("id", id).maybeSingle();
+  const { data: account } = await supabase
+    .from("social_accounts")
+    .select("id, workspace_id, enabled")
+    .eq("id", id)
+    .maybeSingle();
   if (!account) return;
   await assertMember(account.workspace_id, "owner");
-  await createAdminClient().from("social_accounts").update({ enabled: !account.enabled }).eq("id", id);
+  await createAdminClient()
+    .from("social_accounts")
+    .update({ enabled: !account.enabled })
+    .eq("id", id);
   revalidatePath("/social");
 }
 
@@ -96,7 +117,12 @@ export async function requestConnectLinkAction(fd: FormData): Promise<void> {
       ctaLabel: "Apri la configurazione social",
       ctaUrl: `${publicEnv.appUrl}/admin/social`,
     });
-    await getEmailProvider().send({ to, subject: `[Nexora Studio] Link social per ${membership.workspace.name}`, html, text });
+    await getEmailProvider().send({
+      to,
+      subject: `[Nexora Studio] Link social per ${membership.workspace.name}`,
+      html,
+      text,
+    });
   }
   revalidatePath("/social");
 }
@@ -116,7 +142,7 @@ export async function adminSetMetricool(fd: FormData) {
       metricool_blog_id: blogId,
       metricool_connect_url: link,
       metricool_connect_expires: link ? new Date(Date.now() + 71 * 3600e3).toISOString() : null,
-    } as never)
+    })
     .eq("id", workspaceId);
   if (blogId) {
     await admin.rpc("enqueue_job", {
