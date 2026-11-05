@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
-import { isSupabaseConfigured, publicEnv } from "@/lib/env";
+import { isSupabaseConfigured } from "@/lib/env";
+import { getCurrentTenant } from "@/lib/tenant";
 import { createClient } from "@/lib/supabase/server";
 import { buildOutline, type Outline, type OutlineRow } from "@/lib/course-outline";
 
@@ -28,7 +29,7 @@ export type Course = Omit<CourseRow, "instructors" | "copertina_path"> & {
 };
 
 const COURSE_COLUMNS =
-  "id, slug, titolo, sottotitolo, descrizione, categoria, risultati, prezzo_cents, valuta, copertina_path, trailer_video_id, instructors(nome, qualifica, bio), tenants!inner(slug)";
+  "id, slug, titolo, sottotitolo, descrizione, categoria, risultati, prezzo_cents, valuta, copertina_path, trailer_video_id, instructors(nome, qualifica, bio)";
 
 async function hydrate(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -54,12 +55,13 @@ async function hydrate(
 
 /** Corsi pubblicati del tenant corrente, con programma e durata. */
 export const getPublishedCourses = cache(async (): Promise<Course[]> => {
-  if (!isSupabaseConfigured()) return [];
+  const tenant = isSupabaseConfigured() ? await getCurrentTenant() : null;
+  if (!tenant) return [];
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("courses")
     .select(COURSE_COLUMNS)
-    .eq("tenants.slug", publicEnv.NEXT_PUBLIC_TENANT_SLUG)
+    .eq("tenant_id", tenant.id)
     .eq("stato", "published")
     .order("ordine");
   if (error) throw new Error(`Catalogo non disponibile: ${error.message}`);
@@ -67,12 +69,13 @@ export const getPublishedCourses = cache(async (): Promise<Course[]> => {
 });
 
 export const getCourseBySlug = cache(async (slug: string): Promise<Course | null> => {
-  if (!isSupabaseConfigured()) return null;
+  const tenant = isSupabaseConfigured() ? await getCurrentTenant() : null;
+  if (!tenant) return null;
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("courses")
     .select(COURSE_COLUMNS)
-    .eq("tenants.slug", publicEnv.NEXT_PUBLIC_TENANT_SLUG)
+    .eq("tenant_id", tenant.id)
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(`Corso non disponibile: ${error.message}`);

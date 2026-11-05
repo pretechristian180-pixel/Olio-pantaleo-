@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { publicEnv } from "@/lib/env";
 import { rememberCookie } from "@/lib/remember";
+import { cookieOptionsFor } from "@/lib/supabase/cookie-domain";
 import { authErrorMessage, fieldErrors, registerSchema } from "@/lib/validation";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/input";
 
-export function RegisterForm({ next }: { next: string }) {
+export function RegisterForm({ next, tenantSlug }: { next: string; tenantSlug: string }) {
   const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
@@ -42,7 +42,7 @@ export function RegisterForm({ next }: { next: string }) {
           nome,
           cognome,
           consenso_marketing: marketing,
-          tenant: publicEnv.NEXT_PUBLIC_TENANT_SLUG,
+          tenant: tenantSlug,
         },
       },
     });
@@ -50,7 +50,7 @@ export function RegisterForm({ next }: { next: string }) {
     if (error) return setMessage({ tone: "error", text: authErrorMessage(error.code) });
     if (data.session) {
       // Conferma email disattivata: sei già dentro.
-      document.cookie = rememberCookie(true);
+      document.cookie = rememberCookie(true, cookieOptionsFor(location.host).domain);
       router.replace(next);
       router.refresh();
       return;

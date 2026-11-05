@@ -6,7 +6,10 @@ import { z } from "zod";
  */
 const publicSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  /** Academy mostrata sul dominio principale, su localhost e sulle anteprime Vercel. */
   NEXT_PUBLIC_TENANT_SLUG: z.string().min(1).default("nexora"),
+  /** Dominio sotto cui vivono le academy dei clienti: <cliente>.<dominio>. */
+  NEXT_PUBLIC_ROOT_DOMAIN: z.string().min(3).default("academy.nexoragruppodigitale.it"),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_BOOKING_URL: z.string().url().optional(),
@@ -16,6 +19,7 @@ const publicSchema = z.object({
 export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined,
   NEXT_PUBLIC_TENANT_SLUG: process.env.NEXT_PUBLIC_TENANT_SLUG || undefined,
+  NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN || undefined,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || undefined,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || undefined,

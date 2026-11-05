@@ -4,6 +4,8 @@ import { updateSession } from "@/lib/supabase/middleware";
 const PROTETTE = ["/app", "/admin"];
 
 export async function middleware(request: NextRequest) {
+  // Il layout ha bisogno del percorso per sapere cosa mostrare se l'academy è sospesa.
+  request.headers.set("x-nx-path", request.nextUrl.pathname);
   const { response, userId } = await updateSession(request);
   const { pathname, search } = request.nextUrl;
 

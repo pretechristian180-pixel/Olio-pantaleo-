@@ -16,7 +16,7 @@ export default async function ProfilePage() {
             nome={user.profile?.nome ?? ""}
             cognome={user.profile?.cognome ?? ""}
             email={user.email}
-            marketing={user.profile?.consenso_marketing ?? false}
+            marketing={user.membership?.consenso_marketing ?? false}
           />
         </CardBody>
       </Card>

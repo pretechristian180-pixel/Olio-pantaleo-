@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { rememberCookie } from "@/lib/remember";
+import { cookieOptionsFor } from "@/lib/supabase/cookie-domain";
 import { authErrorMessage, emailSchema, fieldErrors, loginSchema } from "@/lib/validation";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,7 @@ export function LoginForm({ next, linkError }: { next: string; linkError?: boole
       setPending(null);
       return setMessage({ tone: "error", text: authErrorMessage(error.code) });
     }
-    document.cookie = rememberCookie(parsed.data.ricordami);
+    document.cookie = rememberCookie(parsed.data.ricordami, cookieOptionsFor(location.host).domain);
     router.replace(next);
     router.refresh();
   }

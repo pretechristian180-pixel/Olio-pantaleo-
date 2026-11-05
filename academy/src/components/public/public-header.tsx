@@ -2,9 +2,10 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import { getSessionUser } from "@/lib/auth";
+import { isPlatformHost } from "@/lib/tenant";
 
 export async function PublicHeader() {
-  const user = await getSessionUser();
+  const [user, platform] = await Promise.all([getSessionUser(), isPlatformHost()]);
   return (
     <header className="border-b border-white/10 bg-graphite-deep">
       <div className="mx-auto flex h-19 max-w-310 items-center gap-6 px-4 sm:px-6">
@@ -17,10 +18,10 @@ export async function PublicHeader() {
             Catalogo
           </Link>
           <Link
-            href="/aziende"
+            href={platform ? "/prezzi" : "/aziende"}
             className="hidden h-11 items-center rounded-md px-3 text-sm font-medium text-ink-inverse-muted hover:text-white sm:inline-flex"
           >
-            Per le aziende
+            {platform ? "Crea la tua academy" : "Per le aziende"}
           </Link>
           <Button asChild variant="outline-inverse">
             {user ? <Link href="/app">La tua area</Link> : <Link href="/accedi">Accedi</Link>}

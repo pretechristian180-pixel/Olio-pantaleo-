@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 import { hasSupabaseAuthCookie, REMEMBER_COOKIE } from "@/lib/remember";
+import { cookieOptionsFor } from "./cookie-domain";
 
 /** Rinnova la sessione Supabase a ogni richiesta e restituisce l'id utente (o null). */
 export async function updateSession(request: NextRequest) {
@@ -12,6 +13,9 @@ export async function updateSession(request: NextRequest) {
     publicEnv.NEXT_PUBLIC_SUPABASE_URL!,
     publicEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      cookieOptions: cookieOptionsFor(
+        request.headers.get("x-forwarded-host") ?? request.headers.get("host"),
+      ),
       cookies: {
         getAll() {
           return request.cookies.getAll();

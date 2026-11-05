@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
+import { getCurrentTenant } from "@/lib/tenant";
 import { createClient } from "@/lib/supabase/server";
 import {
   answerSchema,
@@ -113,17 +114,25 @@ export async function updateProfile(
     };
   const { nome, cognome, marketing } = parsed.data;
   const supabase = await createClient();
-  const cambiaConsenso = marketing !== (user.profile?.consenso_marketing ?? false);
-  const { error } = await supabase
+  const tenant = await getCurrentTenant();
+  const { error: errProfilo } = await supabase
     .from("profiles")
-    .update({
-      nome,
-      cognome,
-      consenso_marketing: marketing,
-      ...(cambiaConsenso ? { consenso_marketing_il: new Date().toISOString() } : {}),
-    })
+    .update({ nome, cognome })
     .eq("id", user.id);
-  if (error) return { ok: false, error: GENERIC };
+  // Il consenso marketing vale per questa academy, non per tutte.
+  const cambiaConsenso = marketing !== (user.membership?.consenso_marketing ?? false);
+  const { error: errConsenso } =
+    tenant && cambiaConsenso
+      ? await supabase
+          .from("memberships")
+          .update({
+            consenso_marketing: marketing,
+            consenso_marketing_il: new Date().toISOString(),
+          })
+          .eq("user_id", user.id)
+          .eq("tenant_id", tenant.id)
+      : { error: null };
+  if (errProfilo || errConsenso) return { ok: false, error: GENERIC };
   revalidatePath("/app", "layout");
   return { ok: true };
 }

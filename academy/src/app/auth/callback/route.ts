@@ -3,6 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { REMEMBER_COOKIE } from "@/lib/remember";
 import { safeNext } from "@/lib/safe-redirect";
+import { cookieOptionsFor } from "@/lib/supabase/cookie-domain";
 
 /** Ritorno dai link email: conferma account, link di accesso, recupero password. */
 export async function GET(request: NextRequest) {
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     maxAge: 31536000,
     sameSite: "lax",
     secure: origin.startsWith("https:"),
+    ...cookieOptionsFor(request.headers.get("x-forwarded-host") ?? request.headers.get("host")),
   });
   return response;
 }

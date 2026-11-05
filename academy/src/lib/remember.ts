@@ -8,8 +8,8 @@
  */
 export const REMEMBER_COOKIE = "nx_ricordami";
 
-export function rememberCookie(remember: boolean) {
-  const base = `${REMEMBER_COOKIE}=${remember ? "1" : "0"}; Path=/; SameSite=Lax`;
+export function rememberCookie(remember: boolean, domain?: string) {
+  const base = `${REMEMBER_COOKIE}=${remember ? "1" : "0"}; Path=/; SameSite=Lax${domain ? `; Domain=${domain}` : ""}`;
   const secure =
     typeof location !== "undefined" && location.protocol === "https:" ? "; Secure" : "";
   return remember ? `${base}; Max-Age=31536000${secure}` : `${base}${secure}`;

@@ -1,6 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Michroma, Montserrat } from "next/font/google";
-import { publicEnv } from "@/lib/env";
+import { publicEnv, isSupabaseConfigured } from "@/lib/env";
+import { brandCss } from "@/lib/brand";
+import { getCurrentTenant, isTenantOpen } from "@/lib/tenant";
+import {
+  DEFAULT_TENANT_UI,
+  TenantProvider,
+  type TenantUi,
+} from "@/components/tenant/tenant-context";
+import { TenantUnavailable } from "@/components/tenant/tenant-unavailable";
 import "./globals.css";
 
 const michroma = Michroma({
@@ -16,19 +25,55 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
-  title: { default: "Nexora Academy", template: "%s · Nexora Academy" },
-  description:
-    "Videocorsi pratici di Nexora Gruppo Digitale per imprenditori e PMI: CRM, automazioni, processi. Meno improvvisazione, più sistema.",
-  openGraph: { type: "website", locale: "it_IT", siteName: "Nexora Academy" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getCurrentTenant().catch(() => null);
+  const nome = tenant?.nome ?? "Nexora Academy";
+  return {
+    metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
+    title: { default: nome, template: `%s · ${nome}` },
+    description:
+      tenant?.brand.tagline ??
+      "Videocorsi pratici per imprenditori e PMI. Meno improvvisazione, più sistema.",
+    openGraph: { type: "website", locale: "it_IT", siteName: nome },
+  };
+}
 
 export const viewport: Viewport = { themeColor: "#1d2124" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Pagine che restano raggiungibili anche se l'academy è sospesa (per riattivarla).
+const SEMPRE_APERTE = [
+  "/admin",
+  "/accedi",
+  "/auth",
+  "/esci",
+  "/password-dimenticata",
+  "/reimposta-password",
+];
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const tenant = await getCurrentTenant();
+  const path = (await headers()).get("x-nx-path") ?? "/";
+
+  let body: React.ReactNode = children;
+  if (isSupabaseConfigured() && !tenant) body = <TenantUnavailable motivo="non-trovata" />;
+  else if (tenant && !isTenantOpen(tenant) && !SEMPRE_APERTE.some((p) => path.startsWith(p))) {
+    body = <TenantUnavailable motivo="sospesa" />;
+  }
+
+  const ui: TenantUi = tenant
+    ? {
+        nome: tenant.nome,
+        slug: tenant.slug,
+        logoText: tenant.brand.logoText,
+        logoUrl: tenant.brand.logoUrl,
+        tagline: tenant.brand.tagline,
+        poweredBy: !(tenant.piano?.senzaMarchioNexora ?? false),
+      }
+    : DEFAULT_TENANT_UI;
+
   return (
     <html lang="it" className={`${michroma.variable} ${montserrat.variable}`}>
+      <head>{tenant && <style id="marchio-academy">{brandCss(tenant.brand)}</style>}</head>
       <body>
         <a
           href="#contenuto"
@@ -36,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Vai al contenuto
         </a>
-        {children}
+        <TenantProvider value={ui}>{body}</TenantProvider>
       </body>
     </html>
   );
