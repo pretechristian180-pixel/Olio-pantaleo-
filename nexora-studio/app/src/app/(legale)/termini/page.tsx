@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   COMPANY,
   CONTACT_EMAIL,
+  CONTACT_PEC,
   LegalHeader,
   Section,
   VEXATIOUS_CLAUSES,
@@ -19,8 +20,8 @@ export default function TerminiPage() {
       <Section id="art-1" title="Art. 1 – Chi siamo e oggetto">
         <p>
           1.1 Questi Termini regolano l&apos;uso di Nexora Studio (la «Piattaforma»), servizio
-          offerto da {COMPANY}, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{" "}
-          («Nexora»).
+          offerto da {COMPANY}, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, PEC{" "}
+          <a href={`mailto:${CONTACT_PEC}`}>{CONTACT_PEC}</a> («Nexora»).
         </p>
         <p>
           1.2 La Piattaforma permette al Cliente di ricevere proposte di script per video, caricare

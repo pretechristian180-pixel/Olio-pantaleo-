@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { COMPANY, CONTACT_EMAIL, LegalHeader, LegalTable, Section } from "@/components/legal/legal";
+import {
+  COMPANY,
+  CONTACT_EMAIL,
+  CONTACT_PEC,
+  LegalHeader,
+  LegalTable,
+  Section,
+} from "@/components/legal/legal";
 
 export const metadata: Metadata = { title: "Informativa privacy" };
 
@@ -16,7 +23,8 @@ export default function PrivacyPage() {
       <Section id="titolare" title="1. Titolare del trattamento">
         <p>
           {COMPANY}. Contatti per la privacy:{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, PEC{" "}
+          <a href={`mailto:${CONTACT_PEC}`}>{CONTACT_PEC}</a>.
         </p>
       </Section>
 

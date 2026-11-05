@@ -66,6 +66,7 @@ export function LegalTable({ head, rows }: { head: string[]; rows: React.ReactNo
 export const COMPANY =
   "CPECOMGROUP di Prete Christian, impresa individuale che opera con il marchio Nexora Gruppo Digitale, con sede in Via San Nicola 20, 74023 Grottaglie (TA), P.IVA IT03436340735";
 export const CONTACT_EMAIL = "studio@fasanomail.it";
+export const CONTACT_PEC = "cpecomgroup@legalmail.it";
 
 /** Clausole da approvare specificamente (artt. 1341 e 1342 c.c.), mostrate anche alla registrazione. */
 export const VEXATIOUS_CLAUSES =
