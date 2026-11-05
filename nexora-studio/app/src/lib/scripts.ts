@@ -41,11 +41,17 @@ export async function getGenerationState(
   workspaceId: string,
   weekStart: string,
 ): Promise<GenerationState> {
-  const { data } = await createAdminClient()
-    .from("jobs")
-    .select("status")
-    .eq("dedupe_key", `generate_scripts:${workspaceId}:${weekStart}`)
-    .maybeSingle();
+  let data: { status: string } | null = null;
+  try {
+    ({ data } = await createAdminClient()
+      .from("jobs")
+      .select("status")
+      .eq("dedupe_key", `generate_scripts:${workspaceId}:${weekStart}`)
+      .maybeSingle());
+  } catch (e) {
+    // Senza SUPABASE_SECRET_KEY la pagina resta utilizzabile (stato sconosciuto).
+    console.error(JSON.stringify({ msg: "stato generazione non leggibile", error: String(e) }));
+  }
   return (data?.status as GenerationState) ?? null;
 }
 

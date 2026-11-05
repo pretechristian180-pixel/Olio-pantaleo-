@@ -108,6 +108,16 @@ export async function getVideoDetail(videoId: string) {
 export async function editingStage(
   videoId: string,
 ): Promise<"coda" | "trascrizione" | "montaggio" | "render"> {
+  try {
+    return await readEditingStage(videoId);
+  } catch {
+    return "coda";
+  }
+}
+
+async function readEditingStage(
+  videoId: string,
+): Promise<"coda" | "trascrizione" | "montaggio" | "render"> {
   const { data } = await createAdminClient()
     .from("jobs")
     .select("type, status, payload, created_at")
