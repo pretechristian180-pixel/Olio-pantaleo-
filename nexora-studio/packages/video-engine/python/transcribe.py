@@ -50,7 +50,7 @@ def main() -> None:
         language=language,
         word_timestamps=True,
         vad_filter=False,  # le pause servono al montaggio per tagliarle: non vanno nascoste
-        beam_size=5,
+        beam_size=int(os.environ.get("WHISPER_BEAM_SIZE", "5")),
         condition_on_previous_text=False,
     )
     words = []
