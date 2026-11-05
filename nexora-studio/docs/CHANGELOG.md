@@ -1,5 +1,45 @@
 # Changelog
 
+## Fase 4 — Calendario e pubblicazione (2026-11-05)
+
+### Aggiunto
+- **Adapter di pubblicazione con Metricool** (`packages/shared/src/providers/metricool.ts`):
+  - video pubblicati come Reel o Short su Instagram, Facebook, TikTok, YouTube e LinkedIn, in pubblicazione automatica;
+  - data e ora nel fuso dell'azienda;
+  - c'è anche un provider dimostrativo per sviluppo e test.
+
+  Guida in `docs/METRICOOL.md`.
+- **Social collegati**: un brand Metricool per azienda.
+  - Il team incolla blogId e link di collegamento in `/admin/social`. Il cliente collega i profili dal link, senza account Metricool, e può escludere un social dalla pubblicazione.
+  - Il worker sincronizza ogni ora e su richiesta ("Ho collegato, aggiorna"). Se il link manca o è scaduto, il cliente lo richiede al team con un tocco.
+- **Programmazione automatica**:
+  - all'approvazione il video entra nel primo spazio libero (giorni e orario dell'onboarding, al massimo un video al giorno), calcolato in ora italiana anche al cambio d'ora;
+  - senza social collegati il video resta "da programmare";
+  - **un trigger nel database impedisce di programmare un video non approvato.**
+- **Calendario** (`/calendario`):
+  - vista settimana e mese, trascinamento tra i giorni (anche da telefono, tenendo premuta la maniglia), "Sposta" con data e ora per tastiera e lettori di schermo;
+  - filtri per social e lista dei video approvati da programmare;
+  - un post si sposta fino a 20 minuti prima dell'uscita.
+- **Pubblicazione nel worker**:
+  1. 15 minuti prima dell'orario il video viene consegnato a Metricool (link firmato valido 48 ore);
+  2. dopo l'orario l'esito si verifica ogni 5 minuti per un'ora;
+  3. se un social non va a buon fine il post va in errore, parte un'email all'azienda e il video si può riprogrammare dalla sua pagina.
+- **Dettaglio del video**: scheda "Pubblicazione" con data, social e stato per social, link ai post pubblicati, "Sposta nel calendario" e "Togli dal calendario".
+- **Home**: prossimi post delle 3 settimane successive.
+
+### Database
+- `20261105130000_phase4_social_calendar.sql` (approvata):
+  - colonne Metricool su `workspaces`;
+  - tabelle `social_accounts` e `scheduled_posts`;
+  - nuovo tipo di job `sync_social`;
+  - trigger `ensure_video_approved`.
+
+  Applicata anche al progetto online.
+
+### Verificato
+- Test: spazi di pubblicazione (ora solare, legale e giorno del cambio, giorni occupati, anticipo minimo) e corpo dei post Metricool.
+- End-to-end (`tests/e2e/flow-fase4.cjs`): video approvato senza social, social collegati dal team, programmazione, trascinamento nel calendario, spostamento troppo vicino all'uscita rifiutato, consegna e verifica della pubblicazione su 3 social.
+
 ## Fase 3 — Caricamento e montaggio (2026-11-05)
 
 ### Aggiunto

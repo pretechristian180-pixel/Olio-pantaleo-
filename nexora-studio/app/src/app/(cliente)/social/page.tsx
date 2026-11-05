@@ -124,7 +124,7 @@ export default async function SocialPage() {
               <span className="flex size-10 items-center justify-center rounded-lg bg-accent text-sm font-bold text-primary-text">
                 {PLATFORM_LABELS[platform].slice(0, 2)}
               </span>
-              <div className="grid min-w-0 flex-1">
+              <div className="grid min-w-36 flex-1">
                 <span className="font-medium">{PLATFORM_LABELS[platform]}</span>
                 <span className="truncate text-xs text-muted-foreground">
                   {connected
