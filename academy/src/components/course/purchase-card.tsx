@@ -3,6 +3,7 @@ import { Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Price } from "@/components/ui/price";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 const vantaggi = [
   "Accesso illimitato, anche da telefono",
@@ -11,13 +12,15 @@ const vantaggi = [
   "Pagamento sicuro, anche a rate",
 ];
 
-/** Card acquisto con trailer (mockup Corso). L'acquisto con Stripe si attiva in Fase 3. */
+/** Card acquisto con trailer (mockup Corso). Il pagamento passa da Stripe Checkout. */
 export function PurchaseCard({
   prezzoCents,
   valuta,
   courseHref,
   freeLessonHref,
   enrolled = false,
+  buyAction,
+  notice,
 }: {
   prezzoCents: number;
   valuta: string;
@@ -25,6 +28,9 @@ export function PurchaseCard({
   courseHref?: string;
   freeLessonHref?: string | null;
   enrolled?: boolean;
+  /** Server Action che apre il pagamento; assente se la vendita non è ancora attiva. */
+  buyAction?: () => Promise<void>;
+  notice?: string | null;
 }) {
   return (
     <div className="overflow-hidden rounded-lg bg-surface text-ink">
@@ -50,9 +56,17 @@ export function PurchaseCard({
           </Button>
         ) : (
           <>
-            <Button size="lg" block disabled>
-              Acquista il corso
-            </Button>
+            {buyAction ? (
+              <form action={buyAction}>
+                <SubmitButton size="lg" block pendingText="Apro il pagamento…">
+                  {prezzoCents > 0 ? "Acquista il corso" : "Iscriviti gratis"}
+                </SubmitButton>
+              </form>
+            ) : (
+              <Button size="lg" block disabled>
+                Acquista il corso
+              </Button>
+            )}
             {freeLessonHref ? (
               <Button asChild variant="secondary" block>
                 <Link href={freeLessonHref}>Guarda una lezione gratis</Link>
@@ -62,9 +76,19 @@ export function PurchaseCard({
                 Guarda una lezione gratis
               </Button>
             )}
-            <p className="text-center text-xs text-ink-muted">
-              L&apos;acquisto online si attiva a breve.
-            </p>
+            {notice ? (
+              <p role="status" className="text-center text-xs text-negative">
+                {notice}
+              </p>
+            ) : !buyAction ? (
+              <p className="text-center text-xs text-ink-muted">
+                L&apos;acquisto online si attiva a breve.
+              </p>
+            ) : (
+              <p className="text-center text-xs text-ink-muted">
+                Pagamento sicuro con Stripe. Accesso immediato dopo il pagamento.
+              </p>
+            )}
           </>
         )}
         <ul className="flex flex-col gap-3 pt-1">

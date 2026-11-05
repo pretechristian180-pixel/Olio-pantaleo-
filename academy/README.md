@@ -79,6 +79,6 @@ npm run db:types    # rigenera i tipi TypeScript dal database
 
 - [x] Fase 1 — Fondamenta
 - [x] Fase 2 — Auth e area studente
-- [ ] Fase 3 — Pagamenti
+- [ ] Fase 3 — Pagamenti (codice pronto: servono `SUPABASE_SECRET_KEY` e il permesso Connect sulla chiave Stripe)
 - [ ] Fase 4 — Admin
 - [ ] Fase 5 — Rifinitura e deploy

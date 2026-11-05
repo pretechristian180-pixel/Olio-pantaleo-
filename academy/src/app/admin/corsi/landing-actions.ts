@@ -98,29 +98,25 @@ export async function generateLanding(courseId: string, input: unknown): Promise
   try {
     const { data, usage, model } = await generateLandingCopy(course, tenant.nome, parsed.data);
     const sezioni = sectionsFromAi(data);
-    const { error } = await supabase
-      .from("landing_pages")
-      .upsert(
-        {
-          course_id: courseId,
-          tenant_id: tenant.id,
-          brief: parsed.data,
-          sezioni,
-          generata_il: new Date().toISOString(),
-        },
-        { onConflict: "course_id" },
-      );
-    if (error) return { ok: false, error: "Landing generata ma non salvata. Riprova." };
-    await supabase
-      .from("ai_generations")
-      .insert({
+    const { error } = await supabase.from("landing_pages").upsert(
+      {
+        course_id: courseId,
         tenant_id: tenant.id,
-        user_id: user.id,
-        tipo: "landing",
-        modello: model ?? AI_MODEL,
-        input_tokens: usage.input_tokens,
-        output_tokens: usage.output_tokens,
-      });
+        brief: parsed.data,
+        sezioni,
+        generata_il: new Date().toISOString(),
+      },
+      { onConflict: "course_id" },
+    );
+    if (error) return { ok: false, error: "Landing generata ma non salvata. Riprova." };
+    await supabase.from("ai_generations").insert({
+      tenant_id: tenant.id,
+      user_id: user.id,
+      tipo: "landing",
+      modello: model ?? AI_MODEL,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
+    });
     revalidatePath(`/admin/corsi/${courseId}/landing`);
     return { ok: true };
   } catch (e) {
@@ -168,16 +164,14 @@ export async function regenerateSection(
       .update({ sezioni: next })
       .eq("course_id", courseId);
     if (error) return { ok: false, error: "Sezione riscritta ma non salvata. Riprova." };
-    await supabase
-      .from("ai_generations")
-      .insert({
-        tenant_id: tenant.id,
-        user_id: user.id,
-        tipo: "sezione",
-        modello: model ?? AI_MODEL,
-        input_tokens: usage.input_tokens,
-        output_tokens: usage.output_tokens,
-      });
+    await supabase.from("ai_generations").insert({
+      tenant_id: tenant.id,
+      user_id: user.id,
+      tipo: "sezione",
+      modello: model ?? AI_MODEL,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
+    });
     revalidatePath(`/corsi/${course.slug}`);
     return { ok: true, data: updated };
   } catch (e) {

@@ -16,6 +16,8 @@ export type Tenant = {
   brand: Brand;
   dominioPersonalizzato: string | null;
   provaFineIl: string | null;
+  /** Il conto Stripe del cliente può ricevere i pagamenti dei corsi. */
+  pagamentiAttivi: boolean;
   piano: {
     codice: string;
     nome: string;
@@ -32,6 +34,7 @@ type Row = {
   brand: unknown;
   dominio_personalizzato: string | null;
   prova_fine_il: string | null;
+  stripe_pagamenti_attivi: boolean;
   platform_plans: {
     codice: string;
     nome: string;
@@ -41,7 +44,7 @@ type Row = {
 };
 
 const COLUMNS =
-  "id, nome, slug, stato, brand, dominio_personalizzato, prova_fine_il, platform_plans(codice, nome, senza_marchio_nexora, dominio_personalizzato)";
+  "id, nome, slug, stato, brand, dominio_personalizzato, prova_fine_il, stripe_pagamenti_attivi, platform_plans(codice, nome, senza_marchio_nexora, dominio_personalizzato)";
 
 export async function requestHost() {
   const h = await headers();
@@ -74,6 +77,7 @@ export const getCurrentTenant = cache(async (): Promise<Tenant | null> => {
     brand: parseBrand(row.brand),
     dominioPersonalizzato: row.dominio_personalizzato,
     provaFineIl: row.prova_fine_il,
+    pagamentiAttivi: row.stripe_pagamenti_attivi,
     piano: row.platform_plans
       ? {
           codice: row.platform_plans.codice,

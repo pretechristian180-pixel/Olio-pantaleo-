@@ -4,7 +4,9 @@ import { Clock, ListVideo, MonitorPlay } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { getCourseBySlug } from "@/lib/data/courses";
 import { getMyEnrolledSlugs } from "@/lib/data/student";
-import { isNexoraTenant } from "@/lib/tenant";
+import { getCurrentTenant, isNexoraTenant } from "@/lib/tenant";
+import { isStripeConfigured } from "@/lib/stripe";
+import { buyCourse } from "./acquista";
 import { getLanding } from "@/lib/data/landing";
 import { LandingView } from "@/components/landing/landing-view";
 import { formatDuration, pluralize } from "@/lib/utils";
@@ -15,7 +17,10 @@ import { CourseProgram } from "@/components/course/course-program";
 import { InstructorCard } from "@/components/course/instructor-card";
 import { PurchaseCard } from "@/components/course/purchase-card";
 
-type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ anteprima?: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ anteprima?: string; acquisto?: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const course = await getCourseBySlug((await params).slug);
@@ -36,7 +41,14 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const course = await getCourseBySlug((await params).slug);
   if (!course) notFound();
   const { outline, docente } = course;
-  const [user, nexora] = await Promise.all([getSessionUser(), isNexoraTenant()]);
+  const [user, nexora, tenant, sp] = await Promise.all([
+    getSessionUser(),
+    isNexoraTenant(),
+    getCurrentTenant(),
+    searchParams,
+  ]);
+  // Vendita attiva: Stripe configurato e, per i clienti, conto collegato pronto a incassare.
+  const canSell = isStripeConfigured() && (nexora || Boolean(tenant?.pagamentiAttivi));
   const enrolled = user ? (await getMyEnrolledSlugs(user.id)).includes(course.slug) : false;
   const freeLesson = outline.moduli.flatMap((m) => m.lezioni).find((l) => l.isFreePreview);
   const purchase = (
@@ -46,12 +58,18 @@ export default async function CoursePage({ params, searchParams }: Props) {
       enrolled={enrolled}
       courseHref={`/app/corsi/${course.slug}`}
       freeLessonHref={freeLesson ? `/app/corsi/${course.slug}/${freeLesson.slug}` : null}
+      buyAction={canSell ? buyCourse.bind(null, course.slug) : undefined}
+      notice={
+        sp.acquisto === "non-disponibile"
+          ? "L'acquisto non è disponibile in questo momento. Riprova tra poco."
+          : null
+      }
     />
   );
 
   // Landing di vendita: pubblicata per tutti, in bozza solo in anteprima per lo staff.
   const landing = await getLanding(course.id);
-  const anteprima = (await searchParams).anteprima === "1";
+  const anteprima = sp.anteprima === "1";
   if (landing && landing.sezioni.length && (landing.stato === "published" || anteprima)) {
     return (
       <>

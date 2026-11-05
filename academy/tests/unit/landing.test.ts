@@ -1,10 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { hasContent, parseSections, sectionsFromAi, SECTION_ORDER, type AiLanding } from "@/lib/landing/sections";
+import {
+  hasContent,
+  parseSections,
+  sectionsFromAi,
+  SECTION_ORDER,
+  type AiLanding,
+} from "@/lib/landing/sections";
 
 const ai: AiLanding = {
-  hero: { sopratitolo: "Videocorso", titolo: "Fatture senza paura", sottotitolo: "In 3 ore.", cta: "Inizia ora" },
+  hero: {
+    sopratitolo: "Videocorso",
+    titolo: "Fatture senza paura",
+    sottotitolo: "In 3 ore.",
+    cta: "Inizia ora",
+  },
   problema: { titolo: "Ti suona familiare?", intro: "", punti: ["Scadenze dimenticate", ""] },
-  risultati: { titolo: "Cosa porti a casa", items: [{ titolo: "Calendario", testo: "Tutte le scadenze." }] },
+  risultati: {
+    titolo: "Cosa porti a casa",
+    items: [{ titolo: "Calendario", testo: "Tutte le scadenze." }],
+  },
   per_chi: { titolo: "Per chi è", si: ["Freelance"], no: [] },
   programma: { titolo: "Il programma", intro: "" },
   docente: { titolo: "Chi ti accompagna" },

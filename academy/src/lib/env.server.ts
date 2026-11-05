@@ -13,6 +13,8 @@ const serverSchema = z.object({
   BUNNY_STREAM_CDN_HOSTNAME: z.string().min(1).optional(),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STRIPE_CONNECT_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STRIPE_TAX_RATE_ID: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.string().min(1).optional(),
   CRON_SECRET: z.string().min(16).optional(),

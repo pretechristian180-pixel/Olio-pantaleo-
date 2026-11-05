@@ -1,13 +1,46 @@
 import { requireTenantAdmin } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
-import { getCurrentTenant } from "@/lib/tenant";
+import { getCurrentTenant, isNexoraTenant } from "@/lib/tenant";
+import { getPlans } from "@/lib/data/plans";
+import { isStripeConfigured, stripe } from "@/lib/stripe";
+import { syncConnectAccount } from "@/lib/stripe-sync";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { PaymentsCard, SubscriptionCard } from "@/components/admin/billing-section";
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { BrandForm } from "@/components/admin/brand-form";
 
-export default async function SettingsPage() {
+/** Dati di fatturazione (non leggibili dal browser): solo con chiave segreta configurata. */
+async function getBilling(tenantId: string, esitoStripe?: string) {
+  if (!isStripeConfigured()) return null;
+  const { data } = await createAdminClient()
+    .from("tenants")
+    .select("stripe_subscription_id, stripe_account_id, stripe_pagamenti_attivi")
+    .eq("id", tenantId)
+    .single();
+  if (!data) return null;
+  // Di ritorno dall'onboarding Stripe: aggiorniamo subito, senza aspettare il webhook.
+  if (esitoStripe === "ritorno" && data.stripe_account_id && !data.stripe_pagamenti_attivi) {
+    const account = await stripe().accounts.retrieve(data.stripe_account_id);
+    await syncConnectAccount(account);
+    data.stripe_pagamenti_attivi = Boolean(account.charges_enabled);
+  }
+  return data;
+}
+
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ abbonamento?: string; stripe?: string }>;
+}) {
   await requireTenantAdmin();
   const tenant = (await getCurrentTenant())!;
+  const sp = await searchParams;
+  const [nexora, plans, billing] = await Promise.all([
+    isNexoraTenant(),
+    getPlans(),
+    getBilling(tenant.id, sp.stripe),
+  ]);
   const indirizzo =
     tenant.dominioPersonalizzato ?? `${tenant.slug}.${publicEnv.NEXT_PUBLIC_ROOT_DOMAIN}`;
   return (
@@ -31,6 +64,21 @@ export default async function SettingsPage() {
           />
         </CardBody>
       </Card>
+      {!nexora && billing && (
+        <>
+          <SubscriptionCard
+            tenant={tenant}
+            plans={plans}
+            hasSubscription={Boolean(billing.stripe_subscription_id)}
+            esito={sp.abbonamento}
+          />
+          <PaymentsCard
+            connected={Boolean(billing.stripe_account_id)}
+            attivi={billing.stripe_pagamenti_attivi}
+            esito={sp.stripe}
+          />
+        </>
+      )}
       <Card>
         <CardBody className="sm:p-8">
           <CardTitle>Marchio</CardTitle>

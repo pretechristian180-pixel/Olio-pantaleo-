@@ -133,3 +133,21 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
   guardati in continuità (max 15 per invio); completata oltre il 90% o con il pulsante.
 - **Domande**: la funzione `lesson_thread()` mostra solo "Nome I." degli autori, a chi ha accesso
   al corso; i profili restano privati.
+
+## Decisioni della Fase 3 (pagamenti)
+
+- **Abbonamenti Nexora**: Stripe Checkout in modalità abbonamento. Prezzi IVA esclusa con
+  `lookup_key` `nexora_<piano>_<mese|anno>`, IVA 22% come aliquota fissa (`STRIPE_TAX_RATE_ID`).
+  Chi attiva durante la prova paga dalla fine della prova. Fatture, carta, cambio piano e disdetta
+  dal portale clienti Stripe. Stato dell'academy dal webhook: active → attivo, trialing → prova,
+  past_due/unpaid → insoluto, canceled → sospeso.
+- **Vendite dei clienti con Stripe Connect**: conto collegato con dashboard Stripe completa; il
+  cliente è il venditore e paga le commissioni Stripe, **Nexora non trattiene nulla** (direct
+  charge senza application fee). I corsi Nexora si incassano sul conto della piattaforma.
+- **Acquisto corso**: ordine `in_attesa` → Checkout → al ritorno (`/acquisto/completato`) e dal
+  webhook l'ordine diventa `pagato` e nasce l'iscrizione. Entrambi idempotenti.
+- **Webhook**: `/api/stripe/webhook` (conto Nexora) e `/api/stripe/connect` (conti collegati).
+  Con il segreto di firma si verifica la firma; senza, l'evento si rilegge da Stripe con la chiave
+  segreta. `stripe_events` evita di elaborare due volte lo stesso evento.
+- Ordini, iscrizioni e dati di fatturazione li scrive solo il server con `SUPABASE_SECRET_KEY`:
+  senza quella chiave il pulsante "Acquista" resta disattivato.
