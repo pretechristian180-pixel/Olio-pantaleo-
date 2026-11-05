@@ -151,3 +151,11 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
   segreta. `stripe_events` evita di elaborare due volte lo stesso evento.
 - Ordini, iscrizioni e dati di fatturazione li scrive solo il server con `SUPABASE_SECRET_KEY`:
   senza quella chiave il pulsante "Acquista" resta disattivato.
+
+## Email (Resend)
+
+- Mittente `noreply@nexoragruppodigitale.it`, con il nome dell'academy come nome visualizzato.
+- Inviate dal server (`src/lib/email.ts`), mai bloccanti: se l'invio fallisce l'acquisto resta valido.
+- Conferma di acquisto allo studente e avviso di vendita agli admin dell'academy, solo quando
+  l'ordine passa davvero a "pagato" (aggiornamento condizionato + chiave anti-duplicato Resend).
+- Benvenuto a chi crea un'academy. Testi in `src/lib/email-templates.ts` (testati).

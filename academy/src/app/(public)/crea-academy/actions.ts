@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 import { requestHost } from "@/lib/tenant";
 import { academyUrlFrom, normalizeHost } from "@/lib/tenant-host";
 import { registerAcademyDomain } from "@/lib/vercel-domains";
+import { sendEmail } from "@/lib/email";
+import { academyWelcome } from "@/lib/email-templates";
+import { tenantUrl } from "@/lib/tenant-host";
 
 const schema = z.object({
   nome: z.string().trim().min(2, "Scrivi il nome della tua academy.").max(120),
@@ -27,7 +30,7 @@ export type CreateState =
   | { ok: true; url: string | null; slug: string };
 
 export async function createAcademy(_prev: CreateState, formData: FormData): Promise<CreateState> {
-  await requireUser("/crea-academy");
+  const user = await requireUser("/crea-academy");
   const parsed = schema.safeParse({
     nome: formData.get("nome"),
     slug: formData.get("slug"),
@@ -56,6 +59,14 @@ export async function createAcademy(_prev: CreateState, formData: FormData): Pro
     return { ok: false, error: msg, fields: error.code === "23505" ? { slug: msg } : undefined };
   }
   await registerAcademyDomain(`${slug}.${normalizeHost(publicEnv.NEXT_PUBLIC_ROOT_DOMAIN)}`);
+  await sendEmail({
+    to: user.email,
+    content: academyWelcome({
+      nomeAcademy: nome,
+      url: tenantUrl(slug, publicEnv.NEXT_PUBLIC_ROOT_DOMAIN, "/admin"),
+    }),
+    idempotencyKey: `benvenuto-academy-${slug}`,
+  });
   return {
     ok: true,
     slug,
