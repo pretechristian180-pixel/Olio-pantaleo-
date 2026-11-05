@@ -7,7 +7,6 @@ import {
   brandedEmail,
   type BrollProvider,
   createBrollProvider,
-  createTranscriptionProvider,
   type EditStyle,
   getEmailProvider,
   LLMError,
@@ -33,6 +32,7 @@ import type { HandlerDeps, Job } from "../handlers.js";
 import { log } from "../log.js";
 import { type EditPlan, planEdit, planToSpec } from "./plan.js";
 import { downloadToFile, uploadFile } from "./storage.js";
+import { createWorkerTranscriber } from "./transcriber.js";
 
 /** Durata massima del girato (requisito: 10 minuti). */
 export const MAX_RAW_SECONDS = 10 * 60;
@@ -98,7 +98,7 @@ export async function transcribeJob(job: Job, deps: HandlerDeps) {
 
   let transcript = raw.transcript as unknown as Transcript | null;
   if (!transcript) {
-    transcriber ??= createTranscriptionProvider();
+    transcriber ??= createWorkerTranscriber();
     if (info.hasAudio) {
       const audio = join(workDir(), raw.id, "audio.mp3");
       await extractAudioForTranscription(src, audio);
