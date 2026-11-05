@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Building2, Search } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
+import { NewTenant } from "@/components/platform/new-tenant";
+import { publicEnv } from "@/lib/env";
 import { Stat } from "@/components/ui/stat";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,7 @@ export default async function PlatformPage({
         title="Le academy dei clienti"
         description="Tutte le aziende che usano Nexora Academy: piano, stato dell'abbonamento, pagamenti e numeri."
       />
+      <NewTenant rootDomain={publicEnv.NEXT_PUBLIC_ROOT_DOMAIN} />
       <section
         aria-label="Numeri della piattaforma"
         className="grid grid-cols-2 gap-4 xl:grid-cols-4"

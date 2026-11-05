@@ -64,3 +64,22 @@ describe("email risposta", () => {
     expect(e.subject).toContain("Pipeline");
   });
 });
+
+describe("invito academy", () => {
+  it("testo diverso per nuovo account", async () => {
+    const { academyInvite } = await import("@/lib/email-templates");
+    const nuovo = academyInvite({
+      nomeAcademy: "Studio Rossi",
+      url: "https://x.it/a",
+      nuovoAccount: true,
+    });
+    const esistente = academyInvite({
+      nomeAcademy: "Studio Rossi",
+      url: "https://x.it/a",
+      nuovoAccount: false,
+    });
+    expect(nuovo.text).toContain("Scegli la password");
+    expect(esistente.text).toContain("Entra nel pannello");
+    expect(nuovo.subject).toContain("Studio Rossi");
+  });
+});

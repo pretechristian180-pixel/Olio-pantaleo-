@@ -108,3 +108,24 @@ export function answerNotification(o: {
     text: `Il docente ha risposto alla tua domanda sulla lezione «${o.lezione}»:\n\n${estratto}\n\nApri la lezione: ${o.url}`,
   };
 }
+
+/** Invito al titolare di un'academy creata da Nexora: imposta la password ed entra. */
+export function academyInvite(o: {
+  nomeAcademy: string;
+  url: string;
+  nuovoAccount: boolean;
+}): EmailContent {
+  const brand = { nome: "Nexora Academy", colore: "#0042ed" };
+  const azione = o.nuovoAccount ? "Scegli la password ed entra" : "Entra nel pannello";
+  return {
+    subject: `La tua academy «${o.nomeAcademy}» è pronta`,
+    html: layout(
+      brand,
+      `<p>Ciao,</p>
+<p>abbiamo creato per te l'academy <strong>${escapeHtml(o.nomeAcademy)}</strong> su Nexora Academy. Sei tu l'amministratore: da qui carichi i corsi, imposti il marchio e colleghi Stripe per incassare.</p>
+${o.nuovoAccount ? "<p>Il link qui sotto vale 24 ore: ti fa scegliere la password e ti porta nel pannello.</p>" : ""}`,
+      { label: azione, url: o.url },
+    ),
+    text: `Ciao,\n\nabbiamo creato per te l'academy «${o.nomeAcademy}» su Nexora Academy. Sei tu l'amministratore.\n\n${azione}: ${o.url}`,
+  };
+}

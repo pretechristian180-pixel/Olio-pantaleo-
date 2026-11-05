@@ -76,7 +76,7 @@ export function ForgotPasswordForm() {
   );
 }
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({ next = "/app" }: { next?: string }) {
   const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string>();
@@ -101,7 +101,7 @@ export function ResetPasswordForm() {
           : authErrorMessage(error.code),
       );
     }
-    router.replace("/app");
+    router.replace(next);
     router.refresh();
   }
 
