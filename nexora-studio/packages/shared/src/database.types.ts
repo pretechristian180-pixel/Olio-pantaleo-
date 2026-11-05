@@ -41,7 +41,18 @@ export interface Database {
           updated_at: Timestamp;
         };
         Insert: { [_ in never]: never };
-        Update: { [_ in never]: never };
+        Update: {
+          name?: string;
+          price_monthly_cents?: number;
+          price_yearly_cents?: number;
+          videos_per_month?: number;
+          social_accounts_max?: number;
+          broll_credits_month?: number;
+          brands_max?: number;
+          stripe_price_monthly_id?: string | null;
+          stripe_price_yearly_id?: string | null;
+          active?: boolean;
+        };
         Relationships: [];
       };
       workspaces: {
@@ -556,7 +567,7 @@ export interface Database {
           details: Json;
           created_at: Timestamp;
         };
-        Insert: { [_ in never]: never };
+        Insert: { workspace_id?: string | null; user_id?: string | null; action: string; details?: Json };
         Update: { [_ in never]: never };
         Relationships: [];
       };

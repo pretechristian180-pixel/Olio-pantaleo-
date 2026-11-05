@@ -1,5 +1,40 @@
 # Changelog
 
+## Fase 6 — Area admin e metriche (2026-11-05)
+
+### Aggiunto
+- **Dashboard** (`/admin`), ultimi 30 giorni, aggiornata ogni minuto:
+  - ricavi ricorrenti a prezzi di listino, aziende abbonate per piano, aziende in prova, margine indicativo (ricavi meno costi dei fornitori);
+  - grafico dei video caricati al giorno, con dettaglio al passaggio del mouse e tabella dei dati;
+  - tempi dal caricamento alla prima versione pronta: mediana, 9 video su 10, quota entro 15 minuti;
+  - costo medio per video, costi del periodo, coda dei job, job falliti nelle 24 ore, video in errore;
+  - avvisi se il worker sembra fermo (job in coda da 5 minuti e nessuno in lavorazione) e per le aziende con pagamento fallito.
+- **Monitor dei job** (`/admin/job`):
+  - filtri per stato e tipo, con il conteggio per stato; errore completo e dati del job; aggiornamento ogni 15 secondi;
+  - "Riprova" su un job fallito: torna in coda da zero tentativi. Se è un montaggio, il video torna "in montaggio" e non viene riaddebitato;
+  - "Annulla" su un job in coda: se è un montaggio, il video va in errore e torna disponibile al cliente;
+  - la pubblicazione non si riprova da qui, ma dal calendario o dalla pagina del video.
+- **Costi per video** (`/admin/costi`, 7, 30 o 90 giorni):
+  - ogni video montato con il costo per passaggio (trascrizione, piano di montaggio, b-roll, render, pubblicazione), versioni comprese;
+  - costi fuori dai video (script) e aziende che costano di più;
+  - costi convertiti da dollari al cambio `USD_EUR_RATE`.
+- **Piani** (`/admin/piani`): limiti e prezzi modificabili dal team e validi da subito in tutta l'app; si può anche togliere un piano dalla vendita. Dopo un cambio di prezzo il messaggio ricorda di lanciare `npm run stripe:setup`.
+- **Registro attività**: riprova, annulla e modifiche ai piani finiscono in `audit_log`, con lo stato prima e dopo.
+- **Menu dell'area admin** con tutte le sezioni; chi non è del team riceve "pagina non trovata" (404).
+- **Dominio** `studio.nexoragruppodigitale.it` collegato al progetto Vercel (manca il record CNAME su Aruba).
+
+### Database
+- Nessuna migrazione: le metriche usano tabelle già esistenti (`provider_costs`, `jobs`, `videos`, `workspaces`, `plans`).
+
+### Test
+- `tests/e2e/flow-fase6.cjs`, flusso completo:
+  - dashboard e grafico;
+  - un job fallito riprovato ed eseguito dal worker, un job in coda annullato, entrambe le azioni registrate;
+  - costi per video;
+  - modifica di un piano;
+  - 404 su tutte le pagine admin per un cliente;
+  - dashboard da telefono senza scorrimento orizzontale.
+
 ## Fase 5 — Abbonamenti (2026-11-05)
 
 ### Aggiunto

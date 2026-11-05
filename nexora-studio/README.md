@@ -4,9 +4,26 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: **Fase 5 completata** (abbonamenti con Stripe, limiti per piano, brand multipli). Online in
-> anteprima su Vercel con il database Supabase online; worker su Railway e chiavi Stripe da attivare.
+> Stato: **Fase 6 completata** (area admin: dashboard, job, costi per video, piani). Online in anteprima
+> su Vercel (`studio.nexoragruppodigitale.it` dopo il record DNS su Aruba) con il database Supabase
+> online; worker su Railway e chiavi dei fornitori da attivare.
 > Vedi `docs/CHANGELOG.md`.
+
+## Area admin (team Nexora)
+
+Profili con `is_admin`, da `/admin`:
+
+| Pagina | A cosa serve |
+| --- | --- |
+| Dashboard | Ricavi ricorrenti, aziende abbonate e in prova, margine, video al giorno, tempi di montaggio (obiettivo 15 minuti), costo medio per video, salute della coda e avviso se il worker è fermo |
+| Revisione | Video in controllo interno prima dell'invio al cliente |
+| Job | Coda del worker con filtri, errori, "Riprova" (job falliti) e "Annulla" (job in coda) |
+| Costi | Costo di ogni video per passaggio (trascrizione, montaggio AI, b-roll, render, pubblicazione) e aziende che costano di più |
+| Abbonamenti | Stato del pagamento di ogni azienda e founding member |
+| Piani | Limiti e prezzi della tabella `plans` |
+| Social | Brand Metricool e link di collegamento per azienda |
+
+Le azioni del team finiscono nel registro attività (`audit_log`).
 
 ## Struttura
 

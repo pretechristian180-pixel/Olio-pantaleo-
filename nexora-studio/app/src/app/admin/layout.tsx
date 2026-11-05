@@ -5,10 +5,20 @@ import { NexoraLogo } from "@/components/brand/logo";
 import { Badge } from "@/components/ui/badge";
 import { getSessionContext } from "@/lib/workspace";
 
+const ADMIN_LINKS = [
+  ["/admin", "Dashboard"],
+  ["/admin/revisione", "Revisione"],
+  ["/admin/job", "Job"],
+  ["/admin/costi", "Costi"],
+  ["/admin/abbonamenti", "Abbonamenti"],
+  ["/admin/piani", "Piani"],
+  ["/admin/social", "Social"],
+] as const;
+
 /** Area del team Nexora: solo profili con is_admin. */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getSessionContext();
-  if (!ctx) redirect("/accedi?next=/admin/revisione");
+  if (!ctx) redirect("/accedi?next=/admin");
   if (!ctx.profile?.is_admin) notFound();
 
   return (
@@ -19,16 +29,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <NexoraLogo showProduct={false} />
             <Badge variant="info">Team</Badge>
           </div>
-          <nav aria-label="Area admin" className="flex gap-4 text-sm font-medium">
-            <Link href="/admin/revisione" className="text-foreground">
-              Revisione video
-            </Link>
-            <Link href="/admin/social" className="text-foreground">
-              Social
-            </Link>
-            <Link href="/admin/abbonamenti" className="text-foreground">
-              Abbonamenti
-            </Link>
+          <nav
+            aria-label="Area admin"
+            className="flex min-w-0 gap-4 overflow-x-auto text-sm font-medium whitespace-nowrap"
+          >
+            {ADMIN_LINKS.map(([href, label]) => (
+              <Link key={href} href={href} className="text-foreground hover:text-primary-text">
+                {label}
+              </Link>
+            ))}
             <Link href="/inizio" className="text-muted-foreground hover:text-foreground">
               Area cliente
             </Link>
