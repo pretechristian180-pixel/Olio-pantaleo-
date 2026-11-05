@@ -11,6 +11,7 @@ import {
   SkipForward,
   Sun,
   Upload,
+  Video,
 } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-header";
@@ -164,11 +165,18 @@ export default async function ScriptDetailPage(props: PageProps<"/script/[id]">)
 
       <section aria-label="Azioni" className="grid gap-3">
         {!skipped && (
-          <Button variant="brand" size="lg" asChild>
-            <Link href={`/video/carica?script=${script.id}`}>
-              <Upload aria-hidden /> Carica il girato
-            </Link>
-          </Button>
+          <>
+            <Button variant="brand" size="lg" asChild>
+              <Link href={`/video/registra?script=${script.id}`}>
+                <Video aria-hidden /> Registra con il teleprompter
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href={`/video/carica?script=${script.id}`}>
+                <Upload aria-hidden /> Carica il girato dalla galleria
+              </Link>
+            </Button>
+          </>
         )}
         {script.status !== "uploaded" && (
           <form action={setScriptStatus} className="grid">

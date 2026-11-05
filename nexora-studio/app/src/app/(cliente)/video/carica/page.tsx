@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Video } from "lucide-react";
 
 import { GraceAlert } from "@/components/billing/grace-alert";
 import { EmptyState } from "@/components/layout/empty-state";
@@ -49,11 +49,25 @@ export default async function CaricaPage(props: PageProps<"/video/carica">) {
           }
         />
       ) : (
-        <Uploader
-          workspaceId={ws.id}
-          scripts={scripts.map((s) => ({ id: s.id, title: s.title }))}
-          defaultScriptId={defaultScriptId}
-        />
+        <>
+          <Link
+            href={defaultScriptId ? `/video/registra?script=${defaultScriptId}` : "/video/registra"}
+            className="flex items-center gap-3 rounded-xl border bg-card p-4 text-sm transition-colors hover:border-nx-blue-500/50"
+          >
+            <Video className="size-5 shrink-0 text-primary-text" aria-hidden />
+            <span className="flex-1">
+              <span className="block font-medium">Registra adesso con il teleprompter</span>
+              <span className="block text-muted-foreground">
+                Fotocamera frontale e testo dello script a schermo.
+              </span>
+            </span>
+          </Link>
+          <Uploader
+            workspaceId={ws.id}
+            scripts={scripts.map((s) => ({ id: s.id, title: s.title }))}
+            defaultScriptId={defaultScriptId}
+          />
+        </>
       )}
     </PageContainer>
   );

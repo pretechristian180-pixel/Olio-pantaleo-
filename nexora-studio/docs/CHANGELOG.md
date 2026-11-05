@@ -1,5 +1,20 @@
 # Changelog
 
+## Teleprompter (2026-11-05)
+
+### Aggiunto
+- **Registrazione dal browser con il teleprompter** (`/video/registra`):
+  - nella pagina dello script c'è "Registra con il teleprompter", e la pagina Carica ha un collegamento rapido;
+  - si usa la fotocamera frontale a tutto schermo, con l'anteprima a specchio, mentre il video registrato resta normale;
+  - il testo (frase d'apertura e script) scorre in alto, vicino all'obiettivo, ed è regolabile in velocità (lenta, media, veloce) e dimensione, con pausa;
+  - prima di partire c'è un conto alla rovescia di 3 secondi, e lo schermo resta acceso dove il browser lo consente;
+  - la registrazione si ferma da sola a 10 minuti;
+  - finita la ripresa si rivede il video e si sceglie "Rifai" o "Usa questo": il caricamento riprende da solo se la connessione cade e il montaggio parte come per i video dalla galleria;
+  - il testo a schermo non finisce nel video;
+  - se il piano non consente nuovi montaggi lo diciamo prima di registrare; se il browser non supporta la registrazione resta il caricamento dalla galleria.
+- Formato: MP4 dove il browser lo supporta (iPhone, Chrome recenti), altrimenti WebM. Il montaggio li gestisce entrambi; nessuna modifica al database.
+- Test `tests/e2e/flow-teleprompter.cjs`, con fotocamera e microfono finti di Chrome: apertura, scorrimento del testo, "Rifai", "Usa questo", caricamento, script segnato come girato, montaggio avviato. Il video prodotto è stato montato fino in fondo dal worker locale.
+
 ## Trascrizione sul worker (2026-11-05)
 
 ### Cambiato
