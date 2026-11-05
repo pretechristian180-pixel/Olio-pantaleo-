@@ -4,9 +4,9 @@ Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono g
 da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
-> Stato: **Fase 6 completata** (area admin: dashboard, job, costi per video, piani). Online in anteprima
-> su Vercel (`studio.nexoragruppodigitale.it` dopo il record DNS su Aruba) con il database Supabase
-> online; worker su Railway e chiavi dei fornitori da attivare.
+> Stato: **Fase 7 completata** (landing, Sentry, backup, checklist di lancio). Su
+> `https://studio.nexoragruppodigitale.it` con il database Supabase online. Prima di aprire ai clienti:
+> `docs/LANCIO.md` (chiavi dei fornitori, worker su Railway, testi legali).
 > Vedi `docs/CHANGELOG.md`.
 
 ## Area admin (team Nexora)
@@ -24,6 +24,17 @@ Profili con `is_admin`, da `/admin`:
 | Social | Brand Metricool e link di collegamento per azienda |
 
 Le azioni del team finiscono nel registro attività (`audit_log`).
+
+## Documentazione
+
+| File | Contenuto |
+| --- | --- |
+| `docs/LANCIO.md` | Checklist di lancio: configurazione, criteri di accettazione, prove finali |
+| `docs/STRIPE.md` | Abbonamenti e pagamenti |
+| `docs/METRICOOL.md` | Collegamento dei social e pubblicazione |
+| `docs/BACKUP.md` | Backup cifrati e ripristino |
+| `docs/BRAND.md` | Identità visiva |
+| `docs/CHANGELOG.md` | Cosa è stato fatto in ogni fase |
 
 ## Struttura
 
@@ -104,11 +115,8 @@ Le email di conferma si leggono su Mailpit: http://127.0.0.1:54324
 
 ### Progetto online
 
-- Progetto: `nexora-studio`, organizzazione NEXORA, regione `eu-central-1` (**da creare**).
-- Dopo la creazione:
-  - collegare e applicare le migrazioni con `npx supabase link` e `npx supabase db push`;
-  - copiare i template email di `supabase/templates/` in Authentication → Email Templates;
-  - impostare Site URL e Redirect URLs.
+- Progetto Supabase `nexora-studio` (`zpbdaodsyufmndprcbdk`), con tutte le migrazioni applicate.
+- Da completare: template email, Site URL e Redirect URLs (vedi `docs/LANCIO.md`).
 - Le migrazioni stanno in `supabase/migrations/`. Ogni schema viene approvato prima di applicarlo.
 - Tipi TypeScript del database: `npm run db:types` (richiede `supabase link`).
 - Nell'app si usa solo la chiave **publishable** (con RLS). La chiave **secret** serve solo al

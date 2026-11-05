@@ -111,7 +111,23 @@ async function shot(page, name, full = false) {
   await page.goto(`${APP}/team`);
   await page.fill("#invite-email", B.email);
   await page.click('button:has-text("Invita")');
-  const inviteLink = await page.locator("code").innerText();
+  // Con l'invio email attivo il link arriva per email; altrimenti compare da copiare.
+  await page.getByText(/Invito (inviato|creato)/).waitFor();
+  let inviteLink;
+  if (await page.locator("code").count()) {
+    inviteLink = await page.locator("code").innerText();
+  } else {
+    for (let i = 0; i < 30 && !inviteLink; i++) {
+      const res = await (await fetch(`${MAIL}/search?query=${encodeURIComponent(`to:"${B.email}"`)}`)).json();
+      for (const m of res.messages ?? []) {
+        const full = await (await fetch(`${MAIL}/message/${m.ID}`)).json();
+        const found = full.HTML?.match(/href="([^"]*\/invito\/[0-9a-f-]{36})"/);
+        if (found) inviteLink = found[1];
+      }
+      if (!inviteLink) await new Promise((r) => setTimeout(r, 1000));
+    }
+    if (!inviteLink) throw new Error("email di invito non arrivata");
+  }
   await shot(page, "09-team-invito", true);
   log("invito creato:", inviteLink.replace(/[0-9a-f-]{36}/, "<token>"));
 

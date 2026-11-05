@@ -13,8 +13,9 @@
   },
   "dependencies": {
     "@nexora/shared": "*",
-    "@supabase/supabase-js": "^2",
     "@nexora/video-engine": "*",
+    "@sentry/node": "11.10.0",
+    "@supabase/supabase-js": "^2",
     "zod": "^4"
   },
   "devDependencies": {

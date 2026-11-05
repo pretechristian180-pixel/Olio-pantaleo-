@@ -1,0 +1,35 @@
+# Backup notturno cifrato del database di Nexora Studio (vedi nexora-studio/docs/BACKUP.md).
+# Segreti del repository: NEXORA_DB_URL (stringa di connessione Postgres), NEXORA_BACKUP_PASSPHRASE.
+# GitHub esegue le pianificazioni solo dal ramo predefinito del repository.
+name: Nexora Studio — backup database
+
+on:
+  schedule:
+    - cron: "17 2 * * *" # ogni notte alle 02:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    container: postgres:17
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: nexora-studio/scripts
+      - name: gpg
+        run: apt-get update -qq && apt-get install -y -qq gnupg >/dev/null
+      - name: Backup cifrato
+        env:
+          SUPABASE_DB_URL: ${{ secrets.NEXORA_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.NEXORA_BACKUP_PASSPHRASE }}
+        run: nexora-studio/scripts/backup.sh backups
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nexora-db-${{ github.run_id }}
+          path: backups/*.gpg
+          retention-days: 30
+          if-no-files-found: error

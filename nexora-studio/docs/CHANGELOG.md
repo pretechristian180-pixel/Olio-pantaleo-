@@ -1,5 +1,25 @@
 # Changelog
 
+## Fase 7 — Rifinitura e lancio (2026-11-05)
+
+### Aggiunto
+- **Landing completa** (`/`):
+  - apertura con anteprima di un video da approvare;
+  - come funziona, cosa fa il montaggio e per quali attività;
+  - prezzi letti dalla tabella `plans` (mensile o annuale);
+  - 7 domande frequenti e invito finale;
+  - metadati per la condivisione, `robots.txt` e `sitemap.xml` (area cliente e admin escluse).
+- **Monitoraggio errori con Sentry**: server, browser e richieste nell'app; nel worker solo i job falliti in modo definitivo e gli errori fatali.
+  - Attivo solo con `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`.
+  - Nessun dato personale: niente utenti, cookie, intestazioni né contenuti delle richieste, ed email oscurate nei messaggi.
+- **Pagine di errore in italiano**: errore di una pagina (con "Riprova"), errore generale e "Pagina non trovata".
+- **Backup cifrati**: `scripts/backup.sh` (pg_dump e cifratura AES-256) e il workflow notturno `.github/workflows/nexora-studio-backup.yml`, con copie tenute 30 giorni. Backup e ripristino sono stati provati in locale. Guida in `docs/BACKUP.md`.
+- **Dominio** `studio.nexoragruppodigitale.it` (CNAME su Aruba) come indirizzo dell'app su Vercel.
+- **`docs/LANCIO.md`**: configurazione da completare, stato dei criteri di accettazione dell'MVP, prove da fare prima di aprire ai clienti.
+
+### In attesa
+- Testi definitivi di termini, privacy e cookie (forniti da Nexora).
+
 ## Fase 6 — Area admin e metriche (2026-11-05)
 
 ### Aggiunto
