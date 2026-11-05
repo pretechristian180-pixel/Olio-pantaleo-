@@ -62,7 +62,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
       notice={
         sp.acquisto === "non-disponibile"
           ? "L'acquisto non è disponibile in questo momento. Riprova tra poco."
-          : null
+          : sp.acquisto === "recesso"
+            ? "Per acquistare conferma la casella sull'accesso immediato."
+            : null
       }
     />
   );

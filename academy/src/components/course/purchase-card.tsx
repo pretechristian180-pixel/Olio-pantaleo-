@@ -29,7 +29,7 @@ export function PurchaseCard({
   freeLessonHref?: string | null;
   enrolled?: boolean;
   /** Server Action che apre il pagamento; assente se la vendita non è ancora attiva. */
-  buyAction?: () => Promise<void>;
+  buyAction?: (formData: FormData) => Promise<void>;
   notice?: string | null;
 }) {
   return (
@@ -57,7 +57,25 @@ export function PurchaseCard({
         ) : (
           <>
             {buyAction ? (
-              <form action={buyAction}>
+              <form action={buyAction} className="space-y-3">
+                {prezzoCents > 0 && (
+                  <label className="flex cursor-pointer gap-3 text-xs leading-5 text-ink-muted">
+                    <input
+                      type="checkbox"
+                      name="recesso"
+                      required
+                      className="mt-0.5 size-5 shrink-0 accent-nexora-blue"
+                    />
+                    <span>
+                      Voglio accedere subito al corso e so che così perdo il diritto di recesso.
+                      Accetto le{" "}
+                      <Link href="/condizioni-vendita" className="underline" target="_blank">
+                        condizioni di vendita
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                )}
                 <SubmitButton size="lg" block pendingText="Apro il pagamento…">
                   {prezzoCents > 0 ? "Acquista il corso" : "Iscriviti gratis"}
                 </SubmitButton>

@@ -151,6 +151,13 @@ export function CreateAcademyForm({
                 className="font-semibold text-nexora-blue underline underline-offset-2"
               >
                 condizioni del servizio
+              </Link>{" "}
+              e l&apos;
+              <Link
+                href="/dpa"
+                className="font-semibold text-nexora-blue underline underline-offset-2"
+              >
+                accordo sul trattamento dei dati
               </Link>
             </>
           }

@@ -3,7 +3,7 @@ import { buildCertificatePdf, formatHours, pdfSafe } from "@/lib/certificate-pdf
 
 describe("attestato PDF", () => {
   it("testo compatibile con i font PDF", () => {
-    expect(pdfSafe("Perché «sì» – l’ultimo…")).toBe("Perché \"sì\" - l'ultimo...");
+    expect(pdfSafe("Perché «sì» – l’ultimo…")).toBe('Perché "sì" - l\'ultimo...');
     expect(pdfSafe("Corso 🚀 AI")).toBe("Corso  AI");
   });
   it("durata leggibile", () => {

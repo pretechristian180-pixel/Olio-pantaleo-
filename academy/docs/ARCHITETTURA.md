@@ -178,3 +178,16 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
 - Nome stampato = nome e cognome del profilo (se mancano, l'app chiede di completarli).
 - PDF A4 generato al volo (`pdf-lib`, `/attestati/[codice]/pdf`) con colore dell'academy, codice e QR.
 - Verifica pubblica `/attestati/[codice]` con i soli dati stampati (`certificate_details`).
+
+## Documenti legali
+
+- Dati legali di ogni academy (`tenants.dati_legali`: ragione sociale, P.IVA, sede, email, PEC,
+  foro) inseriti dal pannello Impostazioni; footer e pagine legali li leggono da lì.
+- Piattaforma (solo dominio principale): `/condizioni-servizio` (B2B), `/dpa` (art. 28 GDPR con
+  elenco dei sub-responsabili in `src/lib/legal.ts`).
+- Ogni academy: `/condizioni-vendita` (B2C, recesso), `/privacy` (titolare = academy, Nexora
+  responsabile), `/cookie` (solo tecnici, niente banner).
+- Acquisto: casella obbligatoria di rinuncia al recesso per l'accesso immediato (art. 59 lett. o
+  Codice del Consumo), salvata in `orders.recesso_rinuncia_il`.
+- Creazione academy: versione e data delle condizioni accettate in `tenants.termini_*`.
+- Sono bozze da far verificare a un legale.
