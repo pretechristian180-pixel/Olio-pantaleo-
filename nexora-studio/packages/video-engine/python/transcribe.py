@@ -26,6 +26,20 @@ def load_audio(path: str) -> np.ndarray:
     return np.frombuffer(raw, dtype=np.float32)
 
 
+def available_cpus() -> int:
+    """CPU davvero disponibili nel container: os.cpu_count() vede tutti i core della macchina."""
+    try:
+        quota, period = open("/sys/fs/cgroup/cpu.max").read().split()
+        if quota != "max":
+            return max(1, int(int(quota) / int(period)))
+    except (OSError, ValueError):
+        pass
+    try:
+        return len(os.sched_getaffinity(0))
+    except AttributeError:
+        return os.cpu_count() or 4
+
+
 def main() -> None:
     if len(sys.argv) < 2:
         print("uso: transcribe.py <audio> [lingua] [modello] [cartella_modelli]", file=sys.stderr)
@@ -35,12 +49,14 @@ def main() -> None:
     model_name = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else "small"
     models_dir = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] else None
 
-    threads = int(os.environ.get("WHISPER_THREADS", "0")) or os.cpu_count() or 4
+    # Ogni thread ha i suoi buffer: oltre 8 la velocità non cresce, la memoria sì.
+    threads = int(os.environ.get("WHISPER_THREADS", "0")) or min(available_cpus(), 8)
     model = WhisperModel(
         model_name,
         device="cpu",
         compute_type="int8",
         cpu_threads=threads,
+        num_workers=1,
         download_root=models_dir,
         local_files_only=bool(models_dir and os.environ.get("WHISPER_OFFLINE", "1") == "1"),
     )

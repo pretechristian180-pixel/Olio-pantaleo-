@@ -4,6 +4,8 @@
 
 ### Modificato
 - Il modello di Whisper del worker si sceglie con la variabile `WHISPER_LOCAL_MODEL`, che Railway passa alla build dell'immagine: `large-v3-turbo` è il predefinito e serve circa 3 GB di RAM, `medium` circa 2 GB, `small` circa 1 GB.
+- Whisper usa al massimo 8 thread, calcolati sulle CPU del container e non su quelle della macchina, che su Railway sono decine e fanno crescere la memoria; si può forzare con `WHISPER_THREADS`.
+- Se un processo viene terminato da un segnale, l'errore del job lo dice (per esempio SIGKILL, probabile memoria esaurita) invece di "codice null".
 - Nuova variabile `WHISPER_BEAM_SIZE` (predefinito 5): con 1 la trascrizione usa meno memoria ed è più veloce.
 
 ## Teleprompter (2026-11-05)

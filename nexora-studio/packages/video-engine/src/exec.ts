@@ -18,10 +18,15 @@ export function execCommand(cmd: string, args: string[], opts: { cwd?: string; t
         }, opts.timeoutMs)
       : null;
     child.on("error", reject);
-    child.on("close", (code) => {
+    child.on("close", (code, signal) => {
       if (timer) clearTimeout(timer);
-      if (code === 0) resolve(out);
-      else reject(new Error(`${cmd} è uscito con codice ${code}: ${err.trim().split("\n").slice(-6).join(" | ")}`));
+      if (code === 0) return resolve(out);
+      const tail = err.trim().split("\n").slice(-6).join(" | ");
+      if (signal) {
+        const hint = signal === "SIGKILL" ? " (probabile memoria esaurita)" : "";
+        return reject(new Error(`${cmd} è stato terminato dal segnale ${signal}${hint}: ${tail}`));
+      }
+      reject(new Error(`${cmd} è uscito con codice ${code}: ${tail}`));
     });
   });
 }
