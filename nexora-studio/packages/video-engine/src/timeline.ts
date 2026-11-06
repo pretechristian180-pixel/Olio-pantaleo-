@@ -101,3 +101,24 @@ export function silenceCut(words: Word[], durationS: number): Segment[] {
   if (words.length === 0) return [{ start: 0, end: durationS }];
   return segmentsFromWordRanges(words, [{ from: 0, to: words.length - 1 }], durationS);
 }
+
+/**
+ * Applica le correzioni del testo dei sottotitoli: la prima parola di ogni intervallo prende il
+ * testo corretto e dura fino alla fine dell'ultima; le altre restano con testo vuoto (stessi indici,
+ * così evidenziazioni e tagli non si spostano) e vanno scartate dopo il remap.
+ */
+export function applySubtitleFixes(words: Word[], fixes: { from: number; to: number; text: string }[]): Word[] {
+  const out = words.map((w) => ({ ...w }));
+  const sorted = [...fixes].sort((a, b) => a.from - b.from);
+  let lastTo = -1;
+  for (const f of sorted) {
+    const from = Math.max(0, Math.min(f.from, f.to));
+    const to = Math.min(out.length - 1, Math.max(f.from, f.to));
+    const text = f.text.trim();
+    if (from > to || from <= lastTo || !text || to - from > 12) continue; // niente sovrapposizioni o riscritture lunghe
+    out[from] = { ...out[from]!, text, end: out[to]!.end };
+    for (let i = from + 1; i <= to; i++) out[i] = { ...out[i]!, text: "" };
+    lastTo = to;
+  }
+  return out;
+}

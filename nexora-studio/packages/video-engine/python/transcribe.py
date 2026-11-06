@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Trascrizione parola per parola con Whisper eseguito sul worker (faster-whisper, CPU).
 
-Uso: transcribe.py <audio> [lingua] [modello] [cartella_modelli]
+Uso: transcribe.py <audio> [lingua] [modello] [cartella_modelli] [file_prompt]
+Il file_prompt (facoltativo) contiene il testo atteso, per esempio lo script: Whisper lo usa
+come contesto e scrive meglio nomi e parole del settore (non viene mai copiato nel risultato).
 Stampa su stdout un JSON: {"language", "text", "duration", "words": [{"text", "start", "end"}]}
 L'audio non lascia il server: nessuna chiamata esterna (il modello è già scaricato nell'immagine).
 """
@@ -48,6 +50,11 @@ def main() -> None:
     language = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else "it"
     model_name = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else "small"
     models_dir = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] else None
+    prompt = None
+    if len(sys.argv) > 5 and sys.argv[5]:
+        with open(sys.argv[5], encoding="utf-8") as f:
+            # Whisper usa al massimo ~220 token di contesto: teniamo l'inizio del testo atteso.
+            prompt = " ".join(f.read().split())[:700] or None
 
     # Ogni thread ha i suoi buffer: oltre 8 la velocità non cresce, la memoria sì.
     threads = int(os.environ.get("WHISPER_THREADS", "0")) or min(available_cpus(), 8)
@@ -68,6 +75,7 @@ def main() -> None:
         vad_filter=False,  # le pause servono al montaggio per tagliarle: non vanno nascoste
         beam_size=int(os.environ.get("WHISPER_BEAM_SIZE", "5")),
         condition_on_previous_text=False,
+        initial_prompt=prompt,
     )
     words = []
     texts = []

@@ -1,5 +1,23 @@
 # Changelog
 
+## Qualità del montaggio (2026-11-07)
+
+### Corretto
+- **Sottotitoli sbagliati.** Il worker trascriveva con Whisper `small` (impostato quando Railway aveva poca memoria) e senza contesto: "alcun post" diventava "al compost", "reel" diventava "real". Ora:
+  - la variabile del modello è `WHISPER_MODEL_SIZE`, con predefinito `large-v3-turbo`. La vecchia `WHISPER_LOCAL_MODEL` non è più letta: su Railway si può cancellare;
+  - Whisper riceve lo script come contesto (`initial_prompt`). Scrive meglio i nomi e le parole del settore e non copia lo script: ciò che è stato detto in più resta trascritto;
+  - l'AI del montaggio corregge gli errori di trascrizione rimasti (`subtitle_fixes`). Il sottotitolo mostra il testo giusto, mentre i tempi restano quelli dell'audio. Le correzioni sono limitate a 12 parole, senza sovrapposizioni e senza riscrivere ciò che è stato detto.
+- **Tagli nei punti sbagliati.** I tagli seguivano i tempi stimati delle parole. Ora ogni inizio e fine di segmento viene spostato nel punto più silenzioso vicino, misurato sul volume reale dell'audio ogni 10 ms. L'inizio può anticipare fino a 0,25 s, così l'attacco della parola non viene tagliato; la fine può ritardare fino a 0,3 s, così non si perde l'ultima sillaba.
+
+### Aggiunto
+- Zoom leggero alternato sui tagli, del 10% e centrato in alto dove c'è il viso. Nasconde il salto del taglio e dà ritmo; non si applica alle riprese su sfondo sfocato.
+- Pulizia della voce: taglio dei bassi rimbombanti (80 Hz) e riduzione del rumore di fondo, prima della normalizzazione a -14 LUFS.
+- Più ragionamento per l'AI del montaggio (effort alto) e regole più chiare per scegliere tra più prove della stessa frase.
+- **Rimonta da capo** (solo team, nella pagina del video): rifà trascrizione, ordine delle riprese e montaggio con il motore attuale, toglie le versioni precedenti e non consuma video del piano. Si può usare finché il cliente non ha approvato.
+
+### Verificato
+- Riprese con voce italiana sintetica trascritte con `large-v3-turbo`: senza script "reel" diventa "trail", con lo script è giusto, e "Anzi no, ricomincio", che nello script non c'è, resta trascritto. I 12 tagli del montaggio cadono tutti nel silenzio.
+
 ## Più clip per video (2026-11-06)
 
 ### Corretto

@@ -6,7 +6,7 @@ import { execCommand, ffmpegThreads } from "./exec.js";
 import { facesBetween } from "./faces.js";
 import { mapFaceToOutput } from "./framing.js";
 import { buildAss, OUT_H, OUT_W } from "./subtitles.js";
-import { outputToSource, remapWords, totalDuration } from "./timeline.js";
+import { applySubtitleFixes, outputToSource, remapWords, totalDuration } from "./timeline.js";
 import type { FaceSample, SourceInfo, Word } from "./types.js";
 
 export const OUTRO_SECONDS = 1.6;
@@ -85,8 +85,20 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
     f.push(`[vbg][vfg]overlay=(W-w)/2:(H-h)/2,setsar=1[vframe]`);
   }
 
-  // B-roll: clip a schermo intero negli intervalli indicati (la voce continua sotto)
+  // Zoom alternato sui tagli: un segmento sì e uno no (se dura almeno 1,2 s) l'inquadratura
+  // stringe del 10%, centrata un po' in alto dove di solito c'è il viso. Nasconde il salto del taglio.
   let vLabel = "vframe";
+  const zoomed = spec.punchIn && spec.framing === "cover" ? zoomWindows(segs) : [];
+  if (zoomed.length) {
+    const zw = Math.round((OUT_W * 1.1) / 2) * 2;
+    const zh = Math.round((OUT_H * 1.1) / 2) * 2;
+    f.push(`[vframe]split[vz0][vz1]`);
+    f.push(`[vz1]scale=${zw}:${zh},crop=${OUT_W}:${OUT_H}:${(zw - OUT_W) / 2}:${Math.round((zh - OUT_H) * 0.35)}[vzin]`);
+    f.push(`[vz0][vzin]overlay=0:0:enable='${zoomed.map((z) => `between(t,${f3(z.start)},${f3(z.end)})`).join("+")}'[vzoom]`);
+    vLabel = "vzoom";
+  }
+
+  // B-roll: clip a schermo intero negli intervalli indicati (la voce continua sotto)
   spec.broll.forEach((b, i) => {
     const bi = brollIdx[i];
     if (bi === null || bi === undefined) return;
@@ -102,7 +114,9 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
 
   // Audio voce: stessi tagli, micro-dissolvenze per evitare "click" ai tagli
   if (source.hasAudio) {
-    f.push(`[0:a]aselect='${sel}',asetpts=N/SR/TB,aresample=48000,afade=t=in:d=0.03[voice]`);
+    // Voce: rumore e rimbombo ridotti (telefono), poi i tagli con micro-dissolvenze anti "click".
+    const clean = spec.voiceCleanup ? "highpass=f=80,afftdn=nf=-28:tn=1," : "";
+    f.push(`[0:a]${clean}aselect='${sel}',asetpts=N/SR/TB,aresample=48000,afade=t=in:d=0.03[voice]`);
   } else {
     f.push(`anullsrc=r=48000:cl=stereo,atrim=0:${f3(mainDur)}[voice]`);
   }
@@ -150,11 +164,24 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
   return { args, durationS: total };
 }
 
+/** Intervalli (tempo del video montato) con lo zoom: i segmenti dispari lunghi almeno 1,2 s. */
+export function zoomWindows(segments: { start: number; end: number }[]) {
+  const out: { start: number; end: number }[] = [];
+  let t = 0;
+  segments.forEach((s, i) => {
+    const d = s.end - s.start;
+    if (i % 2 === 1 && d >= 1.2) out.push({ start: t, end: t + d });
+    t += d;
+  });
+  return out;
+}
+
 /** Prepara i sottotitoli (evitando i volti) ed esegue FFmpeg. */
 export async function renderVideo(input: RenderInput) {
   const { spec, source } = input;
   const segs = spec.segments;
-  const words = remapWords(input.words, segs);
+  // Testo corretto per i sottotitoli (errori di trascrizione), tempi dell'audio.
+  const words = remapWords(applySubtitleFixes(input.words, spec.subtitles.fixes), segs).filter((w) => w.text);
 
   const facesAt = (start: number, end: number) => {
     const s = outputToSource(start, segs);

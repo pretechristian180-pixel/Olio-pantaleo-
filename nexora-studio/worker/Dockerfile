@@ -25,14 +25,15 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 # Trascrizione con Whisper sul worker (faster-whisper, CPU): il modello viene scaricato qui,
 # durante la build, così in esecuzione l'audio non esce mai dal server.
-# Il modello si sceglie con la variabile WHISPER_LOCAL_MODEL (Railway la passa alla build):
+# Il modello si sceglie con la variabile WHISPER_MODEL_SIZE (Railway la passa alla build;
+# la vecchia WHISPER_LOCAL_MODEL non è più letta):
 # large-v3-turbo (predefinito, serve ~3 GB di RAM), medium (~2 GB), small (~1 GB).
-ARG WHISPER_LOCAL_MODEL=large-v3-turbo
-ENV WHISPER_LOCAL_MODEL=$WHISPER_LOCAL_MODEL \
+ARG WHISPER_MODEL_SIZE=large-v3-turbo
+ENV WHISPER_MODEL_SIZE=$WHISPER_MODEL_SIZE \
     WHISPER_MODELS_DIR=/opt/whisper
 # OpenCV 4.10 da pip: quello di Debian (4.6) non esegue il modello dei volti YuNet 2023mar.
 RUN pip3 install --no-cache-dir --break-system-packages faster-whisper==1.2.1 opencv-python-headless==4.10.0.84 "numpy<2" \
-  && python3 -c "from faster_whisper import WhisperModel; WhisperModel('$WHISPER_LOCAL_MODEL', device='cpu', compute_type='int8', download_root='$WHISPER_MODELS_DIR')" \
+  && python3 -c "from faster_whisper import WhisperModel; WhisperModel('$WHISPER_MODEL_SIZE', device='cpu', compute_type='int8', download_root='$WHISPER_MODELS_DIR')" \
   && chmod -R a+rX $WHISPER_MODELS_DIR
 WORKDIR /repo
 ENV NODE_ENV=production \

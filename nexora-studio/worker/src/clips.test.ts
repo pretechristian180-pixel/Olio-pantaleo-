@@ -9,6 +9,7 @@ const segments = [{ start: 0, end: 30 }];
 const plan = (broll: EditPlan["broll"]): EditPlan => ({
   keep: [{ from_word: 0, to_word: 59 }],
   highlight_words: [],
+  subtitle_fixes: [],
   hook_overlay: null,
   music_mood: "nessuna",
   subtitle_size: null,

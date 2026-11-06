@@ -22,6 +22,8 @@ import {
   EditSpecSchema,
   extractAudioForTranscription,
   extractThumbnail,
+  loudnessEnvelope,
+  snapSegmentsToSilence,
   type FaceSample,
   loadMusicLibrary,
   type MusicTrack,
@@ -226,6 +228,8 @@ async function combineSpeechClips(job: Job, deps: HandlerDeps, video: Awaited<Re
   }
   const dest = join(workDir(), combined.id, "source.mp4");
   await mkdir(join(workDir(), combined.id), { recursive: true });
+  // Ordine nuovo = girato nuovo: i volti calcolati sul precedente non valgono più.
+  await rm(join(workDir(), combined.id, "faces.json"), { force: true });
   await concatClips(ordered.map((p) => ({ path: p.src, info: p.info })), dest);
   const info = await probeVideo(dest);
   const words = concatWords(ordered.map((p) => ({ words: p.transcript.words, durationS: Number(p.info.durationS.toFixed(3)) })));
@@ -292,7 +296,8 @@ export async function transcribeJob(job: Job, deps: HandlerDeps) {
     p_type: "edit",
     p_workspace_id: video.workspace_id,
     p_payload: { video_id: video.id },
-    p_dedupe_key: `edit:${video.id}:1`,
+    // Un "rimonta da capo" del team riparte con una chiave nuova (la coda non ripete chiavi già usate).
+    p_dedupe_key: `edit:${video.id}:1${typeof payload(job).rebuild === "number" ? `:r${payload(job).rebuild}` : ""}`,
   });
   log("info", "trascrizione pronta", { video: video.id, words: transcript.words.length, seconds: info.durationS });
 }
@@ -371,6 +376,15 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     previousSpec,
     coverClips,
   });
+
+  // Tagli nei silenzi veri: i tempi delle parole sono stime, l'audio no.
+  try {
+    const env = await loudnessEnvelope(await sourceFile(deps.db, raw), join(workDir(), raw.id, "envelope.pcm"));
+    const snapped = snapSegmentsToSilence(spec.segments, env, Number(raw.duration_s));
+    if (snapped.length) spec.segments = snapped;
+  } catch (e) {
+    log("warn", "tagli non agganciati ai silenzi", { video: video.id, error: String(e) });
+  }
 
   await attachBroll(deps, spec, previousSpec, video.workspace_id, video.id, job.id);
 

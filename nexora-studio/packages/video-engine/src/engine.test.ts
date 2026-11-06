@@ -23,11 +23,13 @@ const words: Word[] = [
 export const baseSpec = (over: Partial<EditSpec> = {}): EditSpec => ({
   version: 1,
   segments: [{ start: 0, end: 6 }],
-  subtitles: { enabled: true, style: "evidenziato", size: "medi", highlightWordIndices: [7], highlightColor: "#0A5CFF", font: "Inter" },
+  subtitles: { enabled: true, style: "evidenziato", size: "medi", highlightWordIndices: [7], highlightColor: "#0A5CFF", font: "Inter", fixes: [] },
   music: null,
   hookOverlay: null,
   outroLogo: false,
   framing: "cover",
+  punchIn: false,
+  voiceCleanup: false,
   broll: [],
   ...over,
 });
@@ -116,4 +118,20 @@ test("ogni video esportato porta la marcatura AI nei metadati", () => {
   assert.match(joined, /ai_generated=edited/);
   assert.match(joined, /comment=Video montato con intelligenza artificiale/);
   assert.ok(args.includes("+faststart+use_metadata_tags"));
+});
+
+test("render: zoom alternato sui tagli e voce ripulita quando attivi", () => {
+  const spec = baseSpec({ segments: [{ start: 0, end: 2 }, { start: 3, end: 5 }], punchIn: true, voiceCleanup: true });
+  const { args } = buildRenderArgs(
+    {
+      workDir: "/tmp", sourcePath: "in.mp4", outputPath: "out.mp4", words, faces: [], spec,
+      source: { durationS: 6, width: 1080, height: 1920, fps: 30, hasAudio: true, orientation: "portrait" },
+    },
+    "subs.ass",
+  );
+  const graph = args[args.indexOf("-filter_complex") + 1]!;
+  assert.match(graph, /scale=1188:2112,crop=1080:1920:54:67/);
+  assert.match(graph, /overlay=0:0:enable='between\(t,2\.000,4\.000\)'\[vzoom\]/);
+  assert.match(graph, /\[vzoom\]ass=subs\.ass/);
+  assert.match(graph, /\[0:a\]highpass=f=80,afftdn=nf=-28:tn=1,aselect/);
 });

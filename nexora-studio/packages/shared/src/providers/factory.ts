@@ -45,6 +45,7 @@ function demoProvider(): LLMProvider {
     const dropFirst = /(togli|taglia).*(inizi|prima)/.test(feedback);
     return {
       keep: total ? [{ from_word: dropFirst ? Math.min(3, total - 1) : 0, to_word: total - 1 }] : [],
+      subtitle_fixes: [],
       highlight_words: Array.from({ length: Math.floor(total / 5) }, (_, i) => i * 5 + 2).filter((i) => i < total),
       hook_overlay: "Guarda fino alla fine",
       music_mood: "energica",

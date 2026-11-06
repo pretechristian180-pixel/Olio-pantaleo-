@@ -21,6 +21,15 @@ export const EditPlanSchema = z.object({
     .array(z.object({ from_word: z.number().int(), to_word: z.number().int() }))
     .describe("Intervalli di parole da tenere (indici inclusivi), nell'ordine in cui vanno riprodotti"),
   highlight_words: z.array(z.number().int()).describe("Indici delle parole chiave da evidenziare (poche)"),
+  subtitle_fixes: z
+    .array(
+      z.object({
+        from_word: z.number().int(),
+        to_word: z.number().int(),
+        text: z.string().describe("Come va scritto davvero quel pezzo nei sottotitoli"),
+      }),
+    )
+    .describe("Errori di trascrizione da correggere nei sottotitoli (parole capite male), solo nelle parti tenute"),
   hook_overlay: z.string().nullable().describe("Testo breve a schermo nei primi 3 secondi, max 6 parole, o null"),
   music_mood: z.enum(["energica", "rilassata", "elegante", "nessuna"]),
   subtitle_size: z.enum(["piccoli", "medi", "grandi"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
@@ -52,6 +61,9 @@ Il tuo compito:
 - keep: scegli gli intervalli di parole da tenere (indici inclusivi). Togli false partenze, frasi ripetute, errori corretti subito dopo ("anzi no", "ricomincio"), intercalari ("ehm", "allora...", "cioè") quando non servono, divagazioni. Se una frase è stata detta più volte, tieni l'ultima versione completa. Non tagliare a metà una frase che serve al senso.
 - L'ordine di keep è l'ordine di riproduzione: di solito quello originale. Puoi spostare all'inizio una frase d'aggancio forte solo se è chiaramente migliore come apertura.
 - Durata: un reel funziona tra 20 e 60 secondi. Taglia il superfluo, ma non inventare e non riassumere: puoi solo togliere.
+- La trascrizione è automatica e può contenere errori: parole capite male ("al compost" invece di "alcun post", "real" invece di "reel"), nomi storpiati, punteggiatura sbagliata. Ragiona su cosa è stato DETTO davvero, aiutandoti con lo script e con il senso della frase, sia per scegliere i tagli sia per i sottotitoli.
+- subtitle_fixes: per ogni errore di trascrizione nelle parti che tieni, indica le parole (from_word..to_word, al massimo 12) e il testo corretto come va mostrato a schermo, con punteggiatura e maiuscole giuste. Correggi solo errori di trascrizione: non riscrivere, non abbellire, non cambiare ciò che è stato detto anche se diverso dallo script. Se la trascrizione è giusta, lista vuota.
+- Scelta tra più prove della stessa frase: tieni la versione migliore (completa, senza inciampi, detta con più convinzione), di solito l'ultima. Se una prova ha una parola d'apertura forte che le altre non hanno (es. "Basta,"), valuta di tenerla.
 - highlight_words: 1 parola chiave ogni 4-8 parole al massimo (numeri, promesse, nomi di prodotti). Mai parole vuote.
 - hook_overlay: una scritta breve (max 6 parole) che rinforza l'apertura, oppure null se il video parla già da solo.
 - music_mood: scegli in base al tono del brand e del contenuto; "nessuna" se la musica disturberebbe.
@@ -110,7 +122,7 @@ export function editUserPrompt(ctx: PlanContext) {
   }
   if (ctx.previous) {
     parts.push(
-      `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood })}`,
+      `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood, subtitle_fixes: ctx.previous.plan.subtitle_fixes ?? [] })}`,
       `RICHIESTA DI MODIFICA DEL CLIENTE\n${ctx.previous.feedback}\n\nApplica la richiesta partendo dal montaggio precedente e cambia solo ciò che serve.`,
     );
   } else {
@@ -129,7 +141,8 @@ export async function planEdit(llm: LLMProvider, ctx: PlanContext): Promise<{ pl
     system: EDIT_SYSTEM_PROMPT,
     messages: [{ role: "user", content: editUserPrompt(ctx) }],
     schema: EditPlanSchema,
-    effort: "medium",
+    // Il montaggio è il prodotto: più ragionamento su tagli, prove ripetute e correzioni.
+    effort: "high",
   });
   return { plan: res.data, cost: res.cost };
 }
@@ -176,12 +189,17 @@ export function planToSpec(args: {
       highlightWordIndices: plan.highlight_words.filter((i) => keptIdx.size === 0 || keptIdx.has(i)).slice(0, 40),
       highlightColor: args.brandColor && /^#[0-9a-f]{6}$/i.test(args.brandColor) ? args.brandColor : "#0A5CFF",
       font: "Inter",
+      fixes: (plan.subtitle_fixes ?? [])
+        .map((f) => ({ from: f.from_word, to: f.to_word, text: f.text.trim().slice(0, 120) }))
+        .filter((f) => f.text && f.from >= 0 && f.to < n && f.to >= f.from),
     },
     music: track
       ? { trackId: track.id, volume: plan.music_volume ? MUSIC_VOLUME[plan.music_volume] : (prevVolume ?? MUSIC_VOLUME.media) }
       : null,
     hookOverlay: plan.hook_overlay?.trim() ? plan.hook_overlay.trim().slice(0, 60) : null,
     outroLogo: (editStyle.logo_outro ?? true) && args.hasLogo,
+    punchIn: true,
+    voiceCleanup: true,
     framing: defaultFraming(source),
     broll: placeBroll(plan, words, segments, maxBroll(editStyle), args.coverClips ?? []),
   };

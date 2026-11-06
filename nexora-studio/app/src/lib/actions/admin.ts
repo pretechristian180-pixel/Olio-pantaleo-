@@ -264,3 +264,55 @@ export async function adminInviteOwnerAction(
   revalidatePath("/admin/aziende");
   return res;
 }
+
+/** Stati da cui il team può rimontare un video da capo (mai dopo l'approvazione del cliente). */
+const REBUILD_FROM = new Set(["review", "internal_review", "error"]);
+
+/**
+ * Rimonta da capo (solo team): nuova trascrizione, nuovo ordine delle riprese e nuovo montaggio
+ * con il motore attuale. Le versioni precedenti vengono tolte; non consuma video del piano.
+ */
+export async function adminRebuildVideoAction(fd: FormData) {
+  const ctx = await assertAdmin();
+  const videoId = String(fd.get("video_id") ?? "");
+  const db = createAdminClient();
+  const { data: video } = await db
+    .from("videos")
+    .select("id, workspace_id, status, raw_upload_id")
+    .eq("id", videoId)
+    .maybeSingle();
+  if (!video || !REBUILD_FROM.has(video.status)) return;
+
+  const { data: clips } = await db
+    .from("video_clips")
+    .select("id, kind, position, raw_upload_id")
+    .eq("video_id", video.id)
+    .order("position");
+  const rawIds = [video.raw_upload_id, ...(clips ?? []).map((c) => c.raw_upload_id)];
+  const { data: raws } = await db.from("raw_uploads").select("id, purged_at").in("id", rawIds);
+  if ((raws ?? []).some((r) => r.purged_at)) return; // girato già cancellato (90 giorni)
+
+  const speech = (clips ?? []).filter((c) => c.kind === "speech");
+  if (speech.length > 1) {
+    // Le riprese si riuniscono da capo: si riparte dalla prima e l'AI rifà l'ordine.
+    await db.from("video_clips").update({ play_order: null }).eq("video_id", video.id);
+    await db.from("videos").update({ raw_upload_id: speech[0]!.raw_upload_id }).eq("id", video.id);
+  }
+  await db.from("raw_uploads").update({ transcript: null, status: "uploaded" }).in("id", rawIds);
+  await db.from("video_versions").delete().eq("video_id", video.id);
+  await db
+    .from("videos")
+    .update({ status: "editing", current_version: 0, change_rounds_used: 0, error: null })
+    .eq("id", video.id);
+
+  const round = Date.now();
+  await db.rpc("enqueue_job", {
+    p_type: "transcribe",
+    p_workspace_id: video.workspace_id,
+    p_payload: { video_id: video.id, rebuild: round },
+    p_dedupe_key: `transcribe:${video.id}:r${round}`,
+  });
+  await audit(ctx.user.id, video.workspace_id, "video.rebuild", { video_id: video.id });
+  revalidatePath(`/video/${video.id}`);
+  revalidatePath("/admin/revisione");
+}

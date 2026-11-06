@@ -17,6 +17,13 @@ export const EditSpecSchema = z.object({
     /** Colore di evidenziazione #RRGGBB. */
     highlightColor: z.string(),
     font: z.string(),
+    /**
+     * Correzioni del testo dei sottotitoli (errori di trascrizione): le parole from..to
+     * (indici inclusivi della trascrizione) vengono mostrate come `text`. I tempi restano quelli audio.
+     */
+    fixes: z
+      .array(z.object({ from: z.number().int(), to: z.number().int(), text: z.string() }))
+      .default([]),
   }),
   music: z
     .object({
@@ -28,6 +35,10 @@ export const EditSpecSchema = z.object({
   /** Testo grande nei primi secondi (la frase d'aggancio), facoltativo. */
   hookOverlay: z.string().nullable(),
   outroLogo: z.boolean(),
+  /** Zoom leggero alternato sui tagli (stile reel): nasconde i salti e dà ritmo. */
+  punchIn: z.boolean().default(true),
+  /** Pulizia della voce del telefono: taglio dei bassi rimbombanti e riduzione del rumore di fondo. */
+  voiceCleanup: z.boolean().default(true),
   /** Inquadratura: "cover" riempie 9:16 tagliando, "fit" mette il video su sfondo sfocato. */
   framing: z.enum(["cover", "fit"]),
   broll: z.array(

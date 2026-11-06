@@ -10,8 +10,8 @@ export class LocalWhisperTranscriber implements TranscriptionProvider {
 
   async transcribe(input: TranscriptionInput) {
     const started = Date.now();
-    const model = process.env.WHISPER_LOCAL_MODEL ?? "large-v3-turbo";
-    const res = await transcribeLocal(input.filePath, { language: input.language ?? "it", model });
+    const model = process.env.WHISPER_MODEL_SIZE ?? "large-v3-turbo";
+    const res = await transcribeLocal(input.filePath, { language: input.language ?? "it", model, prompt: input.hintText });
     const durationS = res.durationS || input.durationS;
     return {
       transcript: { language: res.language || "it", text: res.text, words: res.words, durationS },
