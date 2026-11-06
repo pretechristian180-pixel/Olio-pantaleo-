@@ -2,6 +2,9 @@
 
 ## Produzione (2026-11-05)
 
+### Corretto
+- Render su Railway: il rilevamento dei volti si fermava con OpenCV 4.6 di Debian, che non esegue il modello YuNet 2023mar. Il worker ora installa OpenCV 4.10 da pip (verificato con lo stesso fotogramma: 4.6 va in errore, 4.10 trova il volto).
+
 ### Modificato
 - Il modello di Whisper del worker si sceglie con la variabile `WHISPER_LOCAL_MODEL`, che Railway passa alla build dell'immagine: `large-v3-turbo` è il predefinito e serve circa 3 GB di RAM, `medium` circa 2 GB, `small` circa 1 GB.
 - Whisper usa al massimo 8 thread, calcolati sulle CPU del container e non su quelle della macchina, che su Railway sono decine e fanno crescere la memoria; si può forzare con `WHISPER_THREADS`.
