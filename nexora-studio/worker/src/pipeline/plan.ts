@@ -30,11 +30,16 @@ export const EditPlanSchema = z.object({
     .array(
       z.object({
         at_word: z.number().int().describe("Indice della parola su cui far partire la clip (la voce continua sotto)"),
-        duration_s: z.number().describe("Durata della clip in secondi, 2-4"),
+        duration_s: z.number().describe("Durata della clip in secondi: 2-4 per lo stock, 2-6 per le clip del cliente"),
+        own_clip: z
+          .number()
+          .int()
+          .nullable()
+          .describe("Numero della clip di copertura del cliente da usare (1, 2, ...), oppure null per una clip stock"),
         query_en: z.string().describe("Cosa mostrare, 2-4 parole in inglese, concreto (es. 'pizza oven fire')"),
       }),
     )
-    .describe("Immagini di supporto (stock) nei punti in cui si parla di qualcosa che si può mostrare"),
+    .describe("Immagini di supporto nei punti in cui si parla di qualcosa che si può mostrare: prima le clip del cliente, poi lo stock"),
   caption: z.string().describe("Didascalia per i social in italiano, 1-3 frasi, con invito all'azione, senza hashtag"),
   hashtags: z.array(z.string()).describe("5-8 hashtag in italiano senza #, anche locali"),
   notes: z.string().describe("In una frase: cosa hai tagliato e perché (per il team)"),
@@ -50,17 +55,28 @@ Il tuo compito:
 - highlight_words: 1 parola chiave ogni 4-8 parole al massimo (numeri, promesse, nomi di prodotti). Mai parole vuote.
 - hook_overlay: una scritta breve (max 6 parole) che rinforza l'apertura, oppure null se il video parla già da solo.
 - music_mood: scegli in base al tono del brand e del contenuto; "nessuna" se la musica disturberebbe.
-- broll: clip stock a schermo intero nei punti in cui si parla di qualcosa di concreto da mostrare (un prodotto, un luogo, un'azione). Mai nei primi 3 secondi, mai mentre il titolare mostra lui stesso qualcosa. Rispetta il numero massimo indicato.
+- broll: clip a schermo intero sopra la voce, nei punti in cui si parla di qualcosa di concreto da mostrare (un prodotto, un luogo, un'azione). Mai nei primi 3 secondi, mai mentre il titolare mostra lui stesso qualcosa.
+  - Se ci sono CLIP DI COPERTURA DEL CLIENTE, usale per prime (own_clip = il loro numero): ognuna al massimo una volta, nel punto in cui si parla di ciò che mostrano (se non c'è descrizione, dove si parla dell'attività o del prodotto in generale), per non più della loro durata. Cerca di usarle tutte: le ha girate apposta.
+  - Le clip stock (own_clip = null, con query_en) solo per i punti rimasti, rispettando il numero massimo di clip stock indicato.
 - caption e hashtags: in italiano, coerenti con il brand e la città; niente promesse o dati non detti nel video.
 - subtitle_size, subtitle_style, music_volume: lasciali null, salvo che la richiesta di modifica del cliente li riguardi.
 
 Le pause lunghe nella trascrizione sono segnate con ‖. Gli indici sono tra parentesi quadre.
 Rispondi solo con il JSON richiesto.`;
 
+/** Clip di copertura caricata dal cliente (b-roll proprio), numerata da 1. */
+export interface CoverClip {
+  n: number;
+  description: string | null;
+  durationS: number;
+  storagePath: string;
+}
+
 export interface PlanContext {
   brand: { companyName: string; city: string | null; toneOfVoice: string | null; doNotSay: string | null; editStyle: EditStyle };
   script: { title: string; hook: string; body: string } | null;
   words: Word[];
+  coverClips?: CoverClip[];
   previous?: { plan: EditPlan; feedback: string };
 }
 
@@ -77,12 +93,21 @@ export function editUserPrompt(ctx: PlanContext) {
   const style = ctx.brand.editStyle;
   const parts = [
     `AZIENDA\n- Nome: ${ctx.brand.companyName}${ctx.brand.city ? `\n- Città: ${ctx.brand.city}` : ""}${ctx.brand.toneOfVoice ? `\n- Tono: ${ctx.brand.toneOfVoice}` : ""}${ctx.brand.doNotSay ? `\n- Da non dire: ${ctx.brand.doNotSay}` : ""}`,
-    `STILE DI MONTAGGIO PREFERITO\n- Ritmo: ${style.pace ?? "medio"}\n- Musica: ${style.music?.mood ?? "energica"}\n- B-roll: massimo ${maxBroll(style)} clip`,
+    `STILE DI MONTAGGIO PREFERITO\n- Ritmo: ${style.pace ?? "medio"}\n- Musica: ${style.music?.mood ?? "energica"}\n- B-roll stock: massimo ${maxBroll(style)} clip`,
     ctx.script
       ? `SCRIPT DI RIFERIMENTO (il titolare può essersi discostato)\n- Titolo: ${ctx.script.title}\n- Apertura prevista: ${ctx.script.hook}\n- Testo: ${ctx.script.body.replace(/\n+/g, " ")}`
       : "SCRIPT DI RIFERIMENTO\n- Nessuno: video libero.",
     `TRASCRIZIONE (PAROLE TOTALI: ${ctx.words.length})\n${transcriptForPrompt(ctx.words)}`,
   ];
+  if (ctx.coverClips?.length) {
+    parts.splice(
+      3,
+      0,
+      `CLIP DI COPERTURA DEL CLIENTE (senza parlato, da mettere sopra la voce)\n${ctx.coverClips
+        .map((c) => `- Clip ${c.n} (${c.durationS.toFixed(1)} s): ${c.description?.trim() || "nessuna descrizione"}`)
+        .join("\n")}`,
+    );
+  }
   if (ctx.previous) {
     parts.push(
       `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood })}`,
@@ -122,6 +147,7 @@ export function planToSpec(args: {
   seed: string;
   hasLogo: boolean;
   previousSpec?: EditSpec | null;
+  coverClips?: CoverClip[];
 }): EditSpec {
   const { plan, words, source, editStyle } = args;
   const n = words.length;
@@ -157,31 +183,143 @@ export function planToSpec(args: {
     hookOverlay: plan.hook_overlay?.trim() ? plan.hook_overlay.trim().slice(0, 60) : null,
     outroLogo: (editStyle.logo_outro ?? true) && args.hasLogo,
     framing: defaultFraming(source),
-    broll: placeBroll(plan, words, segments, maxBroll(editStyle)),
+    broll: placeBroll(plan, words, segments, maxBroll(editStyle), args.coverClips ?? []),
   };
   return EditSpecSchema.parse(spec);
 }
 
 /**
  * Dalle proposte del modello alle posizioni nel video montato, con regole fisse:
- * dopo la frase d'apertura (3 s), mai nell'ultimo secondo, 2-4 s ciascuna, almeno 1,5 s tra due clip.
+ * dopo la frase d'apertura (3 s), mai nell'ultimo secondo, almeno 1,5 s tra due clip.
+ * Le clip di copertura del cliente (bucket "raw") vanno per prime, 2-6 s, ognuna una volta sola,
+ * e non contano nel massimo di clip stock; quelle che il modello non ha collocato vanno
+ * negli spazi liberi rimasti. Le clip stock durano 2-4 s.
  */
-export function placeBroll(plan: EditPlan, words: Word[], segments: { start: number; end: number }[], max: number) {
-  if (max <= 0) return [];
+export function placeBroll(
+  plan: EditPlan,
+  words: Word[],
+  segments: { start: number; end: number }[],
+  max: number,
+  coverClips: CoverClip[] = [],
+) {
   const timed = remapWords(words, segments);
   const total = totalDuration(segments);
   const placed: EditSpec["broll"] = [];
+  const fits = (at: number, duration: number) =>
+    at >= 3 &&
+    at + duration <= total - 1 &&
+    placed.every((p) => at + duration + 1.5 <= p.at || at >= p.at + p.duration + 1.5);
+  const byN = new Map(coverClips.map((c) => [c.n, c]));
+  const usedClips = new Set<number>();
   const sorted = [...plan.broll].sort((a, b) => a.at_word - b.at_word);
+
+  // 1. Clip del cliente dove le ha messe il modello
   for (const b of sorted) {
-    if (placed.length >= Math.min(max, Math.floor(total / 8))) break;
+    const clip = b.own_clip != null ? byN.get(b.own_clip) : undefined;
+    if (!clip || usedClips.has(clip.n)) continue;
+    const w = timed.find((t) => t.index >= b.at_word);
+    if (!w) continue;
+    const duration = ownDuration(b.duration_s, clip.durationS);
+    const at = Math.max(3, w.start);
+    if (duration < 1 || !fits(at, duration)) continue;
+    placed.push(ownEntry(at, duration, clip));
+    usedClips.add(clip.n);
+  }
+  // 2. Clip del cliente rimaste: negli spazi liberi, distribuite lungo il video
+  const left = coverClips.filter((c) => !usedClips.has(c.n));
+  left.forEach((clip, i) => {
+    const duration = ownDuration(3.5, clip.durationS);
+    if (duration < 1) return;
+    const ideal = 3 + ((total - 4) * (i + 1)) / (left.length + 1);
+    for (const delta of [0, 1, -1, 2, -2, 3, -3, 4, -4, 6, -6]) {
+      const at = Math.round((ideal + delta) * 100) / 100;
+      if (fits(at, duration)) {
+        placed.push(ownEntry(at, duration, clip));
+        usedClips.add(clip.n);
+        break;
+      }
+    }
+  });
+  // 3. Stock, nel limite dello stile scelto
+  let stock = 0;
+  const stockMax = Math.min(max, Math.floor(total / 8));
+  for (const b of sorted) {
+    if (b.own_clip != null && byN.has(b.own_clip)) continue;
+    if (stock >= stockMax) break;
     const w = timed.find((t) => t.index >= b.at_word);
     if (!w || !b.query_en.trim()) continue;
     const duration = Math.min(4, Math.max(2, b.duration_s || 3));
     const at = Math.max(3, w.start);
-    if (at + duration > total - 1) continue;
-    const last = placed[placed.length - 1];
-    if (last && at < last.at + last.duration + 1.5) continue;
-    placed.push({ at: Math.round(at * 100) / 100, duration, query: b.query_en.trim().slice(0, 60), storagePath: null });
+    if (!fits(at, duration)) continue;
+    placed.push({ at: Math.round(at * 100) / 100, duration, query: b.query_en.trim().slice(0, 60), storagePath: null, bucket: "output" });
+    stock += 1;
   }
-  return placed;
+  return placed.sort((a, b) => a.at - b.at);
+}
+
+function ownDuration(requested: number, clipDuration: number) {
+  return Math.round(Math.min(6, Math.max(2, requested || 3.5), clipDuration - 0.1) * 100) / 100;
+}
+
+function ownEntry(at: number, duration: number, clip: CoverClip): EditSpec["broll"][number] {
+  return {
+    at: Math.round(at * 100) / 100,
+    duration,
+    query: `clip ${clip.n}${clip.description ? `: ${clip.description}` : ""}`.slice(0, 60),
+    storagePath: clip.storagePath,
+    bucket: "raw",
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Ordine delle riprese (più clip parlate)
+// ─────────────────────────────────────────────────────────────────────────
+export const ClipOrderSchema = z.object({
+  order: z.array(z.number().int()).describe("Numeri delle riprese nell'ordine in cui vanno montate, tutte, una volta sola"),
+  notes: z.string().describe("In una frase: perché questo ordine (per il team)"),
+});
+
+export const CLIP_ORDER_SYSTEM_PROMPT = `Sei il montatore di Nexora Studio. Il titolare di una piccola azienda ha girato un video in più riprese separate. Ricevi la trascrizione di ogni ripresa e, se c'è, lo script che doveva seguire. Decidi in che ordine montarle.
+
+Regole:
+- Se c'è uno script, segui il suo ordine: apertura, poi il corpo, poi la chiusura o l'invito all'azione.
+- Senza script, scegli l'ordine più logico per un video social: prima l'aggancio, poi il contenuto, poi la chiusura ("seguici", "vieni a trovarci", saluti).
+- Le riprese senza parole (vuote) mettile in fondo.
+- Includi tutte le riprese, una volta sola. Se due riprese dicono la stessa cosa, mettile vicine: le ripetizioni le toglie il montaggio dopo.
+Rispondi solo con il JSON richiesto.`;
+
+export async function planClipOrder(
+  llm: LLMProvider,
+  ctx: { script: { title: string; hook: string; body: string } | null; clips: { n: number; text: string; durationS: number }[] },
+): Promise<{ order: number[]; notes: string; cost: ProviderCost }> {
+  const prompt = [
+    ctx.script
+      ? `SCRIPT\n- Titolo: ${ctx.script.title}\n- Apertura: ${ctx.script.hook}\n- Testo: ${ctx.script.body.replace(/\n+/g, " ")}`
+      : "SCRIPT\n- Nessuno: video libero.",
+    `RIPRESE (${ctx.clips.length})\n${ctx.clips
+      .map((c) => `- Ripresa ${c.n} (${c.durationS.toFixed(1)} s): ${c.text.trim() || "(nessuna parola)"}`)
+      .join("\n")}`,
+  ].join("\n\n");
+  const res = await llm.generateObject({
+    system: CLIP_ORDER_SYSTEM_PROMPT,
+    messages: [{ role: "user", content: prompt }],
+    schema: ClipOrderSchema,
+    effort: "low",
+  });
+  return { order: normalizeOrder(res.data.order, ctx.clips.map((c) => c.n)), notes: res.data.notes, cost: res.cost };
+}
+
+/** Tiene solo numeri validi, senza doppioni, e aggiunge in coda quelli dimenticati. */
+export function normalizeOrder(order: number[], all: number[]) {
+  const valid = new Set(all);
+  const seen = new Set<number>();
+  const out: number[] = [];
+  for (const n of order) {
+    if (valid.has(n) && !seen.has(n)) {
+      out.push(n);
+      seen.add(n);
+    }
+  }
+  for (const n of all) if (!seen.has(n)) out.push(n);
+  return out;
 }

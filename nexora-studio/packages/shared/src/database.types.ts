@@ -349,7 +349,7 @@ export interface Database {
           width: number | null;
           height: number | null;
           orientation: "portrait" | "landscape" | "square" | null;
-          source: "upload" | "drive";
+          source: "upload" | "drive" | "combined";
           status: "uploaded" | "processing" | "ready" | "error";
           error: string | null;
           transcript: Json | null;
@@ -360,14 +360,16 @@ export interface Database {
         Insert: {
           workspace_id: string;
           script_id?: string | null;
-          uploaded_by: string;
+          uploaded_by: string | null;
           storage_path: string;
           file_name: string;
           size_bytes?: number | null;
           mime_type?: string | null;
-          source?: "upload" | "drive";
+          source?: "upload" | "drive" | "combined";
+          status?: "uploaded" | "processing" | "ready" | "error";
         };
         Update: {
+          size_bytes?: number | null;
           duration_s?: number | null;
           width?: number | null;
           height?: number | null;
@@ -417,6 +419,7 @@ export interface Database {
           error?: string | null;
           approved_by?: string | null;
           approved_at?: Timestamp | null;
+          raw_upload_id?: string;
         };
         Relationships: [
           {
@@ -494,6 +497,33 @@ export interface Database {
           billed_period_start?: Timestamp | null;
         };
         Update: { [_ in never]: never };
+        Relationships: [];
+      };
+      video_clips: {
+        Row: {
+          id: string;
+          video_id: string;
+          workspace_id: string;
+          raw_upload_id: string;
+          kind: "speech" | "cover";
+          position: number;
+          play_order: number | null;
+          description: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          video_id: string;
+          workspace_id: string;
+          raw_upload_id: string;
+          kind: "speech" | "cover";
+          position: number;
+          play_order?: number | null;
+          description?: string | null;
+        };
+        Update: {
+          play_order?: number | null;
+          description?: string | null;
+        };
         Relationships: [];
       };
       social_accounts: {

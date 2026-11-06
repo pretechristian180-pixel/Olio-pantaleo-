@@ -51,14 +51,32 @@ function demoProvider(): LLMProvider {
       subtitle_size: /pi[uù] grand/.test(feedback) ? "grandi" : null,
       subtitle_style: null,
       music_volume: /musica.*(bassa|pi[uù] piano)/.test(feedback) ? "bassa" : null,
-      broll: total > 20 ? [{ at_word: Math.floor(total * 0.45), duration_s: 3, query_en: "small business owner" }] : [],
+      broll: [
+        ...(total > 20 ? [{ at_word: Math.floor(total * 0.45), duration_s: 3, own_clip: null, query_en: "small business owner" }] : []),
+        // Clip di copertura del cliente: la prima a un quarto del video
+        ...(/CLIP DI COPERTURA DEL CLIENTE/.test(content) && total > 8
+          ? [{ at_word: Math.floor(total * 0.25), duration_s: 3, own_clip: 1, query_en: "" }]
+          : []),
+      ],
       caption: `Un minuto con ${companyOf(req)}: salva il video e passa a trovarci!`,
       hashtags: ["video", "pmi", "italia", "dietrolequinte", "consigli"],
       notes: dropFirst ? "Tolte le prime parole su richiesta del cliente." : "Tolte le pause lunghe.",
     };
   };
+  // Ordine delle riprese: dove compaiono le loro prime parole nello script (senza script: come caricate).
+  const clipOrder = (content: string) => {
+    const norm = (t: string) => t.toLowerCase().replace(/[^a-zà-ù0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+    const script = norm(/- Testo: (.+)/.exec(content)?.[1] ?? "");
+    const clips = [...content.matchAll(/- Ripresa (\d+) \([^)]*\): (.*)/g)].map((m) => {
+      const head = norm(m[2] ?? "").split(" ").slice(0, 3).join(" ");
+      const at = head && script ? script.indexOf(head) : -1;
+      return { n: Number(m[1]), at: at < 0 ? Number.MAX_SAFE_INTEGER : at };
+    });
+    return { order: clips.sort((a, b) => a.at - b.at || a.n - b.n).map((c) => c.n), notes: "Ordine dello script." };
+  };
   const respond = (req: LLMObjectRequest<unknown>) => {
     const content = req.messages[0]?.content ?? "";
+    if (/^RIPRESE \(|\nRIPRESE \(/.test(content)) return clipOrder(content);
     if (/PAROLE TOTALI:/.test(content)) return editPlan(req);
     return /Scrivi un solo script/.test(content)
       ? { script: one(companyOf(req)) }

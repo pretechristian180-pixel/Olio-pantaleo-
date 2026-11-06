@@ -1,5 +1,22 @@
 # Changelog
 
+## Più clip per video (2026-11-06)
+
+### Aggiunto
+- **Caricamento di più clip per lo stesso video** (fino a 10). Nella pagina Carica si scelgono più file insieme e per ognuno si indica:
+  - «Parlo io», per le riprese in cui si parla;
+  - «Copertura», per le immagini senza parlato (prodotti, locale, lavorazioni), con una descrizione facoltativa ("il forno acceso").
+- **Riprese parlate**: il worker le trascrive una per una, poi l'AI decide l'ordine confrontandole con lo script (senza script, segue l'ordine più logico per un video social). Le unisce poi in un unico girato:
+  - stesse dimensioni, 30 fps, audio a 48 kHz;
+  - bande nere se una ripresa ha un formato diverso;
+  - formato della maggioranza delle riprese.
+
+  Il girato unito non viene salvato nello storage: il worker lo ricostruisce dalle clip quando serve, per esempio dopo un riavvio o per una richiesta di modifica.
+- **Clip di copertura**: vanno sopra la voce come b-roll, nei punti in cui si parla di ciò che mostrano. Durano da 2 a 6 secondi e ognuna si usa una volta sola. Hanno la precedenza sulle clip di repertorio, non consumano crediti b-roll e si usano anche se lo stile del brand ha il b-roll di repertorio disattivato. Quelle che l'AI non colloca finiscono negli spazi liberi.
+- Un video con più clip conta come 1 video del piano. Le riprese parlate insieme restano entro 10 minuti.
+- Database: tabella `video_clips` (tipo, posizione, ordine deciso dall'AI, descrizione) e origine `combined` per il girato unito; i membri non possono registrare da sé un girato `combined`.
+- Test: `tests/e2e/flow-clip.cjs`, test unitari dell'unione delle riprese (anche con FFmpeg reale) e del posizionamento delle clip di copertura.
+
 ## Produzione (2026-11-05)
 
 ### Corretto

@@ -7,4 +7,5 @@ export * from "./probe.js";
 export * from "./faces.js";
 export * from "./music.js";
 export * from "./render.js";
+export * from "./concat.js";
 export * from "./transcribe.js";

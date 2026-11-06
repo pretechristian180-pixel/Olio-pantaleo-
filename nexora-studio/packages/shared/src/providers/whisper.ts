@@ -55,11 +55,33 @@ export class WhisperProvider implements TranscriptionProvider {
  * Trascrizione dimostrativa (sviluppo e test, nessuna chiamata esterna): distribuisce il testo
  * atteso sulla durata del girato, con una pausa lunga a metà e un "errore" ripetuto da tagliare.
  */
+/**
+ * Solo test: un file di prova può dire cosa "si sente" con il metadato comment
+ * "demo-text: …" (così riprese diverse hanno trascrizioni diverse).
+ */
+async function demoTextFromFile(path: string): Promise<string | null> {
+  try {
+    const { execFile } = await import("node:child_process");
+    const out = await new Promise<string>((resolve, reject) =>
+      execFile(
+        "ffprobe",
+        ["-v", "error", "-show_entries", "format_tags=comment", "-of", "default=nw=1:nk=1", path],
+        (err, stdout) => (err ? reject(err) : resolve(stdout)),
+      ),
+    );
+    const m = /demo-text:\s*(.+)/.exec(out);
+    return m?.[1]?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 export class DemoTranscriber implements TranscriptionProvider {
   readonly name = "demo";
 
   async transcribe(input: TranscriptionInput) {
-    const base = (input.hintText ?? "Ciao, questo è un video di prova montato in automatico da Nexora Studio.")
+    const tagged = await demoTextFromFile(input.filePath);
+    const base = (tagged ?? input.hintText ?? "Ciao, questo è un video di prova montato in automatico da Nexora Studio.")
       .replace(/\s+/g, " ")
       .trim()
       .split(" ");

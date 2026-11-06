@@ -1,7 +1,8 @@
 # Nexora Studio
 
 Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono gli script dei video
-da girare, caricano il girato e ricevono i video montati con l'AI. Li approvano e la piattaforma li
+da girare, caricano il girato (anche in più clip: riprese parlate, che l'AI mette in ordine, e
+clip di copertura) e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
 
 > Stato: **Fase 7 completata** (landing, Sentry, backup, checklist di lancio). Su

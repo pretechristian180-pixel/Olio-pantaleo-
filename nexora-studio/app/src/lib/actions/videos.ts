@@ -20,6 +20,19 @@ function str(fd: FormData, key: string, max = 2000) {
 
 export type RegisterResult = { videoId?: string; error?: string };
 
+export type ClipKind = "speech" | "cover";
+export type ClipInput = {
+  storagePath: string;
+  fileName: string;
+  sizeBytes: number;
+  mimeType: string;
+  kind: ClipKind;
+  description?: string | null;
+};
+
+/** Massimo di clip per video (riprese parlate + copertura). */
+const MAX_CLIPS = 10;
+
 /**
  * Registra un girato appena caricato nello storage e avvia il montaggio.
  * Consuma un video della prova gratuita (restituito se il montaggio fallisce).
@@ -32,10 +45,30 @@ export async function registerUpload(input: {
   mimeType: string;
   scriptId: string | null;
 }): Promise<RegisterResult> {
+  const { workspaceId, scriptId, ...clip } = input;
+  return registerClips({ workspaceId, scriptId, clips: [{ ...clip, kind: "speech" }] });
+}
+
+/**
+ * Registra una o più clip dello stesso video: riprese in cui si parla (il worker le unisce
+ * nell'ordine deciso dall'AI) e clip di copertura (sopra la voce). Un video = 1 video del piano.
+ */
+export async function registerClips(input: {
+  workspaceId: string;
+  scriptId: string | null;
+  clips: ClipInput[];
+}): Promise<RegisterResult> {
   const { ctx } = await assertMember(input.workspaceId);
-  if (!input.storagePath.startsWith(`${input.workspaceId}/`))
-    return { error: "Percorso del file non valido." };
-  if (input.sizeBytes > MAX_BYTES) return { error: "Il file supera i 2 GB." };
+  const clips = input.clips;
+  if (!clips.length || clips.length > MAX_CLIPS) return { error: `Puoi caricare da 1 a ${MAX_CLIPS} clip.` };
+  if (!clips.some((c) => c.kind === "speech"))
+    return { error: "Serve almeno una ripresa in cui parli: le clip di copertura vanno sopra la voce." };
+  for (const c of clips) {
+    if (c.kind !== "speech" && c.kind !== "cover") return { error: "Tipo di clip non valido." };
+    if (!c.storagePath.startsWith(`${input.workspaceId}/`)) return { error: "Percorso del file non valido." };
+    if (c.sizeBytes > MAX_BYTES) return { error: "Un file supera i 2 GB." };
+  }
+  if (new Set(clips.map((c) => c.storagePath)).size !== clips.length) return { error: "Hai scelto due volte lo stesso file." };
 
   const supabase = await createClient();
   let scriptId: string | null = null;
@@ -48,21 +81,24 @@ export async function registerUpload(input: {
     if (script?.workspace_id === input.workspaceId) scriptId = script.id;
   }
 
-  const { data: raw, error: rawError } = await supabase
+  const { data: raws, error: rawError } = await supabase
     .from("raw_uploads")
-    .insert({
-      workspace_id: input.workspaceId,
-      script_id: scriptId,
-      uploaded_by: ctx.user.id,
-      storage_path: input.storagePath,
-      file_name: input.fileName.slice(0, 200),
-      size_bytes: input.sizeBytes,
-      mime_type: input.mimeType.slice(0, 100),
-      source: "upload",
-    })
-    .select("id")
-    .single();
-  if (rawError || !raw) return { error: "Non siamo riusciti a registrare il video. Riprova." };
+    .insert(
+      clips.map((c) => ({
+        workspace_id: input.workspaceId,
+        script_id: scriptId,
+        uploaded_by: ctx.user.id,
+        storage_path: c.storagePath,
+        file_name: c.fileName.slice(0, 200),
+        size_bytes: c.sizeBytes,
+        mime_type: c.mimeType.slice(0, 100),
+        source: "upload" as const,
+      })),
+    )
+    .select("id, storage_path");
+  if (rawError || !raws || raws.length !== clips.length)
+    return { error: "Non siamo riusciti a registrare il video. Riprova." };
+  const rawId = new Map(raws.map((r) => [r.storage_path, r.id]));
 
   const admin = createAdminClient();
   const { data: quota } = await admin.rpc("reserve_video", { p_workspace_id: input.workspaceId });
@@ -75,24 +111,46 @@ export async function registerUpload(input: {
   };
   if (!q.ok) return { error: quotaMessage(q.reason, q.limit) };
 
+  const firstSpeech = clips.find((c) => c.kind === "speech")!;
   const { data: video, error: videoError } = await admin
     .from("videos")
     .insert({
       workspace_id: input.workspaceId,
       script_id: scriptId,
-      raw_upload_id: raw.id,
+      raw_upload_id: rawId.get(firstSpeech.storagePath)!,
       status: "queued",
       quota_kind: q.kind ?? null,
       billed_period_start: q.period_start ?? null,
     })
     .select("id")
     .single();
-  if (videoError || !video) {
-    await admin.rpc("release_reservation", {
+  const releaseQuota = () =>
+    admin.rpc("release_reservation", {
       p_workspace_id: input.workspaceId,
       p_period_start: q.period_start ?? null,
     });
+  if (videoError || !video) {
+    await releaseQuota();
     return { error: "Non siamo riusciti ad avviare il montaggio. Riprova." };
+  }
+
+  // Un solo girato: come sempre, senza righe in video_clips.
+  if (clips.length > 1) {
+    const { error: clipsError } = await admin.from("video_clips").insert(
+      clips.map((c, i) => ({
+        video_id: video.id,
+        workspace_id: input.workspaceId,
+        raw_upload_id: rawId.get(c.storagePath)!,
+        kind: c.kind,
+        position: i + 1,
+        description: c.kind === "cover" ? c.description?.trim().slice(0, 200) || null : null,
+      })),
+    );
+    if (clipsError) {
+      await admin.from("videos").delete().eq("id", video.id);
+      await releaseQuota();
+      return { error: "Non siamo riusciti ad avviare il montaggio. Riprova." };
+    }
   }
 
   await admin.rpc("enqueue_job", {

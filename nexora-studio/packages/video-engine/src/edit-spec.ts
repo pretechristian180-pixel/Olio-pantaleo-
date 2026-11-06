@@ -37,6 +37,8 @@ export const EditSpecSchema = z.object({
       duration: z.number(),
       query: z.string(),
       storagePath: z.string().nullable(),
+      /** "output": clip di repertorio salvata accanto al video; "raw": clip di copertura del cliente. */
+      bucket: z.enum(["output", "raw"]).default("output"),
     }),
   ),
 });

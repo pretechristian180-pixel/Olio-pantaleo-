@@ -12,6 +12,7 @@ SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=... \
   node tests/e2e/isolamento.mjs <email-titolare> <email-collaboratore>   # 21 controlli RLS
 ```
 
+- `flow-clip.cjs`: più clip per un video. Tre riprese parlate caricate in ordine sbagliato e una clip di copertura orizzontale: il worker le rimette nell'ordine dello script, le unisce in verticale e mette la copertura sopra la voce senza consumare crediti b-roll. Serve il worker con `LLM_PROVIDER=demo` e `TRANSCRIPTION_PROVIDER=demo` (la trascrizione demo legge il testo dal metadato `comment` dei file di prova).
 - `flow-teleprompter.cjs`: registrazione con il teleprompter (Chrome con fotocamera e microfono finti), rifai, usa, caricamento e avvio del montaggio.
 - `flow-aziende.cjs`: il team crea l'azienda di un cliente, compila il profilo e invita il titolare; il cliente accetta e il team diventa collaboratore.
 - `flow-termini.cjs`: regole dei Termini (modifica extra, download, girato oltre 90 giorni, cancellazione dopo la cessazione). Usa e poi svuota un'azienda creata da `flow-fase3.cjs`; serve il worker attivo.

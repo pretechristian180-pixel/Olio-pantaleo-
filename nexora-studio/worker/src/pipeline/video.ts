@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import type { Json, Tables } from "@nexora/shared";
@@ -15,6 +15,8 @@ import {
   type TranscriptionProvider,
 } from "@nexora/shared/server";
 import {
+  concatClips,
+  concatWords,
   detectFaces,
   type EditSpec,
   EditSpecSchema,
@@ -30,7 +32,7 @@ import {
 
 import type { HandlerDeps, Job } from "../handlers.js";
 import { log } from "../log.js";
-import { type EditPlan, planEdit, planToSpec } from "./plan.js";
+import { type CoverClip, type EditPlan, planClipOrder, planEdit, planToSpec } from "./plan.js";
 import { downloadToFile, uploadFile } from "./storage.js";
 import { createWorkerTranscriber } from "./transcriber.js";
 
@@ -73,18 +75,201 @@ async function loadVideo(db: AdminDb, id: string) {
 }
 
 async function sourceFile(db: AdminDb, raw: Tables<"raw_uploads">) {
+  if (raw.source === "combined") return combinedFile(db, raw);
   const ext = raw.storage_path.split(".").pop()?.toLowerCase() ?? "mp4";
   return downloadToFile(db, "raw", raw.storage_path, join(workDir(), raw.id, `source.${ext}`));
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Più clip: riprese parlate (unite nell'ordine deciso dall'AI) e clip di copertura
+// ─────────────────────────────────────────────────────────────────────────
+type ClipRow = Tables<"video_clips"> & { raw: Tables<"raw_uploads"> };
+
+async function loadClips(db: AdminDb, videoId: string): Promise<ClipRow[]> {
+  const { data: clips } = await db.from("video_clips").select("*").eq("video_id", videoId).order("position");
+  if (!clips?.length) return [];
+  const { data: raws } = await db.from("raw_uploads").select("*").in("id", clips.map((c) => c.raw_upload_id));
+  const byId = new Map((raws ?? []).map((r) => [r.id, r]));
+  return clips.flatMap((c) => {
+    const raw = byId.get(c.raw_upload_id);
+    return raw ? [{ ...c, raw }] : [];
+  });
+}
+
+/** Riprese parlate nell'ordine di montaggio (deciso dall'AI; in mancanza, quello di caricamento). */
+function speechInOrder(clips: ClipRow[]) {
+  return clips
+    .filter((c) => c.kind === "speech")
+    .sort((a, b) => (a.play_order ?? a.position) - (b.play_order ?? b.position));
+}
+
+/**
+ * Il girato unito non viene caricato nello storage (può pesare centinaia di MB): il worker lo
+ * tiene in cache e, se non c'è (riavvio, altra macchina), lo ricostruisce dalle riprese.
+ */
+async function combinedFile(db: AdminDb, raw: Tables<"raw_uploads">) {
+  const dest = join(workDir(), raw.id, "source.mp4");
+  try {
+    if ((await stat(dest)).size > 0) return dest;
+  } catch {
+    // da ricostruire
+  }
+  const { data: video } = await db.from("videos").select("id").eq("raw_upload_id", raw.id).single();
+  if (!video) throw new PermanentError("Video del girato unito non trovato");
+  const speech = speechInOrder(await loadClips(db, video.id));
+  const inputs = [];
+  for (const c of speech) {
+    const src = await sourceFile(db, c.raw);
+    inputs.push({ path: src, info: await probeVideo(src) });
+  }
+  await mkdir(join(workDir(), raw.id), { recursive: true });
+  await concatClips(inputs, dest);
+  return dest;
+}
+
+/** Durata e dimensioni delle clip di copertura (servono al montaggio per collocarle). */
+async function probeCoverClips(db: AdminDb, clips: ClipRow[]) {
+  for (const c of clips) {
+    if (c.kind !== "cover" || c.raw.duration_s != null) continue;
+    const info = await probeVideo(await sourceFile(db, c.raw));
+    await db
+      .from("raw_uploads")
+      .update({ duration_s: info.durationS, width: info.width, height: info.height, orientation: info.orientation, status: "ready" })
+      .eq("id", c.raw.id);
+    c.raw.duration_s = info.durationS;
+  }
+}
+
+/** Trascrive una ripresa (o riusa la trascrizione già salvata). */
+async function transcribeRaw(
+  deps: HandlerDeps,
+  raw: Tables<"raw_uploads">,
+  src: string,
+  info: SourceInfo,
+  ctx: { workspaceId: string; videoId: string; jobId: string; hint?: string },
+): Promise<Transcript> {
+  const saved = raw.transcript as unknown as Transcript | null;
+  if (saved) return saved;
+  let transcript: Transcript;
+  if (info.hasAudio) {
+    transcriber ??= createWorkerTranscriber();
+    const audio = join(workDir(), raw.id, "audio.mp3");
+    await extractAudioForTranscription(src, audio);
+    const res = await transcriber.transcribe({ filePath: audio, durationS: info.durationS, language: "it", hintText: ctx.hint });
+    transcript = res.transcript;
+    await recordCosts(deps.db, [res.cost], { workspaceId: ctx.workspaceId, jobId: ctx.jobId, videoId: ctx.videoId, operation: "transcribe" });
+  } else {
+    transcript = { language: "it", text: "", words: [], durationS: info.durationS };
+  }
+  await deps.db.from("raw_uploads").update({ transcript: transcript as unknown as Json, status: "ready" }).eq("id", raw.id);
+  return transcript;
+}
+
+/**
+ * Più riprese parlate: le trascrive una per una, l'AI decide l'ordine, il worker le unisce in
+ * un girato solo (registrato come raw_upload "combined") che da qui in poi si monta come gli altri.
+ */
+async function combineSpeechClips(job: Job, deps: HandlerDeps, video: Awaited<ReturnType<typeof loadVideo>>, clips: ClipRow[]) {
+  const ctx = { workspaceId: video.workspace_id, videoId: video.id, jobId: job.id, hint: video.script?.body };
+  const parts: { clip: ClipRow; src: string; info: SourceInfo; transcript: Transcript }[] = [];
+  for (const clip of clips.filter((c) => c.kind === "speech")) {
+    const src = await sourceFile(deps.db, clip.raw);
+    const info = await probeVideo(src);
+    await deps.db
+      .from("raw_uploads")
+      .update({ duration_s: info.durationS, width: info.width, height: info.height, orientation: info.orientation, status: "processing" })
+      .eq("id", clip.raw.id);
+    parts.push({ clip, src, info, transcript: await transcribeRaw(deps, clip.raw, src, info, ctx) });
+  }
+  const total = parts.reduce((sum, p) => sum + p.info.durationS, 0);
+  if (total > MAX_RAW_SECONDS + 1) {
+    throw new PermanentError("Il video supera i 10 minuti: le riprese insieme devono durare al massimo 10 minuti.");
+  }
+
+  // Ordine: deciso dall'AI una volta sola (poi resta salvato sulle clip)
+  if (parts.some((p) => p.clip.play_order == null)) {
+    const { order, notes, cost } = await planClipOrder(deps.llm(), {
+      script: video.script,
+      clips: parts.map((p) => ({ n: p.clip.position, text: p.transcript.text, durationS: p.info.durationS })),
+    });
+    await recordCosts(deps.db, [cost], { ...ctx, operation: "clip_order" });
+    for (const [i, n] of order.entries()) {
+      const part = parts.find((p) => p.clip.position === n)!;
+      part.clip.play_order = i + 1;
+      await deps.db.from("video_clips").update({ play_order: i + 1 }).eq("id", part.clip.id);
+    }
+    log("info", "ordine delle riprese", { video: video.id, order, notes });
+  }
+  const ordered = [...parts].sort((a, b) => a.clip.play_order! - b.clip.play_order!);
+
+  // Girato unito: una riga raw_uploads "combined" (idempotente sui tentativi)
+  const storagePath = `${video.workspace_id}/${video.id}/riprese-unite.mp4`;
+  const { data: existing } = await deps.db.from("raw_uploads").select("*").eq("storage_path", storagePath).maybeSingle();
+  let combined = existing;
+  if (!combined) {
+    const { data, error } = await deps.db
+      .from("raw_uploads")
+      .insert({
+        workspace_id: video.workspace_id,
+        script_id: video.script_id,
+        uploaded_by: null,
+        storage_path: storagePath,
+        file_name: "riprese-unite.mp4",
+        mime_type: "video/mp4",
+        source: "combined",
+        status: "processing",
+      })
+      .select("*")
+      .single();
+    if (error || !data) throw new Error(`Girato unito non registrato: ${error?.message}`);
+    combined = data;
+  }
+  const dest = join(workDir(), combined.id, "source.mp4");
+  await mkdir(join(workDir(), combined.id), { recursive: true });
+  await concatClips(ordered.map((p) => ({ path: p.src, info: p.info })), dest);
+  const info = await probeVideo(dest);
+  const words = concatWords(ordered.map((p) => ({ words: p.transcript.words, durationS: Number(p.info.durationS.toFixed(3)) })));
+  const transcript: Transcript = {
+    language: "it",
+    text: ordered.map((p) => p.transcript.text.trim()).filter(Boolean).join(" "),
+    words,
+    durationS: info.durationS,
+  };
+  const size = (await stat(dest)).size;
+  await deps.db
+    .from("raw_uploads")
+    .update({
+      transcript: transcript as unknown as Json,
+      status: "ready",
+      size_bytes: size,
+      duration_s: info.durationS,
+      width: info.width,
+      height: info.height,
+      orientation: info.orientation,
+    })
+    .eq("id", combined.id);
+  for (const p of parts) await deps.db.from("raw_uploads").update({ status: "ready" }).eq("id", p.clip.raw.id);
+  await deps.db.from("videos").update({ raw_upload_id: combined.id }).eq("id", video.id);
+  log("info", "riprese unite", { video: video.id, clips: parts.length, seconds: info.durationS });
 }
 
 // ─────────────────────────────────────────────────────────────────────────
 // 1. Trascrizione
 // ─────────────────────────────────────────────────────────────────────────
 export async function transcribeJob(job: Job, deps: HandlerDeps) {
-  const video = await loadVideo(deps.db, String(payload(job).video_id));
-  const raw = video.raw;
+  let video = await loadVideo(deps.db, String(payload(job).video_id));
   await deps.db.from("videos").update({ status: "editing", error: null }).eq("id", video.id);
-  await deps.db.from("raw_uploads").update({ status: "processing" }).eq("id", raw.id);
+
+  const clips = await loadClips(deps.db, video.id);
+  if (clips.length) {
+    await probeCoverClips(deps.db, clips);
+    if (clips.filter((c) => c.kind === "speech").length > 1 && video.raw.source !== "combined") {
+      await combineSpeechClips(job, deps, video, clips);
+      video = await loadVideo(deps.db, video.id);
+    }
+  }
+  const raw = video.raw;
+  if (raw.status !== "ready") await deps.db.from("raw_uploads").update({ status: "processing" }).eq("id", raw.id);
 
   const src = await sourceFile(deps.db, raw);
   const info = await probeVideo(src);
@@ -96,28 +281,12 @@ export async function transcribeJob(job: Job, deps: HandlerDeps) {
     throw new PermanentError("Il video supera i 10 minuti: caricane uno più breve.");
   }
 
-  let transcript = raw.transcript as unknown as Transcript | null;
-  if (!transcript) {
-    transcriber ??= createWorkerTranscriber();
-    if (info.hasAudio) {
-      const audio = join(workDir(), raw.id, "audio.mp3");
-      await extractAudioForTranscription(src, audio);
-      const res = await transcriber.transcribe({
-        filePath: audio,
-        durationS: info.durationS,
-        language: "it",
-        hintText: video.script?.body,
-      });
-      transcript = res.transcript;
-      await recordCosts(deps.db, [res.cost], { workspaceId: video.workspace_id, jobId: job.id, videoId: video.id, operation: "transcribe" });
-    } else {
-      transcript = { language: "it", text: "", words: [], durationS: info.durationS };
-    }
-    await deps.db
-      .from("raw_uploads")
-      .update({ transcript: transcript as unknown as Json, status: "ready" })
-      .eq("id", raw.id);
-  }
+  const transcript = await transcribeRaw(deps, raw, src, info, {
+    workspaceId: video.workspace_id,
+    videoId: video.id,
+    jobId: job.id,
+    hint: video.script?.body,
+  });
 
   await deps.db.rpc("enqueue_job", {
     p_type: "edit",
@@ -163,6 +332,9 @@ export async function editJob(job: Job, deps: HandlerDeps) {
   }
 
   const editStyle = (brand?.edit_style ?? {}) as EditStyle;
+  const coverClips: CoverClip[] = (await loadClips(deps.db, video.id))
+    .filter((c) => c.kind === "cover" && c.raw.duration_s != null && !c.raw.purged_at)
+    .map((c, i) => ({ n: i + 1, description: c.description, durationS: Number(c.raw.duration_s), storagePath: c.raw.storage_path }));
   const { plan, cost } = await planEdit(deps.llm(), {
     brand: {
       companyName: ws?.name ?? "",
@@ -173,6 +345,7 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     },
     script: video.script,
     words: transcript.words,
+    coverClips,
     previous,
   });
   await recordCosts(deps.db, [cost], { workspaceId: video.workspace_id, jobId: job.id, videoId: video.id, operation: "edit_plan" });
@@ -196,6 +369,7 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     seed: video.id,
     hasLogo: Boolean(ws?.logo_url && !ws.logo_url.endsWith(".svg")),
     previousSpec,
+    coverClips,
   });
 
   await attachBroll(deps, spec, previousSpec, video.workspace_id, video.id, job.id);
@@ -240,10 +414,11 @@ async function attachBroll(
   videoId: string,
   jobId: string,
 ) {
-  if (!spec.broll.length) return;
+  // Le clip di copertura del cliente sono già pronte e non consumano crediti.
+  if (!spec.broll.some((b) => b.bucket !== "raw")) return;
   if (broll === undefined) broll = createBrollProvider();
   if (!broll) {
-    spec.broll = [];
+    spec.broll = spec.broll.filter((b) => b.bucket === "raw");
     return;
   }
   const kept: EditSpec["broll"] = [];
@@ -251,6 +426,10 @@ async function attachBroll(
   let creditsUsed = 0;
   let creditsLeft = true;
   for (const b of spec.broll) {
+    if (b.bucket === "raw") {
+      kept.push(b);
+      continue;
+    }
     const reuse = previousSpec?.broll.find((p) => p.query === b.query && p.storagePath);
     if (reuse) {
       kept.push({ ...b, storagePath: reuse.storagePath });
@@ -359,7 +538,7 @@ export async function renderJob(job: Job, deps: HandlerDeps) {
     const brollPaths = await Promise.all(
       spec.broll.map((b, i) =>
         b.storagePath
-          ? downloadToFile(deps.db, "output", b.storagePath, join(out, `broll-${i}.mp4`)).catch(() => null)
+          ? downloadToFile(deps.db, b.bucket, b.storagePath, join(out, `broll-${i}.mp4`)).catch(() => null)
           : Promise.resolve(null),
       ),
     );
