@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import type { EditSpec } from "./edit-spec.js";
-import { execCommand } from "./exec.js";
+import { execCommand, ffmpegThreads } from "./exec.js";
 import { facesBetween } from "./faces.js";
 import { mapFaceToOutput } from "./framing.js";
 import { buildAss, OUT_H, OUT_W } from "./subtitles.js";
@@ -56,7 +56,10 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
   const withOutro = spec.outroLogo && Boolean(input.logoPath);
   const total = mainDur + (withOutro ? OUTRO_SECONDS : 0);
 
-  const args: string[] = ["-y", "-v", "error", "-i", input.sourcePath];
+  const threads = ffmpegThreads();
+  const args: string[] = [
+    "-y", "-v", "error", "-filter_complex_threads", threads, "-threads", threads, "-i", input.sourcePath,
+  ];
   let idx = 1;
   const musicIdx = input.musicPath && spec.music ? idx++ : null;
   if (musicIdx !== null) args.push("-stream_loop", "-1", "-i", input.musicPath!);
@@ -134,6 +137,7 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
   args.push(
     "-filter_complex", f.join(";"),
     "-map", `[${vOut}]`, "-map", "[aout]",
+    "-threads", threads,
     "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p", "-r", String(FPS),
     "-c:a", "aac", "-b:a", "160k", "-ar", "48000",
     // Marcatura leggibile dalle macchine dei contenuti montati con AI (AI Act, art. 50):

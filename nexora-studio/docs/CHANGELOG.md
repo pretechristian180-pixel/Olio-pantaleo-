@@ -3,6 +3,7 @@
 ## Produzione (2026-11-05)
 
 ### Corretto
+- Render su Railway chiuso per memoria esaurita: FFmpeg creava un thread per ogni core della macchina (decine), ognuno con i suoi fotogrammi 1080×1920. Ora usa le CPU del container, fino a 4; si può forzare con `FFMPEG_THREADS`.
 - Render su Railway: il rilevamento dei volti si fermava con OpenCV 4.6 di Debian, che non esegue il modello YuNet 2023mar. Il worker ora installa OpenCV 4.10 da pip (verificato con lo stesso fotogramma: 4.6 va in errore, 4.10 trova il volto).
 
 ### Modificato

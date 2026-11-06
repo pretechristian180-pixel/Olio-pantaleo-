@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { execCommand } from "./exec.js";
+import { execCommand, ffmpegThreads } from "./exec.js";
 import type { FaceBox, FaceSample } from "./types.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -22,7 +22,7 @@ export async function detectFaces(
   const dir = await mkdtemp(join(tmpdir(), "nx-faces-"));
   try {
     await execCommand("ffmpeg", [
-      "-v", "error", "-i", videoPath,
+      "-v", "error", "-threads", ffmpegThreads(), "-i", videoPath,
       "-vf", `fps=${fps},scale=${opts.width ?? 360}:-2`,
       "-q:v", "4", join(dir, "frame_%06d.jpg"),
     ], { timeoutMs: 10 * 60_000 });
