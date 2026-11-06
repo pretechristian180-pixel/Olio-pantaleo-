@@ -4,13 +4,13 @@
 
 | # | Dove | Cosa | Stato |
 | --- | --- | --- | --- |
-| 1 | Aruba DNS | CNAME `studio` → `fca20ce1798a7663.vercel-dns-017.com.` | fatto (in propagazione) |
+| 1 | Aruba DNS | CNAME `studio` → `fca20ce1798a7663.vercel-dns-017.com.` | fatto |
 | 2 | Supabase → Authentication → URL Configuration | Site URL `https://studio.nexoragruppodigitale.it`, Redirect URLs `https://studio.nexoragruppodigitale.it/**` | da fare |
 | 3 | Supabase → Authentication → Email Templates | Incollare i testi di `supabase/templates/` (conferma, recupero, cambio email) | da fare |
 | 4 | Supabase → Authentication → SMTP | Resend come SMTP (mittente `studio@nexoragruppodigitale.it`), così le email di accesso partono dal vostro dominio | da fare |
 | 5 | Supabase → Billing | Piano Pro (backup giornalieri) | da fare |
-| 6 | Vercel → Environment Variables | `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `ANTHROPIC_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` (vedi `.env.example`) | da fare |
-| 7 | Railway | Servizio dal repository con `railway.json`; variabili del worker (Supabase, Anthropic, Metricool, Resend, Sentry; trascrizione già inclusa nell'immagine) | da fare |
+| 6 | Vercel → Environment Variables | `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `ANTHROPIC_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` (vedi `.env.example`) | fatto: Supabase, Resend, Anthropic; mancano Stripe e Sentry |
+| 7 | Railway | Servizio dal repository con `railway.json`; variabili del worker (Supabase, Anthropic, Metricool, Resend, Sentry; trascrizione già inclusa nell'immagine). Piano Hobby: il Trial non ha memoria sufficiente per Whisper e FFmpeg | fatto: montaggio completo verificato in produzione; mancano Metricool e Sentry |
 | 8 | Stripe | `npm run stripe:setup -- --webhook-url https://studio.nexoragruppodigitale.it/api/billing/webhook` (vedi `docs/STRIPE.md`) | da fare |
 | 9 | Metricool | Piano con API, token e user id nel worker (vedi `docs/METRICOOL.md`) | da fare |
 | 10 | Sentry | Progetto Next.js, DSN su Vercel e Railway | da fare |
