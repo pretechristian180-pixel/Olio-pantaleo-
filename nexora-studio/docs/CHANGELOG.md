@@ -2,6 +2,9 @@
 
 ## Più clip per video (2026-11-06)
 
+### Corretto
+- Caricamento: se lo storage rifiuta un file perché troppo grande (413), l'app non riprova più all'infinito e dice quale clip è troppo grande. Riprendere un caricamento interrotto vale solo per lo stesso file nello stesso percorso: prima un nuovo tentativo poteva agganciarsi a un caricamento vecchio, salvando il file in un percorso diverso da quello registrato.
+
 ### Aggiunto
 - **Caricamento di più clip per lo stesso video** (fino a 10). Nella pagina Carica si scelgono più file insieme e per ognuno si indica:
   - «Parlo io», per le riprese in cui si parla;

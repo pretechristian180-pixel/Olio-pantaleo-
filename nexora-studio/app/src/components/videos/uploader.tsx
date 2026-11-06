@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/select-native";
 import { Progress } from "@/components/ui/progress";
 import { type ClipKind, registerClips } from "@/lib/actions/videos";
-import { safeFileName, startResumableUpload } from "@/lib/upload/resumable";
+import { safeFileName, startResumableUpload, UploadError } from "@/lib/upload/resumable";
 import { cn } from "@/lib/utils";
 
 const MAX_BYTES = 2 * 1024 * 1024 * 1024;
@@ -73,7 +73,9 @@ type Clip = {
   meta: Meta;
   kind: ClipKind;
   description: string;
-  /** Percorso nello storage, una volta caricata (al "Riprova" non si ricarica). */
+  /** Percorso nello storage, fisso per la clip: un nuovo tentativo riprende da dove era arrivato. */
+  objectName: string;
+  /** Impostato quando il caricamento è finito (al nuovo tentativo non si ricarica). */
   storagePath?: string;
 };
 
@@ -135,6 +137,7 @@ export function Uploader({
         // La prima clip è quasi sempre una ripresa parlata; le successive anche, salvo cambio.
         kind: "speech",
         description: "",
+        objectName: `${workspaceId}/${crypto.randomUUID()}/${safeFileName(file.name)}`,
       });
     }
     setClips((c) => [...c, ...added]);
@@ -155,7 +158,7 @@ export function Uploader({
     for (let i = 0; i < list.length; i++) {
       const clip = list[i]!;
       if (clip.storagePath) continue;
-      const objectName = `${workspaceId}/${crypto.randomUUID()}/${safeFileName(clip.file.name)}`;
+      const objectName = clip.objectName;
       try {
         const handle = await startResumableUpload({
           bucket: "raw",
@@ -166,10 +169,15 @@ export function Uploader({
         });
         setPhase({ step: "uploading", index: i, progress: 0, abort: handle.abort });
         await handle.promise;
-      } catch {
+      } catch (e) {
         setPhase({ step: "edit" });
+        const status = e instanceof UploadError ? e.status : null;
         setError(
-          "Il caricamento si è interrotto. Controlla la connessione e premi di nuovo «Carica e monta»: le clip già caricate non ripartono da capo.",
+          status === 413
+            ? `«${clip.file.name}» è troppo grande per essere caricato. Toglila o accorciala e riprova: le clip già caricate restano.`
+            : status === 415
+              ? `«${clip.file.name}» è in un formato video non supportato.`
+              : "Il caricamento si è interrotto. Controlla la connessione e premi di nuovo «Carica e monta»: le clip già caricate non ripartono da capo e quella interrotta riprende da dove era arrivata.",
         );
         return;
       }

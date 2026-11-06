@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload } from "tus-js-client";
+import { type DetailedError, Upload } from "tus-js-client";
 
 import { publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/client";
@@ -15,6 +15,25 @@ export interface ResumableUploadOptions {
   onProgress?: (percent: number) => void;
 }
 
+/** Errore di caricamento con lo stato HTTP (413 = file troppo grande per lo storage). */
+export class UploadError extends Error {
+  constructor(
+    message: string,
+    readonly status: number | null,
+  ) {
+    super(message);
+    this.name = "UploadError";
+  }
+}
+
+/** Risposte che non cambiano riprovando: file troppo grande, tipo non ammesso, permessi, già esistente. */
+const FINAL_STATUSES = new Set([400, 401, 403, 409, 413, 415]);
+
+function statusOf(error: unknown): number | null {
+  const res = (error as DetailedError | null)?.originalResponse;
+  return res ? res.getStatus() : null;
+}
+
 export interface ResumableUploadHandle {
   promise: Promise<string>;
   abort: () => void;
@@ -22,8 +41,9 @@ export interface ResumableUploadHandle {
 
 /**
  * Carica un file con il protocollo TUS di Supabase Storage.
- * Se la connessione cade riprova da solo, e se la pagina viene ricaricata riprende
- * dallo stesso punto (fingerprint salvato nel browser).
+ * Se la connessione cade riprova da solo, e se si riprova con lo stesso percorso riprende
+ * dallo stesso punto (fingerprint salvato nel browser). Gli errori definitivi (es. 413) non
+ * vengono ritentati e arrivano come UploadError con lo stato HTTP.
  */
 export async function startResumableUpload({
   bucket,
@@ -48,6 +68,10 @@ export async function startResumableUpload({
       },
       uploadDataDuringCreation: true,
       removeFingerprintOnSuccess: true,
+      // La ripresa di un caricamento interrotto vale solo per lo stesso file nello stesso percorso:
+      // così un file non finisce mai in un percorso diverso da quello registrato.
+      fingerprint: async (f) => ["nexora", bucket, objectName, f.size, f.lastModified].join(":"),
+      onShouldRetry: (error) => !FINAL_STATUSES.has(statusOf(error) ?? 0),
       chunkSize: CHUNK_SIZE,
       metadata: {
         bucketName: bucket,
@@ -55,7 +79,7 @@ export async function startResumableUpload({
         contentType: file.type || "application/octet-stream",
         cacheControl: "3600",
       },
-      onError: (error) => reject(error),
+      onError: (error) => reject(new UploadError(error.message, statusOf(error))),
       onProgress: (sent, total) => onProgress?.(total ? Math.round((sent / total) * 100) : 0),
       onSuccess: () => resolve(objectName),
     });
