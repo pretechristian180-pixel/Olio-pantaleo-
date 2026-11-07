@@ -9,15 +9,20 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
-
-const PIANI = [
-  { codice: "start", nome: "Start · 29 €" },
-  { codice: "pro", nome: "Pro · 59 €" },
-  { codice: "business", nome: "Business · 129 €" },
-];
+import { effectiveFeatures } from "@/lib/features";
+import type { PlanWithFeatures } from "@/lib/data/platform";
+import { FeatureFields } from "./feature-fields";
+import { OfferFields } from "./offer-fields";
+import { formatPrice } from "@/lib/utils";
 
 /** Pulsante "Nuova azienda" con il modulo di creazione (super-admin). */
-export function NewTenant({ rootDomain }: { rootDomain: string }) {
+export function NewTenant({
+  rootDomain,
+  plans,
+}: {
+  rootDomain: string;
+  plans: PlanWithFeatures[];
+}) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<CreateTenantState, FormData>(
     createTenantForClient,
@@ -25,6 +30,10 @@ export function NewTenant({ rootDomain }: { rootDomain: string }) {
   );
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
+  const [piano, setPiano] = useState(
+    plans.find((p) => p.codice === "pro")?.codice ?? plans[0]?.codice ?? "start",
+  );
+  const plan = plans.find((p) => p.codice === piano) ?? null;
 
   if (!open)
     return (
@@ -94,36 +103,25 @@ export function NewTenant({ rootDomain }: { rootDomain: string }) {
                   placeholder="titolare@azienda.it"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="nt-piano">Piano</Label>
-                  <select
-                    id="nt-piano"
-                    name="piano"
-                    defaultValue="pro"
-                    className="h-13 w-full rounded-md border border-line bg-surface px-3 text-[15px]"
-                  >
-                    {PIANI.map((p) => (
-                      <option key={p.codice} value={p.codice}>
-                        {p.nome}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="nt-giorni">Giorni di prova</Label>
-                  <Input
-                    id="nt-giorni"
-                    name="giorni"
-                    type="number"
-                    min={1}
-                    max={365}
-                    defaultValue={14}
-                    required
-                  />
-                </div>
+              <div>
+                <Label htmlFor="nt-piano">Piano di partenza</Label>
+                <select
+                  id="nt-piano"
+                  name="piano"
+                  value={piano}
+                  onChange={(e) => setPiano(e.target.value)}
+                  className="h-13 w-full rounded-md border border-line bg-surface px-3 text-[15px]"
+                >
+                  {plans.map((p) => (
+                    <option key={p.codice} value={p.codice}>
+                      {p.nome} · {formatPrice(p.prezzo_mese_cents, "EUR")}/mese
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+            <OfferFields />
+            <FeatureFields key={piano} defaults={effectiveFeatures(plan, {})} />
             <p className="text-sm text-ink-muted">
               Il titolare diventa amministratore e riceve un&apos;email per entrare. Se non ha
               ancora un account, l&apos;email gli fa scegliere la password.

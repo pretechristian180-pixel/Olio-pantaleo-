@@ -191,3 +191,14 @@ tenants ─┬─< profiles (= auth.users)          ruolo: student | instructor 
   Codice del Consumo), salvata in `orders.recesso_rinuncia_il`.
 - Creazione academy: versione e data delle condizioni accettate in `tenants.termini_*`.
 - Sono bozze da far verificare a un legale.
+
+## Omaggi e funzioni personalizzate
+
+- `tenants.omaggio` + `omaggio_fine_il` (null = senza scadenza): academy gratuita decisa dal
+  super-admin, attiva senza abbonamento. Scaduta: banner e invito ad abbonarsi. Un abbonamento
+  Stripe attivo chiude l'omaggio.
+- `tenants.funzioni`: solo le eccezioni rispetto al piano (`src/lib/features.ts`); funzioni
+  effettive = piano + eccezioni, usate per IA delle landing e marchio Nexora. Gli altri limiti
+  (ore video, studenti, team) sono registrati ma non ancora applicati.
+- Si impostano alla creazione dell'azienda in /piattaforma e dalla scheda azienda
+  (`platform_create_tenant`, `platform_set_offer`).

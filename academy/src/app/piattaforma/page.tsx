@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { STATUS_LABELS, TenantStatusBadge } from "@/components/platform/status-badge";
-import { getPlatformOverview, getPlatformTenants, type TenantStatus } from "@/lib/data/platform";
+import {
+  getPlansWithFeatures,
+  getPlatformOverview,
+  getPlatformTenants,
+  type TenantStatus,
+} from "@/lib/data/platform";
+import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format-date";
 import { formatPrice, cn } from "@/lib/utils";
 
@@ -21,7 +27,11 @@ export default async function PlatformPage({
 }) {
   const sp = await searchParams;
   const stato = FILTRI.includes(sp.stato as TenantStatus) ? (sp.stato as TenantStatus) : undefined;
-  const [n, tenants] = await Promise.all([getPlatformOverview(), getPlatformTenants(sp.q, stato)]);
+  const [n, tenants, plans] = await Promise.all([
+    getPlatformOverview(),
+    getPlatformTenants(sp.q, stato),
+    getPlansWithFeatures(),
+  ]);
   const giorni = (iso: string | null) =>
     iso ? Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000) : null;
 
@@ -32,7 +42,7 @@ export default async function PlatformPage({
         title="Le academy dei clienti"
         description="Tutte le aziende che usano Nexora Academy: piano, stato dell'abbonamento, pagamenti e numeri."
       />
-      <NewTenant rootDomain={publicEnv.NEXT_PUBLIC_ROOT_DOMAIN} />
+      <NewTenant rootDomain={publicEnv.NEXT_PUBLIC_ROOT_DOMAIN} plans={plans} />
       <section
         aria-label="Numeri della piattaforma"
         className="grid grid-cols-2 gap-4 xl:grid-cols-4"
@@ -133,6 +143,11 @@ export default async function PlatformPage({
                     </td>
                     <td className="px-4 py-3">
                       <TenantStatusBadge stato={t.stato} />
+                      {t.omaggio && (
+                        <Badge tone="positive" className="ml-1">
+                          Omaggio
+                        </Badge>
+                      )}
                       {g !== null && (
                         <span
                           className={cn(

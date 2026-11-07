@@ -67,7 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         logoText: tenant.brand.logoText,
         logoUrl: tenant.brand.logoUrl,
         tagline: tenant.brand.tagline,
-        poweredBy: !(tenant.piano?.senzaMarchioNexora ?? false),
+        poweredBy: !tenant.funzioni.senza_marchio_nexora,
         isNexora: tenant.slug === publicEnv.NEXT_PUBLIC_TENANT_SLUG,
       }
     : DEFAULT_TENANT_UI;

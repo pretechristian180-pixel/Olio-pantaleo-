@@ -49,21 +49,19 @@ export async function aiUsage(tipo: "landing" | "sezione") {
   const inizio = new Date();
   inizio.setUTCDate(1);
   inizio.setUTCHours(0, 0, 0, 0);
-  const [{ count }, { data: plan }] = await Promise.all([
-    supabase
-      .from("ai_generations")
-      .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenant.id)
-      .eq("tipo", tipo)
-      .gte("creato_il", inizio.toISOString()),
-    supabase
-      .from("platform_plans")
-      .select("max_landing_ai_mese, max_sezioni_ai_mese")
-      .eq("codice", tenant.piano?.codice ?? "start")
-      .maybeSingle(),
-  ]);
-  const limite =
-    tipo === "landing" ? (plan?.max_landing_ai_mese ?? 0) : (plan?.max_sezioni_ai_mese ?? null);
+  const { count } = await supabase
+    .from("ai_generations")
+    .select("id", { count: "exact", head: true })
+    .eq("tenant_id", tenant.id)
+    .eq("tipo", tipo)
+    .gte("creato_il", inizio.toISOString());
+  // Funzioni effettive dell'academy: piano + eccezioni decise da Nexora. IA spenta = limite 0.
+  const f = tenant.funzioni;
+  const limite = !f.landing_ia
+    ? 0
+    : tipo === "landing"
+      ? f.max_landing_ai_mese
+      : f.max_sezioni_ai_mese;
   return { usate: count ?? 0, limite: limite as number | null };
 }
 

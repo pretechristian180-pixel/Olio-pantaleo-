@@ -6,6 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import { academyInvite } from "@/lib/email-templates";
 import { registerAcademyDomain } from "@/lib/vercel-domains";
+import { overridesFromForm } from "@/lib/features";
+import { getPlansWithFeatures } from "@/lib/data/platform";
 import { redirect } from "next/navigation";
 import { requirePlatformAdmin } from "@/lib/data/platform";
 import { createClient } from "@/lib/supabase/server";
@@ -60,6 +62,21 @@ export async function enterTenantAdmin(id: string, slug: string) {
   );
 }
 
+/** Omaggio dal modulo: "prova" | "omaggio"; fine = data (fine giornata) oppure nessuna. */
+function readOffer(formData: FormData) {
+  const omaggio = formData.get("tipo") === "omaggio";
+  const data = String(formData.get("omaggio_fine") ?? "");
+  const fine =
+    omaggio && formData.get("scadenza") === "data" && /^\d{4}-\d{2}-\d{2}$/.test(data)
+      ? new Date(`${data}T23:59:59+01:00`).toISOString()
+      : null;
+  return { omaggio, fine };
+}
+
+async function planFor(codice: string) {
+  return (await getPlansWithFeatures()).find((p) => p.codice === codice) ?? null;
+}
+
 export type CreateTenantState =
   null | { ok: true; message: string; id: string } | { ok: false; error: string };
 
@@ -89,6 +106,10 @@ export async function createTenantForClient(
   const parsed = createSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]!.message };
   const { nome, slug, piano, email, giorni } = parsed.data;
+  const offer = readOffer(formData);
+  if (offer.omaggio && formData.get("scadenza") === "data" && !offer.fine)
+    return { ok: false, error: "Scegli la data di fine dell'omaggio." };
+  const funzioni = overridesFromForm(formData, await planFor(piano));
   const supabase = await createClient();
   const root = publicEnv.NEXT_PUBLIC_ROOT_DOMAIN;
   const base = tenantUrl(slug, root, "");
@@ -100,6 +121,9 @@ export async function createTenantForClient(
       p_piano: piano,
       p_admin_email: email,
       p_giorni_prova: giorni,
+      p_omaggio: offer.omaggio,
+      p_omaggio_fine: offer.fine,
+      p_funzioni: funzioni,
     });
 
   let { data, error } = await create();
@@ -138,8 +162,35 @@ export async function createTenantForClient(
   return {
     ok: true,
     id: data as string,
-    message: `Academy «${nome}» creata: ${slug}.${root}. ${
+    message: `Academy «${nome}» creata${offer.omaggio ? " in omaggio" : ""}: ${slug}.${root}. ${
       sent ? `Invito mandato a ${email}.` : `Email non inviata: manda tu il link a ${email}.`
     }`,
   };
 }
+
+/** Omaggio e funzioni di un'academy esistente (scheda azienda). */
+export async function setTenantOffer(
+  id: string,
+  pianoCodice: string | null,
+  _prev: OfferState,
+  formData: FormData,
+): Promise<OfferState> {
+  await requirePlatformAdmin();
+  const offer = readOffer(formData);
+  if (offer.omaggio && formData.get("scadenza") === "data" && !offer.fine)
+    return { ok: false, error: "Scegli la data di fine dell'omaggio." };
+  const funzioni = overridesFromForm(formData, pianoCodice ? await planFor(pianoCodice) : null);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("platform_set_offer", {
+    p_tenant: id,
+    p_omaggio: offer.omaggio,
+    p_omaggio_fine: offer.fine,
+    p_funzioni: funzioni,
+  });
+  if (error) return { ok: false, error: "Modifiche non salvate. Riprova." };
+  revalidatePath("/piattaforma");
+  revalidatePath(`/piattaforma/${id}`);
+  return { ok: true };
+}
+
+export type OfferState = null | { ok: true } | { ok: false; error: string };

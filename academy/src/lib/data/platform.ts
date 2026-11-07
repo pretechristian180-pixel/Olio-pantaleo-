@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { isPlatformHost } from "@/lib/tenant";
+import type { PlanFeatures } from "@/lib/features";
 
 /** Il pannello piattaforma vive solo sul dominio principale ed è solo per i super-admin. */
 export const isPlatformAdmin = cache(async () => {
@@ -32,6 +33,7 @@ export type PlatformOverview = {
   mrr_cents: number;
   studenti_totali: number;
   vendite_mese_cents: number;
+  omaggi: number;
 };
 
 export type TenantStatus = "prova" | "attivo" | "insoluto" | "sospeso" | "chiuso";
@@ -55,6 +57,9 @@ export type PlatformTenant = {
   corsi: number;
   vendite_totali_cents: number;
   admin_email: string | null;
+  omaggio: boolean;
+  omaggio_fine_il: string | null;
+  funzioni: unknown;
 };
 
 export async function getPlatformOverview() {
@@ -89,4 +94,24 @@ export async function getTenantTeam(id: string) {
     ruolo: "admin" | "instructor";
     dal: string;
   }[];
+}
+
+export type PlanWithFeatures = PlanFeatures & {
+  codice: string;
+  nome: string;
+  prezzo_mese_cents: number;
+};
+
+/** Piani con i loro limiti: base per le funzioni personalizzate. */
+export async function getPlansWithFeatures(): Promise<PlanWithFeatures[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("platform_plans")
+    .select(
+      "codice, nome, prezzo_mese_cents, max_ore_video, max_studenti_attivi, max_staff, max_landing_ai_mese, max_sezioni_ai_mese, dominio_personalizzato, senza_marchio_nexora, abbonamenti_studenti",
+    )
+    .eq("attivo", true)
+    .order("ordine");
+  if (error) throw new Error(`Piani non disponibili: ${error.message}`);
+  return (data ?? []) as PlanWithFeatures[];
 }

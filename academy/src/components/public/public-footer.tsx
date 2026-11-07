@@ -8,7 +8,7 @@ const link = "inline-flex min-h-11 items-center text-ink-muted hover:text-ink";
 
 export async function PublicFooter() {
   const [tenant, platform] = await Promise.all([getCurrentTenant(), isPlatformHost()]);
-  const poweredBy = tenant && !platform && !(tenant.piano?.senzaMarchioNexora ?? false);
+  const poweredBy = tenant && !platform && !tenant.funzioni.senza_marchio_nexora;
   return (
     <footer className="border-t border-line bg-surface">
       <div className="mx-auto flex max-w-310 flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:px-6">

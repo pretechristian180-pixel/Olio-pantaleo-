@@ -29,7 +29,11 @@ export function SubscriptionCard({
       <CardBody className="space-y-5 sm:p-8">
         <div className="flex flex-wrap items-center gap-3">
           <CardTitle>Abbonamento</CardTitle>
-          <StatusBadge stato={tenant.stato} hasSubscription={hasSubscription} />
+          {tenant.omaggio.attivo && !tenant.omaggio.scaduto && !hasSubscription ? (
+            <Badge tone="positive">Omaggio</Badge>
+          ) : (
+            <StatusBadge stato={tenant.stato} hasSubscription={hasSubscription} />
+          )}
         </div>
         {esito === "ok" && (
           <Alert tone="success">
@@ -42,7 +46,15 @@ export function SubscriptionCard({
             l&apos;academy.
           </Alert>
         )}
-        {hasSubscription ? (
+        {tenant.omaggio.attivo && !tenant.omaggio.scaduto && !hasSubscription ? (
+          <Alert tone="success">
+            La tua academy è in omaggio da Nexora
+            {tenant.omaggio.fineIl
+              ? ` fino al ${new Date(tenant.omaggio.fineIl).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}`
+              : ", senza scadenza"}
+            : non devi attivare nessun abbonamento.
+          </Alert>
+        ) : hasSubscription ? (
           <div className="space-y-4">
             <p className="text-sm text-ink-muted">
               Piano <strong className="text-ink">{tenant.piano?.nome ?? "—"}</strong>. Da qui vedi
@@ -55,9 +67,11 @@ export function SubscriptionCard({
         ) : (
           <form action={startSubscription} className="space-y-5">
             <p className="text-sm text-ink-muted">
-              {tenant.stato === "prova"
-                ? "Attiva ora l'abbonamento: paghi solo dalla fine della prova gratuita."
-                : "Attiva l'abbonamento per tenere aperta la tua academy."}{" "}
+              {tenant.omaggio.scaduto
+                ? "Il periodo in omaggio è terminato: attiva l'abbonamento per tenere aperta la tua academy."
+                : tenant.stato === "prova"
+                  ? "Attiva ora l'abbonamento: paghi solo dalla fine della prova gratuita."
+                  : "Attiva l'abbonamento per tenere aperta la tua academy."}{" "}
               Prezzi IVA esclusa, disdici quando vuoi.
             </p>
             <fieldset className="grid gap-3 sm:grid-cols-3">

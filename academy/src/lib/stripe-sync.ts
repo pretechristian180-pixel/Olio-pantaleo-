@@ -61,6 +61,10 @@ export async function syncTenantSubscription(sub: Stripe.Subscription) {
     .from("tenants")
     .update({
       stato: tenantStatusFromSubscription(sub.status),
+      // Chi attiva un abbonamento non è più in omaggio.
+      ...(["active", "trialing"].includes(sub.status)
+        ? { omaggio: false, omaggio_fine_il: null }
+        : {}),
       stripe_customer_id: cust,
       stripe_subscription_id: sub.id,
       ...(pianoId ? { piano_id: pianoId } : {}),
