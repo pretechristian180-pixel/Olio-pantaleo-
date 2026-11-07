@@ -5,6 +5,7 @@ import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { parseBrand, type Brand } from "@/lib/brand";
 import { parseLegal, type LegalData } from "@/lib/legal";
+import { parsePromo, type Promo } from "@/lib/promo";
 import { effectiveFeatures, omaggioScaduto, type Features } from "@/lib/features";
 import { resolveHost, type HostMatch } from "@/lib/tenant-host";
 
@@ -22,6 +23,8 @@ export type Tenant = {
   funzioni: Features;
   /** Academy regalata da Nexora (senza abbonamento), con eventuale scadenza. */
   omaggio: { attivo: boolean; fineIl: string | null; scaduto: boolean };
+  /** Riquadro promozionale nell'area studenti. */
+  promo: Promo;
   /** Dati legali di chi vende (pagine legali, footer). */
   legal: LegalData;
   /** Il conto Stripe del cliente può ricevere i pagamenti dei corsi. */
@@ -47,6 +50,7 @@ type Row = {
   omaggio: boolean;
   omaggio_fine_il: string | null;
   funzioni: unknown;
+  promo: unknown;
   platform_plans: {
     codice: string;
     nome: string;
@@ -62,7 +66,7 @@ type Row = {
 };
 
 const COLUMNS =
-  "id, nome, slug, stato, brand, dominio_personalizzato, prova_fine_il, stripe_pagamenti_attivi, dati_legali, omaggio, omaggio_fine_il, funzioni, platform_plans(codice, nome, senza_marchio_nexora, dominio_personalizzato, abbonamenti_studenti, max_ore_video, max_studenti_attivi, max_staff, max_landing_ai_mese, max_sezioni_ai_mese)";
+  "id, nome, slug, stato, brand, dominio_personalizzato, prova_fine_il, stripe_pagamenti_attivi, dati_legali, omaggio, omaggio_fine_il, funzioni, promo, platform_plans(codice, nome, senza_marchio_nexora, dominio_personalizzato, abbonamenti_studenti, max_ore_video, max_studenti_attivi, max_staff, max_landing_ai_mese, max_sezioni_ai_mese)";
 
 export async function requestHost() {
   const h = await headers();
@@ -97,6 +101,7 @@ export const getCurrentTenant = cache(async (): Promise<Tenant | null> => {
     provaFineIl: row.prova_fine_il,
     pagamentiAttivi: row.stripe_pagamenti_attivi,
     legal: parseLegal(row.dati_legali),
+    promo: parsePromo(row.promo),
     funzioni: effectiveFeatures(row.platform_plans, row.funzioni),
     omaggio: {
       attivo: row.omaggio,
