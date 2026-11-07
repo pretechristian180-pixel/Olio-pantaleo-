@@ -1,5 +1,12 @@
 # Changelog
 
+## Effetti: parola chiave in grande e logo fisso (2026-11-07)
+
+### Aggiunto
+- **Parola chiave in grande** (`subtitles.keywordEmphasis`): sotto il sottotitolo compare la parola chiave del blocco, in maiuscolo, quasi il doppio più grande, con alone luminoso tipo neon e piccola animazione d'ingresso. Se sotto non c'è spazio va sopra. L'alone usa il colore più luminoso del brand (`keywordColor`), così si vede anche sugli sfondi scuri.
+- **Logo fisso** (`logoWatermark`): il logo del brand in alto (centro, sinistra o destra) per tutta la parte parlata, sopra il b-roll e sotto le scritte. Sparisce nella chiusura, dove resta il logo grande. Compare solo se il brand ha un logo.
+- L'analisi del video di riferimento rileva anche le parole chiave in grande e il logo fisso. L'AI del montaggio li attiva quando il riferimento li ha o il cliente li chiede (`keyword_emphasis`, `logo_watermark`). Per i riferimenti analizzati prima, decide dalla descrizione dello stile.
+
 ## Indicazioni e video di riferimento per il montaggio (2026-11-07)
 
 ### Aggiunto

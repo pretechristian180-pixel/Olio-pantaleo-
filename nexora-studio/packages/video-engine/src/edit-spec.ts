@@ -28,6 +28,13 @@ export const EditSpecSchema = z.object({
     position: z.enum(["auto", "alto", "centro", "basso"]).default("auto"),
     /** Tutto maiuscolo (stile di molti reel). */
     uppercase: z.boolean().default(false),
+    /**
+     * Parola chiave ripetuta in grande vicino al sottotitolo, in maiuscolo con effetto neon nel
+     * colore del brand (una per blocco, tra le parole evidenziate).
+     */
+    keywordEmphasis: z.boolean().default(false),
+    /** Colore dell'alone della parola chiave (#RRGGBB); se manca, quello di evidenziazione. */
+    keywordColor: z.string().nullable().default(null),
   }),
   music: z
     .object({
@@ -39,6 +46,8 @@ export const EditSpecSchema = z.object({
   /** Testo grande nei primi secondi (la frase d'aggancio), facoltativo. */
   hookOverlay: z.string().nullable(),
   outroLogo: z.boolean(),
+  /** Logo del brand fisso in un angolo per tutto il video (non sulla chiusura). */
+  logoWatermark: z.enum(["nessuno", "alto", "alto-sinistra", "alto-destra"]).default("nessuno"),
   /** Zoom leggero alternato sui tagli (stile reel): nasconde i salti e dà ritmo. */
   punchIn: z.boolean().default(true),
   /** Pulizia della voce del telefono: taglio dei bassi rimbombanti e riduzione del rumore di fondo. */

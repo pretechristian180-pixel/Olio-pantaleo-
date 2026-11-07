@@ -40,6 +40,14 @@ export const EditPlanSchema = z.object({
   punch_in: z.boolean().nullable().describe("Zoom alternato sui tagli: solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
   pause_trim: z.enum(["stretto", "medio", "morbido"]).nullable().describe("Quanto accorciare le pause: stretto = ritmo serrato. Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
   music_volume: z.enum(["bassa", "media", "alta"]).nullable().describe("Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  keyword_emphasis: z
+    .boolean()
+    .nullable()
+    .describe("Parola chiave ripetuta in grande con effetto neon vicino al sottotitolo: solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  logo_watermark: z
+    .enum(["nessuno", "alto", "alto-sinistra", "alto-destra"])
+    .nullable()
+    .describe("Logo del brand fisso in un angolo per tutto il video: solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
   broll: z
     .array(
       z.object({
@@ -77,7 +85,9 @@ Il tuo compito:
   - Le clip stock (own_clip = null, con query_en) solo per i punti rimasti, rispettando il numero massimo di clip stock indicato.
 - caption e hashtags: in italiano, coerenti con il brand e la città; niente promesse o dati non detti nel video.
 - Priorità: 1) INDICAZIONI DEL CLIENTE per questo video e RICHIESTA DI MODIFICA, 2) STILE DI RIFERIMENTO (il video che il cliente ha indicato come esempio), 3) stile preferito del brand. Le indicazioni del cliente vanno seguite il più possibile; se chiedono qualcosa che il montaggio non sa fare (transizioni animate, effetti grafici, font particolari) avvicinati con ciò che è possibile e scrivilo nelle notes.
-- subtitle_size, subtitle_style, subtitle_position, subtitle_uppercase, subtitles_enabled, punch_in, pause_trim, music_volume: impostali quando le indicazioni del cliente, lo stile di riferimento o la richiesta di modifica li riguardano; altrimenti null (vale lo stile del brand).
+- keyword_emphasis: la parola chiave del blocco ripetuta sotto il sottotitolo in grande, maiuscolo, con alone luminoso nel colore del brand (usa le highlight_words: scegline di forti). Attivalo se il riferimento ha parole chiave in grande o il cliente lo chiede.
+- logo_watermark: logo del brand fisso in alto (centro, sinistra o destra) per tutto il video. Attivalo se il riferimento ha un logo fisso o il cliente lo chiede; se il brand non ha un logo non comparirà.
+- subtitle_size, subtitle_style, subtitle_position, subtitle_uppercase, subtitles_enabled, punch_in, pause_trim, music_volume, keyword_emphasis, logo_watermark: impostali quando le indicazioni del cliente, lo stile di riferimento o la richiesta di modifica li riguardano; altrimenti null (vale lo stile del brand).
 - Con uno stile di riferimento, imita anche ritmo e durata: con molti tagli al minuto tieni solo l'essenziale e pause strette; con uno stile calmo lascia respirare il discorso. Se il riferimento ha una scritta d'apertura, proponi hook_overlay; se non ce l'ha, null.
 
 Le pause lunghe nella trascrizione sono segnate con ‖. Gli indici sono tra parentesi quadre.
@@ -137,7 +147,7 @@ export function editUserPrompt(ctx: PlanContext) {
   }
   if (ctx.previous) {
     parts.push(
-      `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood, subtitle_fixes: ctx.previous.plan.subtitle_fixes ?? [], subtitle_size: ctx.previous.plan.subtitle_size, subtitle_style: ctx.previous.plan.subtitle_style, subtitle_position: ctx.previous.plan.subtitle_position, subtitle_uppercase: ctx.previous.plan.subtitle_uppercase, punch_in: ctx.previous.plan.punch_in, pause_trim: ctx.previous.plan.pause_trim })}`,
+      `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood, subtitle_fixes: ctx.previous.plan.subtitle_fixes ?? [], subtitle_size: ctx.previous.plan.subtitle_size, subtitle_style: ctx.previous.plan.subtitle_style, subtitle_position: ctx.previous.plan.subtitle_position, subtitle_uppercase: ctx.previous.plan.subtitle_uppercase, punch_in: ctx.previous.plan.punch_in, pause_trim: ctx.previous.plan.pause_trim, keyword_emphasis: ctx.previous.plan.keyword_emphasis, logo_watermark: ctx.previous.plan.logo_watermark })}`,
       `RICHIESTA DI MODIFICA DEL CLIENTE\n${ctx.previous.feedback}\n\nApplica la richiesta partendo dal montaggio precedente e cambia solo ciò che serve.`,
     );
   } else {
@@ -162,6 +172,16 @@ export async function planEdit(llm: LLMProvider, ctx: PlanContext): Promise<{ pl
   return { plan: res.data, cost: res.cost };
 }
 
+/** Il colore del brand più luminoso (per l'effetto neon), o null. */
+export function brightest(colors: string[]): string | null {
+  const valid = colors.filter((c) => /^#[0-9a-f]{6}$/i.test(c));
+  const lum = (c: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16) / 255);
+    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+  };
+  return valid.length ? valid.reduce((a, b) => (lum(b) > lum(a) ? b : a)) : null;
+}
+
 const MUSIC_VOLUME = { bassa: 0.07, media: 0.11, alta: 0.16 } as const;
 /** Pausa massima tenuta dentro una frase (secondi). */
 const PAUSE_TRIM = { stretto: 0.28, medio: 0.45, morbido: 0.75 } as const;
@@ -174,6 +194,8 @@ export type StyleDefaults = {
   subtitleUppercase: boolean | null;
   punchIn: boolean;
   maxPause: number | null;
+  keywordEmphasis: boolean | null;
+  logoWatermark: "nessuno" | "alto" | "alto-sinistra" | "alto-destra" | null;
 };
 
 /** Dalle decisioni del modello all'edit_spec deterministico (con controlli e ripieghi). */
@@ -188,6 +210,8 @@ export function planToSpec(args: {
   hasLogo: boolean;
   previousSpec?: EditSpec | null;
   coverClips?: CoverClip[];
+  /** Tutti i colori del brand: il più luminoso fa da alone della parola chiave. */
+  brandColors?: string[];
   /** Valori ricavati dal video di riferimento (vincono le scelte esplicite dell'AI). */
   styleDefaults?: StyleDefaults | null;
 }): EditSpec {
@@ -220,6 +244,8 @@ export function planToSpec(args: {
       size: plan.subtitle_size ?? prev?.subtitles.size ?? sd?.subtitleSize ?? editStyle.subtitles?.size ?? "medi",
       position: plan.subtitle_position ?? prev?.subtitles.position ?? sd?.subtitlePosition ?? "auto",
       uppercase: plan.subtitle_uppercase ?? prev?.subtitles.uppercase ?? sd?.subtitleUppercase ?? false,
+      keywordEmphasis: plan.keyword_emphasis ?? prev?.subtitles.keywordEmphasis ?? sd?.keywordEmphasis ?? false,
+      keywordColor: brightest(args.brandColors ?? []),
       highlightWordIndices: plan.highlight_words.filter((i) => keptIdx.size === 0 || keptIdx.has(i)).slice(0, 40),
       highlightColor: args.brandColor && /^#[0-9a-f]{6}$/i.test(args.brandColor) ? args.brandColor : "#0A5CFF",
       font: "Inter",
@@ -232,6 +258,7 @@ export function planToSpec(args: {
       : null,
     hookOverlay: plan.hook_overlay?.trim() ? plan.hook_overlay.trim().slice(0, 60) : null,
     outroLogo: (editStyle.logo_outro ?? true) && args.hasLogo,
+    logoWatermark: args.hasLogo ? (plan.logo_watermark ?? prev?.logoWatermark ?? sd?.logoWatermark ?? "nessuno") : "nessuno",
     punchIn: plan.punch_in ?? prev?.punchIn ?? sd?.punchIn ?? true,
     voiceCleanup: true,
     framing: defaultFraming(source),

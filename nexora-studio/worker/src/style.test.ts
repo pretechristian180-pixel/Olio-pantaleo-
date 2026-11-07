@@ -14,6 +14,8 @@ const fast: StyleProfile = {
   visual: {
     subtitles: { present: true, position: "centro", size: "grandi", uppercase: true, highlight: "karaoke", words_per_block: 2 },
     hook_text: true,
+    keyword_emphasis: true,
+    logo: "alto-destra",
     text_overlays: false,
     zoom: "frequente",
     broll: "poco",
@@ -44,6 +46,8 @@ const plan = (over: Partial<EditPlan> = {}): EditPlan => ({
   subtitles_enabled: null,
   punch_in: null,
   pause_trim: null,
+  keyword_emphasis: null,
+  logo_watermark: null,
   music_volume: null,
   broll: [],
   caption: "",
@@ -111,4 +115,32 @@ test("prompt: indicazioni del cliente e stile di riferimento prima della trascri
   assert.ok(notes > 0 && style > notes && transcript > style, "ordine delle sezioni");
   assert.match(prompt, /32 tagli al minuto/);
   assert.match(prompt, /sottotitoli grandi, in centro, in maiuscolo/);
+});
+
+test("riferimento con parole chiave in grande e logo fisso: effetti attivi solo se il brand ha il logo", () => {
+  const sd = styleDefaults(fast);
+  assert.equal(sd.keywordEmphasis, true);
+  assert.equal(sd.logoWatermark, "alto-destra");
+  const withLogo = planToSpec({
+    plan: plan(), words, source: { durationS: 16, width: 1080, height: 1920, fps: 30, hasAudio: true, orientation: "portrait" },
+    editStyle: {}, brandColor: null, music: [], seed: "x", hasLogo: true, styleDefaults: sd,
+  });
+  assert.equal(withLogo.subtitles.keywordEmphasis, true);
+  assert.equal(withLogo.logoWatermark, "alto-destra");
+  assert.equal(toSpec(plan(), sd).logoWatermark, "nessuno", "senza logo del brand niente logo fisso");
+});
+
+test("profili salvati prima dei nuovi campi: decide l'AI (nessun valore imposto)", () => {
+  const old = { ...fast, visual: { ...fast.visual } } as StyleProfile;
+  delete (old.visual as Partial<typeof old.visual>).keyword_emphasis;
+  delete (old.visual as Partial<typeof old.visual>).logo;
+  const sd = styleDefaults(old);
+  assert.equal(sd.keywordEmphasis, null);
+  assert.equal(sd.logoWatermark, null);
+});
+
+test("colore dell'alone: il più luminoso del brand", async () => {
+  const { brightest } = await import("./pipeline/plan.js");
+  assert.equal(brightest(["#0147f8", "#0026a7", "#03f6fc", "#24282b"]), "#03f6fc");
+  assert.equal(brightest(["nonvalido"]), null);
 });

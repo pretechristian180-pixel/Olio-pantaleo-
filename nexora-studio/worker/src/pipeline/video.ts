@@ -381,6 +381,7 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     source,
     editStyle,
     brandColor: colors[0] ?? null,
+    brandColors: colors,
     music: await music(),
     seed: video.id,
     hasLogo: Boolean(ws?.logo_url && !ws.logo_url.endsWith(".svg")),
@@ -611,7 +612,7 @@ export async function renderJob(job: Job, deps: HandlerDeps) {
 
     const { data: ws } = await deps.db.from("workspaces").select("name, logo_url, manual_review").eq("id", video.workspace_id).single();
     let logoPath: string | null = null;
-    if (spec.outroLogo && ws?.logo_url) {
+    if ((spec.outroLogo || spec.logoWatermark !== "nessuno") && ws?.logo_url) {
       logoPath = await downloadToFile(deps.db, "brand", ws.logo_url, join(out, `logo.${ws.logo_url.split(".").pop()}`)).catch(() => null);
     }
     const track = spec.music ? (await music()).find((t) => t.id === spec.music!.trackId) : null;

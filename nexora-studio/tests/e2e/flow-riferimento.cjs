@@ -136,6 +136,8 @@ async function mailLink(email) {
   check(profFast.profile.cutsPerMinute >= 40, `riferimento serrato analizzato: ${profFast.profile.cutsPerMinute} tagli al minuto`);
   check(a.subtitles.uppercase && a.subtitles.size === "grandi" && a.subtitles.position === "centro", "montaggio serrato: sottotitoli grandi, maiuscoli, al centro");
   check(a.subtitles.style === "karaoke" && a.punchIn === true, "montaggio serrato: karaoke e zoom sui tagli");
+  check(a.subtitles.keywordEmphasis === true, "montaggio serrato: parola chiave in grande con effetto neon");
+  check(a.logoWatermark === "nessuno", "logo fisso non applicato: l'azienda di prova non ha un logo");
 
   // 2. Riferimento calmo + indicazione scritta "niente zoom, sottotitoli in alto"
   const idCalm = await upload({ reference: calm, notes: "Niente zoom, sottotitoli in alto, ritmo tranquillo" });
@@ -144,6 +146,7 @@ async function mailLink(email) {
   const b = await spec(idCalm);
   check(!b.subtitles.uppercase && b.subtitles.size === "medi", "montaggio calmo: sottotitoli normali");
   check(b.punchIn === false, "«niente zoom»: nessuno zoom");
+  check(b.subtitles.keywordEmphasis === false, "montaggio calmo: niente parola chiave in grande");
   check(b.subtitles.position === "alto", "l'indicazione scritta vince sul riferimento: sottotitoli in alto");
   const { data: costs } = await db.from("provider_costs").select("operation").eq("video_id", idFast).eq("operation", "style_analysis");
   check(costs.length === 1, "analisi dello stile registrata tra i costi del video");

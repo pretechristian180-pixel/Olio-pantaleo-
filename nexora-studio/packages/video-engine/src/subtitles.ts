@@ -48,6 +48,9 @@ export function chunkWords(words: TimedWord[], size: keyof typeof FONT_SIZE = "m
   return chunks;
 }
 
+/** Dimensione della parola chiave in grande rispetto ai sottotitoli. */
+export const KEYWORD_SCALE = 1.9;
+
 /** Posizioni verticali candidate (centro del testo), in ordine di preferenza. */
 export const CANDIDATE_Y = [0.72, 0.84, 0.3, 0.16] as const;
 /** Candidati per zona preferita (se la zona è occupata da un volto si passa alla successiva). */
@@ -120,6 +123,7 @@ export function buildAss(args: {
   const highlight = new Set(st.highlightWordIndices);
   const white = "&H00FFFFFF";
   const brand = assColor(st.highlightColor);
+  const glow = assColor(st.keywordColor ?? st.highlightColor);
   const outline = "&H00000000";
   const shadow = "&H80000000";
 
@@ -134,6 +138,7 @@ ScaledBorderAndShadow: yes
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Sub,${st.font},${fs},${st.style === "karaoke" ? brand : white},${white},${outline},${shadow},-1,0,0,0,100,100,0,0,1,${Math.round(fs / 14)},2,5,60,60,0,1
 Style: Hook,${st.font},${Math.round(fs * 0.9)},${white},${white},&H00000000,&H99000000,-1,0,0,0,100,100,0,0,3,18,0,5,80,80,0,1
+Style: Key,${st.font},${Math.round(fs * KEYWORD_SCALE)},${white},${white},${glow},&H00000000,-1,0,0,0,100,100,2,0,1,3,0,5,40,40,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -175,6 +180,19 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
           .join(" ");
       }
       lines.push(`Dialogue: 0,${assTime(c.start)},${assTime(c.end)},Sub,,0,0,0,,${pop}${text}`);
+      // Parola chiave in grande con effetto neon: alone sfocato nel colore del brand + testo nitido.
+      const key = st.keywordEmphasis ? c.words.find((w) => highlight.has(w.index)) : undefined;
+      if (key) {
+        const keyFs = Math.round(fs * KEYWORD_SCALE);
+        const below = y + Math.round((fs + keyFs) * 0.62);
+        const ky = below + keyFs / 2 < OUT_H * 0.93 ? below : y - Math.round((fs + keyFs) * 0.62);
+        const word = escapeAss(key.text.replace(/[.,;:!?…"«»]+/g, "").toLocaleUpperCase("it-IT"));
+        const anim = `\\an5\\pos(${OUT_W / 2},${ky})\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)\\fad(60,60)`;
+        const start = assTime(key.start);
+        const end = assTime(c.end);
+        lines.push(`Dialogue: 1,${start},${end},Key,,0,0,0,,{${anim}\\1a&HFF&\\bord16\\blur14\\3c${glow}}${word}`);
+        lines.push(`Dialogue: 2,${start},${end},Key,,0,0,0,,{${anim}\\bord3\\blur2\\3c${glow}}${word}`);
+      }
     }
   }
   return header + lines.join("\n") + "\n";

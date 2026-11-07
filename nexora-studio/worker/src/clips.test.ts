@@ -19,6 +19,8 @@ const plan = (broll: EditPlan["broll"]): EditPlan => ({
   subtitles_enabled: null,
   punch_in: null,
   pause_trim: null,
+  keyword_emphasis: null,
+  logo_watermark: null,
   music_volume: null,
   broll,
   caption: "",

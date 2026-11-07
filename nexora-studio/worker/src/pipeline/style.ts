@@ -17,6 +17,8 @@ export const VisualStyleSchema = z.object({
     highlight: z.enum(["nessuno", "parola colorata", "karaoke"]).nullable().describe("Come viene evidenziata la parola"),
     words_per_block: z.number().int().nullable().describe("Parole a schermo per volta, circa"),
   }),
+  keyword_emphasis: z.boolean().describe("Parole chiave ripetute in grande (oltre al sottotitolo normale), anche con effetti luminosi"),
+  logo: z.enum(["nessuno", "alto", "alto-sinistra", "alto-destra", "altro"]).describe("Logo del marchio fisso a schermo e dove"),
   hook_text: z.boolean().describe("C'è una scritta grande d'apertura nei primi secondi"),
   text_overlays: z.boolean().describe("Ci sono titoli o scritte oltre ai sottotitoli"),
   zoom: z.enum(["nessuno", "leggero", "frequente"]).describe("Zoom o cambi di inquadratura sul parlato"),
@@ -119,6 +121,7 @@ export function styleForPrompt(p: StyleProfile, label: string) {
     `- ${sub}`,
     `- Scritta d'apertura: ${v.hook_text ? "sì" : "no"}; altri titoli a schermo: ${v.text_overlays ? "sì" : "no"}`,
     `- Zoom: ${v.zoom}; immagini di copertura: ${v.broll}; inquadratura: ${v.framing}`,
+    `- Parole chiave ripetute in grande: ${v.keyword_emphasis ? "sì" : "no"}; logo fisso: ${v.logo ?? "nessuno"}`,
     `- Musica di sottofondo: ${p.backgroundAudio ? "sì" : "no"}`,
     `- In breve: ${v.description}`,
   ].join("\n");
@@ -136,6 +139,9 @@ export function styleDefaults(p: StyleProfile) {
     subtitleUppercase: st.uppercase ?? null,
     punchIn: v.zoom !== "nessuno",
     // Molti tagli al minuto = pause tagliate strette; montaggio calmo = pause più morbide.
+    // I profili salvati prima di questi campi non li hanno: null = decide l'AI dalla descrizione.
+    keywordEmphasis: v.keyword_emphasis ?? null,
+    logoWatermark: v.logo === undefined ? null : v.logo === "altro" ? "alto-destra" : v.logo,
     maxPause: p.cutsPerMinute >= 18 || v.energy === "energico" ? 0.3 : v.energy === "calmo" && p.cutsPerMinute < 8 ? 0.7 : null,
   } as const;
 }

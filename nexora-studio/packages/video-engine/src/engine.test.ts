@@ -23,11 +23,12 @@ const words: Word[] = [
 export const baseSpec = (over: Partial<EditSpec> = {}): EditSpec => ({
   version: 1,
   segments: [{ start: 0, end: 6 }],
-  subtitles: { enabled: true, style: "evidenziato", size: "medi", highlightWordIndices: [7], highlightColor: "#0A5CFF", font: "Inter", fixes: [], position: "auto", uppercase: false },
+  subtitles: { enabled: true, style: "evidenziato", size: "medi", highlightWordIndices: [7], highlightColor: "#0A5CFF", font: "Inter", fixes: [], position: "auto", uppercase: false, keywordEmphasis: false, keywordColor: null },
   music: null,
   hookOverlay: null,
   outroLogo: false,
   framing: "cover",
+  logoWatermark: "nessuno",
   punchIn: false,
   voiceCleanup: false,
   broll: [],

@@ -40,6 +40,9 @@ export function selectExpr(segments: { start: number; end: number }[]) {
  * Passi: tagli → 9:16 → sottotitoli → b-roll → chiusura con logo; voce + musica con ducking,
  * normalizzazione del volume per i social (-14 LUFS).
  */
+/** Larghezza del logo fisso in angolo (px su 1080). */
+export const WATERMARK_W = 190;
+
 /** Metadati scritti in ogni video esportato. */
 export const AI_METADATA: [string, string][] = [
   ["comment", "Video montato con intelligenza artificiale da Nexora Studio (AI-edited content)."],
@@ -63,8 +66,12 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
   let idx = 1;
   const musicIdx = input.musicPath && spec.music ? idx++ : null;
   if (musicIdx !== null) args.push("-stream_loop", "-1", "-i", input.musicPath!);
+  const withWatermark = spec.logoWatermark !== "nessuno" && Boolean(input.logoPath);
   const logoIdx = withOutro ? idx++ : null;
   if (logoIdx !== null) args.push("-i", input.logoPath!);
+  // Logo fisso: la stessa immagine come ingresso a parte, ripetuta per la durata della parte parlata.
+  const wmIdx = withWatermark ? idx++ : null;
+  if (wmIdx !== null) args.push("-loop", "1", "-framerate", String(FPS), "-t", f3(mainDur), "-i", input.logoPath!);
   const brollIdx: (number | null)[] = (input.brollPaths ?? []).map((p) => {
     if (!p) return null;
     args.push("-i", p);
@@ -108,6 +115,14 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
     f.push(`[${vLabel}][br${i}]overlay=0:0:eof_action=pass:enable='between(t,${f3(b.at)},${f3(b.at + b.duration)})'[vb${i}]`);
     vLabel = `vb${i}`;
   });
+
+  // Logo fisso in un angolo (sopra il b-roll, sotto le scritte), solo nella parte parlata.
+  if (wmIdx !== null) {
+    const x = { alto: "(W-w)/2", "alto-sinistra": "48", "alto-destra": "W-w-48", nessuno: "0" }[spec.logoWatermark];
+    f.push(`[${wmIdx}:v]scale=${WATERMARK_W}:-1,format=rgba,colorchannelmixer=aa=0.92[wm]`);
+    f.push(`[${vLabel}][wm]overlay=${x}:56:eof_action=pass[vwm]`);
+    vLabel = "vwm";
+  }
 
   // Sottotitoli (sopra il b-roll, così restano leggibili)
   f.push(`[${vLabel}]ass=${assFile}[vsub]`);
