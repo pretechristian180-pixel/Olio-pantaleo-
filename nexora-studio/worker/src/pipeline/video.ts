@@ -34,7 +34,8 @@ import {
 
 import type { HandlerDeps, Job } from "../handlers.js";
 import { log } from "../log.js";
-import { type CoverClip, type EditPlan, planClipOrder, planEdit, planToSpec } from "./plan.js";
+import { type CoverClip, type EditPlan, planClipOrder, planEdit, planToSpec, type StyleDefaults } from "./plan.js";
+import { analyzeStyle, type StyleProfile, styleDefaults, styleForPrompt } from "./style.js";
 import { downloadToFile, uploadFile } from "./storage.js";
 import { createWorkerTranscriber } from "./transcriber.js";
 
@@ -314,7 +315,7 @@ export async function editJob(job: Job, deps: HandlerDeps) {
 
   const [{ data: ws }, { data: brand }, { data: versions }] = await Promise.all([
     deps.db.from("workspaces").select("name, city, logo_url, brand_colors").eq("id", video.workspace_id).single(),
-    deps.db.from("brand_profiles").select("tone_of_voice, do_not_say, edit_style").eq("workspace_id", video.workspace_id).single(),
+    deps.db.from("brand_profiles").select("tone_of_voice, do_not_say, edit_style, reference_videos").eq("workspace_id", video.workspace_id).single(),
     deps.db.from("video_versions").select("id, version, edit_spec, status").eq("video_id", video.id).order("version"),
   ]);
 
@@ -337,7 +338,15 @@ export async function editJob(job: Job, deps: HandlerDeps) {
   }
 
   const editStyle = (brand?.edit_style ?? {}) as EditStyle;
-  const coverClips: CoverClip[] = (await loadClips(deps.db, video.id))
+  const allClips = await loadClips(deps.db, video.id);
+  const style = await styleReferences(deps, {
+    workspaceId: video.workspace_id,
+    videoId: video.id,
+    jobId: job.id,
+    reference: allClips.find((c) => c.kind === "reference" && !c.raw.purged_at)?.raw ?? null,
+    brandExamples: Array.isArray(brand?.reference_videos) ? (brand.reference_videos as string[]) : [],
+  });
+  const coverClips: CoverClip[] = allClips
     .filter((c) => c.kind === "cover" && c.raw.duration_s != null && !c.raw.purged_at)
     .map((c, i) => ({ n: i + 1, description: c.description, durationS: Number(c.raw.duration_s), storagePath: c.raw.storage_path }));
   const { plan, cost } = await planEdit(deps.llm(), {
@@ -351,6 +360,8 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     script: video.script,
     words: transcript.words,
     coverClips,
+    clientNotes: video.edit_notes,
+    styleReference: style.text,
     previous,
   });
   await recordCosts(deps.db, [cost], { workspaceId: video.workspace_id, jobId: job.id, videoId: video.id, operation: "edit_plan" });
@@ -375,6 +386,7 @@ export async function editJob(job: Job, deps: HandlerDeps) {
     hasLogo: Boolean(ws?.logo_url && !ws.logo_url.endsWith(".svg")),
     previousSpec,
     coverClips,
+    styleDefaults: style.defaults,
   });
 
   // Tagli nei silenzi veri: i tempi delle parole sono stime, l'audio no.
@@ -411,6 +423,60 @@ export async function editJob(job: Job, deps: HandlerDeps) {
   }
   await enqueueRender(deps, video.workspace_id, version.id);
   log("info", "montaggio deciso", { video: video.id, version: nextVersion, segments: spec.segments.length, notes: plan.notes });
+}
+
+/**
+ * Stile di riferimento per il montaggio: il video indicato dal cliente per questo montaggio
+ * (vince) oppure i video di esempio del brand (fino a 2). Ogni file si analizza una volta sola:
+ * il profilo resta in style_profiles. Se l'analisi non riesce, si monta senza riferimento.
+ */
+async function styleReferences(
+  deps: HandlerDeps,
+  ctx: { workspaceId: string; videoId: string; jobId: string; reference: Tables<"raw_uploads"> | null; brandExamples: string[] },
+): Promise<{ text: string | null; defaults: StyleDefaults | null }> {
+  const sources: { bucket: "raw" | "brand"; path: string; label: string }[] = ctx.reference
+    ? [{ bucket: "raw", path: ctx.reference.storage_path, label: "STILE DI RIFERIMENTO (il video che il cliente ha indicato per questo montaggio: imitalo)" }]
+    : ctx.brandExamples.slice(0, 2).map((path, i) => ({
+        bucket: "brand" as const,
+        path,
+        label: `STILE DI RIFERIMENTO DEL BRAND (video di esempio ${i + 1} scelto dal cliente: ispirati a questo stile)`,
+      }));
+  const profiles: { profile: StyleProfile; label: string }[] = [];
+  for (const src of sources) {
+    try {
+      const profile = await styleProfile(deps, src.bucket, src.path, ctx);
+      profiles.push({ profile, label: src.label });
+    } catch (e) {
+      log("warn", "stile di riferimento non analizzato", { video: ctx.videoId, path: src.path, error: String(e) });
+    }
+  }
+  if (!profiles.length) return { text: null, defaults: null };
+  return {
+    text: profiles.map((p) => styleForPrompt(p.profile, p.label)).join("\n\n"),
+    defaults: styleDefaults(profiles[0]!.profile),
+  };
+}
+
+async function styleProfile(
+  deps: HandlerDeps,
+  bucket: "raw" | "brand",
+  path: string,
+  ctx: { workspaceId: string; videoId: string; jobId: string },
+): Promise<StyleProfile> {
+  const { data: cached } = await deps.db.from("style_profiles").select("profile").eq("bucket", bucket).eq("storage_path", path).maybeSingle();
+  if (cached) return cached.profile as unknown as StyleProfile;
+  const dir = join(workDir(), "style", Buffer.from(`${bucket}/${path}`).toString("base64url").slice(-60));
+  try {
+    const ext = path.split(".").pop()?.toLowerCase() ?? "mp4";
+    const file = await downloadToFile(deps.db, bucket, path, join(dir, `ref.${ext}`));
+    const { profile, cost } = await analyzeStyle(deps.llm(), file, dir);
+    await recordCosts(deps.db, [cost], { ...ctx, operation: "style_analysis" });
+    await deps.db.from("style_profiles").upsert({ bucket, storage_path: path, profile: profile as unknown as Json });
+    log("info", "stile di riferimento analizzato", { video: ctx.videoId, path, cutsPerMinute: profile.cutsPerMinute });
+    return profile;
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 }
 
 let broll: BrollProvider | null | undefined;

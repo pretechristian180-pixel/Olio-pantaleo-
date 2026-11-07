@@ -133,6 +133,11 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
         <h1 className="text-2xl font-semibold text-balance sm:text-3xl">
           {video.script?.title ?? "Video libero"}
         </h1>
+        {video.edit_notes && (
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">Le tue indicazioni:</span> {video.edit_notes}
+          </p>
+        )}
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,380px)_1fr] lg:items-start">

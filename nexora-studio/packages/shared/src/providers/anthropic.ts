@@ -69,7 +69,20 @@ export class AnthropicProvider implements LLMProvider {
         betas: ["server-side-fallback-2026-07-01"],
         fallbacks: "default",
         system: [{ type: "text", text: request.system, cache_control: { type: "ephemeral" } }],
-        messages: request.messages,
+        messages: request.messages.map((m) => ({
+          role: m.role,
+          content:
+            typeof m.content === "string"
+              ? m.content
+              : m.content.map((part) =>
+                  part.type === "text"
+                    ? { type: "text" as const, text: part.text }
+                    : {
+                        type: "image" as const,
+                        source: { type: "base64" as const, media_type: part.mediaType, data: part.data },
+                      },
+                ),
+        })),
         output_config: {
           effort: request.effort ?? "medium",
           format: betaZodOutputFormat(request.schema),

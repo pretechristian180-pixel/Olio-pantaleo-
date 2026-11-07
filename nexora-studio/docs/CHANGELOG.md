@@ -1,5 +1,30 @@
 # Changelog
 
+## Indicazioni e video di riferimento per il montaggio (2026-11-07)
+
+### Aggiunto
+- **"Come vuoi il montaggio?"**: nella pagina Carica il cliente può scrivere come vuole il video, fino a 1000 caratteri (es. "ritmo veloce, sottotitoli grandi, niente musica"). Le indicazioni compaiono nella pagina del video e nella revisione del team, e per l'AI del montaggio hanno la precedenza su tutto il resto.
+- **Video di riferimento**: un reel da imitare, uno per video e al massimo 3 minuti. Se il cliente non ne allega uno, valgono i video di esempio del brand, fino a 2. Finora venivano salvati senza essere usati.
+- **Analisi dello stile** (worker), fatta una volta per file e salvata in `style_profiles`:
+  - FFmpeg misura i cambi d'inquadratura al minuto, la durata media delle inquadrature e il sottofondo musicale;
+  - Claude guarda 8 fotogrammi e descrive sottotitoli (presenza, zona, dimensione, maiuscole, evidenziazione), scritta d'apertura, titoli, zoom, b-roll, inquadratura ed energia;
+  - il costo viene registrato tra i costi del video (`style_analysis`).
+- Lo stile diventa impostazioni predefinite del montaggio, che le indicazioni scritte e le scelte esplicite dell'AI possono sempre cambiare:
+  - dimensione, stile, zona e maiuscole dei sottotitoli;
+  - zoom sui tagli;
+  - quanto accorciare le pause.
+- Nuove regolazioni del motore:
+  - zona dei sottotitoli (alto, centro, basso; in ogni caso evitano i volti);
+  - sottotitoli tutti in maiuscolo;
+  - ritmo delle pause (stretto, medio, morbido);
+  - sottotitoli disattivabili su richiesta esplicita.
+- L'adapter dell'AI accetta immagini nei messaggi (`LLMContentPart`).
+- Database: `videos.edit_notes`, clip di tipo `reference`, tabella `style_profiles` (solo il worker).
+- Test: `tests/e2e/flow-riferimento.cjs`, cioè lo stesso girato con un riferimento serrato (56 tagli al minuto: sottotitoli grandi, maiuscoli, al centro, karaoke, zoom) e uno calmo con "niente zoom, sottotitoli in alto" (testo normale in alto, nessuno zoom); test unitari della traduzione stile → montaggio e delle priorità.
+
+### Limiti
+- Transizioni animate, effetti grafici, color grading e font particolari non si possono copiare: l'AI si avvicina con ciò che il motore sa fare e lo scrive nelle note del montaggio.
+
 ## Qualità del montaggio (2026-11-07)
 
 ### Corretto

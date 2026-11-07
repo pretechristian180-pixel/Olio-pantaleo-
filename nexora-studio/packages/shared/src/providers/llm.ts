@@ -2,9 +2,21 @@ import type { z } from "zod";
 
 import type { ProviderCost } from "../domain.js";
 
+/** Parte di un messaggio: testo o immagine (es. fotogrammi di un video di riferimento). */
+export type LLMContentPart =
+  | { type: "text"; text: string }
+  | { type: "image"; mediaType: "image/jpeg" | "image/png"; data: string /* base64 */ };
+
 export interface LLMMessage {
   role: "user" | "assistant";
-  content: string;
+  content: string | LLMContentPart[];
+}
+
+/** Solo il testo di un messaggio (per log e provider dimostrativi). */
+export function messageText(content: LLMMessage["content"]): string {
+  return typeof content === "string"
+    ? content
+    : content.map((p) => (p.type === "text" ? p.text : "")).join("\n");
 }
 
 export interface LLMObjectRequest<T> {

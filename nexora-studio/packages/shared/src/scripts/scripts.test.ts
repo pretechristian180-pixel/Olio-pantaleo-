@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { FakeLLMProvider } from "../providers/fake-llm.js";
+import { messageText } from "../providers/llm.js";
 import { easterSunday, italianDates, mondayOf, weekContext } from "./calendar.js";
 import { generateWeeklyScripts, regenerateScript } from "./generate.js";
 import type { BrandContext } from "./prompt.js";
@@ -83,10 +84,10 @@ test("generazione settimanale: sostituisce lo script ripetuto e normalizza", asy
   assert.equal(fake.calls.length, 2, "una chiamata di correzione");
   assert.deepEqual(res.value.map((s) => s.title), ["Consegna a domicilio a Bari", "Il forno a legna", "La mozzarella del lunedì"]);
   assert.equal(res.value[0]!.shooting_notes.duration_seconds, 90, "durata limitata a 90 s");
-  const prompt = fake.calls[0]!.messages[0]!.content;
+  const prompt = messageText(fake.calls[0]!.messages[0]!.content);
   assert.match(prompt, /Come nasce il nostro impasto/, "lo storico è nel prompt");
   assert.match(prompt, /Scrivi 3 script/);
-  assert.match(fake.calls[1]!.messages[0]!.content, /Scrivi 1 script/);
+  assert.match(messageText(fake.calls[1]!.messages[0]!.content), /Scrivi 1 script/);
 });
 
 test("rigenerazione singola: include feedback e script fratelli", async () => {
@@ -100,7 +101,7 @@ test("rigenerazione singola: include feedback e script fratelli", async () => {
     feedback: "Troppo tecnico",
   });
   assert.equal(res.value.title, "Pizza senza glutine");
-  const prompt = fake.calls[0]!.messages[0]!.content;
+  const prompt = messageText(fake.calls[0]!.messages[0]!.content);
   assert.match(prompt, /Troppo tecnico/);
   assert.match(prompt, /Consegna a domicilio a Bari/);
   assert.equal(fake.calls[0]!.system.includes("Pizzeria"), false, "system prompt stabile, senza dati dell'azienda");

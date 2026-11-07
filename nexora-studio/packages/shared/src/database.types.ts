@@ -398,6 +398,7 @@ export interface Database {
           approved_at: Timestamp | null;
           quota_kind: "trial" | "plan" | null;
           billed_period_start: Timestamp | null;
+          edit_notes: string | null;
           created_at: Timestamp;
           updated_at: Timestamp;
         };
@@ -405,6 +406,7 @@ export interface Database {
           workspace_id: string;
           script_id?: string | null;
           raw_upload_id: string;
+          edit_notes?: string | null;
           status?: "queued" | "editing" | "internal_review" | "review" | "changes_requested" | "approved" | "scheduled" | "published" | "error";
           quota_kind?: "trial" | "plan" | null;
           billed_period_start?: Timestamp | null;
@@ -505,7 +507,7 @@ export interface Database {
           video_id: string;
           workspace_id: string;
           raw_upload_id: string;
-          kind: "speech" | "cover";
+          kind: "speech" | "cover" | "reference";
           position: number;
           play_order: number | null;
           description: string | null;
@@ -515,7 +517,7 @@ export interface Database {
           video_id: string;
           workspace_id: string;
           raw_upload_id: string;
-          kind: "speech" | "cover";
+          kind: "speech" | "cover" | "reference";
           position: number;
           play_order?: number | null;
           description?: string | null;
@@ -524,6 +526,12 @@ export interface Database {
           play_order?: number | null;
           description?: string | null;
         };
+        Relationships: [];
+      };
+      style_profiles: {
+        Row: { bucket: "raw" | "brand"; storage_path: string; profile: Json; created_at: Timestamp };
+        Insert: { bucket: "raw" | "brand"; storage_path: string; profile: Json };
+        Update: { profile?: Json };
         Relationships: [];
       };
       social_accounts: {

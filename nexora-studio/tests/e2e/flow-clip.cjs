@@ -104,7 +104,7 @@ async function mailLink(email) {
 
   // Pagina Carica: quattro file insieme
   await page.goto(`${APP}/video/carica?script=${script.id}`);
-  await page.locator('input[type="file"]').setInputFiles(files);
+  await page.getByLabel("Scegli i video").setInputFiles(files);
   const items = page.getByRole("list", { name: "Clip del video" }).getByRole("listitem");
   await items.nth(3).waitFor();
   check((await items.count()) === 4, "quattro clip in lista, tutte «Parlo io» all'inizio");

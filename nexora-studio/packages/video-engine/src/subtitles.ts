@@ -50,6 +50,13 @@ export function chunkWords(words: TimedWord[], size: keyof typeof FONT_SIZE = "m
 
 /** Posizioni verticali candidate (centro del testo), in ordine di preferenza. */
 export const CANDIDATE_Y = [0.72, 0.84, 0.3, 0.16] as const;
+/** Candidati per zona preferita (se la zona è occupata da un volto si passa alla successiva). */
+export const POSITION_CANDIDATES = {
+  auto: CANDIDATE_Y,
+  alto: [0.22, 0.3, 0.72, 0.84],
+  centro: [0.55, 0.64, 0.72, 0.3],
+  basso: [0.8, 0.72, 0.88, 0.3],
+} as const;
 /** Per la frase d'apertura: in alto se libero, altrimenti al centro o in basso. */
 export const HOOK_CANDIDATE_Y = [0.13, 0.5, 0.9] as const;
 
@@ -148,19 +155,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
   if (st.enabled) {
     for (const c of chunkWords(args.words, st.size)) {
-      const y = Math.round(chooseY(args.facesAt(c.start, c.end), fs) * OUT_H);
+      const y = Math.round(
+        chooseY(args.facesAt(c.start, c.end), fs, 1, POSITION_CANDIDATES[st.position]) * OUT_H,
+      );
+      const show = (t: string) => escapeAss(st.uppercase ? t.toLocaleUpperCase("it-IT") : t);
       const pop = `{\\an5\\pos(${OUT_W / 2},${y})\\fscx88\\fscy88\\t(0,110,\\fscx100\\fscy100)\\fad(40,30)}`;
       let text: string;
       if (st.style === "karaoke") {
         text = c.words
-          .map((w) => `{\\kf${Math.max(1, Math.round((w.end - w.start) * 100))}}${escapeAss(w.text)}`)
+          .map((w) => `{\\kf${Math.max(1, Math.round((w.end - w.start) * 100))}}${show(w.text)}`)
           .join(" ");
       } else {
         text = c.words
           .map((w) =>
             st.style === "evidenziato" && highlight.has(w.index)
-              ? `{\\c${brand}}${escapeAss(w.text)}{\\c${white}}`
-              : escapeAss(w.text),
+              ? `{\\c${brand}}${show(w.text)}{\\c${white}}`
+              : show(w.text),
           )
           .join(" ");
       }

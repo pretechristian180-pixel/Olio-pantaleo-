@@ -82,7 +82,7 @@ async function waitForText(page, re, timeoutS = 240) {
   await page.locator('a[href^="/script/"]').first().click();
   await page.click('a:has-text("Carica il girato")');
   await page.waitForURL("**/video/carica?script=*");
-  await page.setInputFiles('input[type="file"][accept="video/*"]', `${DIR}/girato-verticale.mov`);
+  await page.getByLabel("Scegli i video").setInputFiles(`${DIR}/girato-verticale.mov`);
   await page.getByRole("button", { name: "Carica e monta" }).waitFor();
   await shot(page, "f3-01-carica");
   await page.getByRole("button", { name: "Carica e monta" }).click();

@@ -1,5 +1,5 @@
 import { AnthropicProvider, DEFAULT_ANTHROPIC_MODEL } from "./anthropic.js";
-import type { LLMObjectRequest, LLMProvider } from "./llm.js";
+import { type LLMObjectRequest, type LLMProvider, messageText } from "./llm.js";
 
 const DEMO_TOPICS = [
   ["Il prodotto più richiesto", "Sai qual è la cosa che ci chiedono di più?", "product", ["prodotto", "più richiesto"]],
@@ -35,17 +35,22 @@ function demoProvider(): LLMProvider {
     };
   };
   const companyOf = (req: LLMObjectRequest<unknown>) =>
-    /- Nome: (.+)/.exec(req.messages[0]?.content ?? "")?.[1] ?? "noi";
+    /- Nome: (.+)/.exec(messageText(req.messages[0]?.content ?? ""))?.[1] ?? "noi";
   const countOf = (req: LLMObjectRequest<unknown>) =>
-    Number(/Scrivi (\d+) script/.exec(req.messages[0]?.content ?? "")?.[1] ?? 1);
+    Number(/Scrivi (\d+) script/.exec(messageText(req.messages[0]?.content ?? ""))?.[1] ?? 1);
   const editPlan = (req: LLMObjectRequest<unknown>) => {
-    const content = req.messages[0]?.content ?? "";
+    const content = messageText(req.messages[0]?.content ?? "");
     const total = Number(/PAROLE TOTALI: (\d+)/.exec(content)?.[1] ?? 0);
     const feedback = /RICHIESTA DI MODIFICA DEL CLIENTE\n([^\n]+)/.exec(content)?.[1]?.toLowerCase() ?? "";
     const dropFirst = /(togli|taglia).*(inizi|prima)/.test(feedback);
     return {
       keep: total ? [{ from_word: dropFirst ? Math.min(3, total - 1) : 0, to_word: total - 1 }] : [],
       subtitle_fixes: [],
+      subtitle_position: /sottotitoli in alto/.test(content.toLowerCase()) ? "alto" : null,
+      subtitle_uppercase: /maiuscol/.test(content.toLowerCase()) ? true : null,
+      subtitles_enabled: null,
+      punch_in: /senza zoom|niente zoom/.test(content.toLowerCase()) ? false : null,
+      pause_trim: /ritmo veloce|serrat/.test(content.toLowerCase()) ? "stretto" : null,
       highlight_words: Array.from({ length: Math.floor(total / 5) }, (_, i) => i * 5 + 2).filter((i) => i < total),
       hook_overlay: "Guarda fino alla fine",
       music_mood: "energica",
@@ -75,9 +80,32 @@ function demoProvider(): LLMProvider {
     });
     return { order: clips.sort((a, b) => a.at - b.at || a.n - b.n).map((c) => c.n), notes: "Ordine dello script." };
   };
+  // Stile di riferimento: senza vedere i fotogrammi, deduce lo stile dal ritmo misurato.
+  const styleAnalysis = (content: string) => {
+    const perMinute = Number(/\((\d+(?:\.\d+)?) al minuto/.exec(content)?.[1] ?? 0);
+    const fast = perMinute >= 18;
+    return {
+      subtitles: {
+        present: true,
+        position: fast ? "centro" : "basso",
+        size: fast ? "grandi" : "medi",
+        uppercase: fast,
+        highlight: fast ? "karaoke" : "parola colorata",
+        words_per_block: fast ? 2 : 4,
+      },
+      hook_text: fast,
+      text_overlays: false,
+      zoom: fast ? "frequente" : "nessuno",
+      broll: "poco",
+      framing: "primo piano",
+      energy: fast ? "energico" : "calmo",
+      description: fast ? "Montaggio serrato, sottotitoli grandi in maiuscolo." : "Montaggio calmo, sottotitoli puliti in basso.",
+    };
+  };
   const respond = (req: LLMObjectRequest<unknown>) => {
-    const content = req.messages[0]?.content ?? "";
+    const content = messageText(req.messages[0]?.content ?? "");
     if (/^RIPRESE \(|\nRIPRESE \(/.test(content)) return clipOrder(content);
+    if (/ANALISI DELLO STILE DI RIFERIMENTO/.test(content)) return styleAnalysis(content);
     if (/PAROLE TOTALI:/.test(content)) return editPlan(req);
     return /Scrivi un solo script/.test(content)
       ? { script: one(companyOf(req)) }

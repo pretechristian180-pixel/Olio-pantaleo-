@@ -20,7 +20,7 @@ function str(fd: FormData, key: string, max = 2000) {
 
 export type RegisterResult = { videoId?: string; error?: string };
 
-export type ClipKind = "speech" | "cover";
+export type ClipKind = "speech" | "cover" | "reference";
 export type ClipInput = {
   storagePath: string;
   fileName: string;
@@ -57,14 +57,18 @@ export async function registerClips(input: {
   workspaceId: string;
   scriptId: string | null;
   clips: ClipInput[];
+  /** Come il cliente vuole il montaggio (facoltativo). */
+  editNotes?: string | null;
 }): Promise<RegisterResult> {
   const { ctx } = await assertMember(input.workspaceId);
   const clips = input.clips;
-  if (!clips.length || clips.length > MAX_CLIPS) return { error: `Puoi caricare da 1 a ${MAX_CLIPS} clip.` };
+  const references = clips.filter((c) => c.kind === "reference").length;
+  if (references > 1) return { error: "Puoi indicare un solo video di riferimento." };
+  if (!clips.length || clips.length - references > MAX_CLIPS) return { error: `Puoi caricare da 1 a ${MAX_CLIPS} clip.` };
   if (!clips.some((c) => c.kind === "speech"))
     return { error: "Serve almeno una ripresa in cui parli: le clip di copertura vanno sopra la voce." };
   for (const c of clips) {
-    if (c.kind !== "speech" && c.kind !== "cover") return { error: "Tipo di clip non valido." };
+    if (!["speech", "cover", "reference"].includes(c.kind)) return { error: "Tipo di clip non valido." };
     if (!c.storagePath.startsWith(`${input.workspaceId}/`)) return { error: "Percorso del file non valido." };
     if (c.sizeBytes > MAX_BYTES) return { error: "Un file supera i 2 GB." };
   }
@@ -118,6 +122,7 @@ export async function registerClips(input: {
       workspace_id: input.workspaceId,
       script_id: scriptId,
       raw_upload_id: rawId.get(firstSpeech.storagePath)!,
+      edit_notes: input.editNotes?.trim().slice(0, 1000) || null,
       status: "queued",
       quota_kind: q.kind ?? null,
       billed_period_start: q.period_start ?? null,
@@ -134,7 +139,7 @@ export async function registerClips(input: {
     return { error: "Non siamo riusciti ad avviare il montaggio. Riprova." };
   }
 
-  // Un solo girato: come sempre, senza righe in video_clips.
+  // Un solo girato senza riferimento: come sempre, senza righe in video_clips.
   if (clips.length > 1) {
     const { error: clipsError } = await admin.from("video_clips").insert(
       clips.map((c, i) => ({

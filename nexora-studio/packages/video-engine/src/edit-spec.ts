@@ -24,6 +24,10 @@ export const EditSpecSchema = z.object({
     fixes: z
       .array(z.object({ from: z.number().int(), to: z.number().int(), text: z.string() }))
       .default([]),
+    /** Zona preferita: "auto" = in basso evitando i volti (comportamento predefinito). */
+    position: z.enum(["auto", "alto", "centro", "basso"]).default("auto"),
+    /** Tutto maiuscolo (stile di molti reel). */
+    uppercase: z.boolean().default(false),
   }),
   music: z
     .object({

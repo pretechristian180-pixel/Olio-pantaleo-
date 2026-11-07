@@ -10,6 +10,7 @@ import {
   Plus,
   RotateCcw,
   Smartphone,
+  Sparkles,
   Upload,
   X,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import { useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/ui/select-native";
 import { Progress } from "@/components/ui/progress";
 import { type ClipKind, registerClips } from "@/lib/actions/videos";
@@ -28,6 +30,7 @@ import { cn } from "@/lib/utils";
 const MAX_BYTES = 2 * 1024 * 1024 * 1024;
 const MAX_SECONDS = 10 * 60;
 const MAX_CLIPS = 10;
+const MAX_REFERENCE_SECONDS = 3 * 60;
 
 type Meta = { duration: number | null; width: number | null; height: number | null };
 
@@ -99,6 +102,9 @@ export function Uploader({
   const [phase, setPhase] = useState<Phase>({ step: "edit" });
   const [error, setError] = useState<string | null>(null);
   const [scriptId, setScriptId] = useState(defaultScriptId ?? scripts[0]?.id ?? "");
+  const [notes, setNotes] = useState("");
+  const [reference, setReference] = useState<Clip | null>(null);
+  const refInputRef = useRef<HTMLInputElement>(null);
   const busy = phase.step !== "edit";
 
   useEffect(() => {
@@ -143,8 +149,31 @@ export function Uploader({
     setClips((c) => [...c, ...added]);
   }
 
-  const update = (id: string, patch: Partial<Clip>) =>
+  const update = (id: string, patch: Partial<Clip>) => {
     setClips((cs) => cs.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+    setReference((r) => (r && r.id === id ? { ...r, ...patch } : r));
+  };
+
+  /** Video di riferimento: uno solo, fino a 3 minuti (ne analizziamo lo stile, non il contenuto). */
+  async function pickReference(file: File) {
+    setError(null);
+    if (!file.type.startsWith("video/") && !/\.(mp4|mov|m4v|webm|mkv)$/i.test(file.name)) {
+      return setError(`«${file.name}» non è un video.`);
+    }
+    if (file.size > MAX_BYTES) return setError(`«${file.name}» supera i 2 GB.`);
+    const meta = await readMeta(file);
+    if (meta.duration && meta.duration > MAX_REFERENCE_SECONDS + 1) {
+      return setError("Il video di riferimento può durare al massimo 3 minuti: basta un reel di esempio.");
+    }
+    setReference({
+      id: crypto.randomUUID(),
+      file,
+      meta,
+      kind: "reference",
+      description: "",
+      objectName: `${workspaceId}/${crypto.randomUUID()}/riferimento-${safeFileName(file.name)}`,
+    });
+  }
 
   const speech = clips.filter((c) => c.kind === "speech");
   const speechSeconds = speech.reduce((sum, c) => sum + (c.meta.duration ?? 0), 0);
@@ -154,7 +183,7 @@ export function Uploader({
 
   async function submit() {
     setError(null);
-    const list = [...clips];
+    const list = [...clips, ...(reference ? [reference] : [])];
     for (let i = 0; i < list.length; i++) {
       const clip = list[i]!;
       if (clip.storagePath) continue;
@@ -197,6 +226,7 @@ export function Uploader({
         kind: c.kind,
         description: c.kind === "cover" ? c.description : null,
       })),
+      editNotes: notes.trim() || null,
     });
     if (res.error || !res.videoId) {
       setPhase({ step: "edit" });
@@ -206,10 +236,11 @@ export function Uploader({
     router.push(`/video/${res.videoId}`);
   }
 
-  const uploadedCount = clips.filter((c) => c.storagePath).length;
+  const totalFiles = clips.length + (reference ? 1 : 0);
+  const uploadedCount = clips.filter((c) => c.storagePath).length + (reference?.storagePath ? 1 : 0);
   const overall =
     phase.step === "uploading"
-      ? Math.round(((uploadedCount + phase.progress / 100) / clips.length) * 100)
+      ? Math.round(((uploadedCount + phase.progress / 100) / totalFiles) * 100)
       : phase.step === "saving"
         ? 100
         : 0;
@@ -264,6 +295,20 @@ export function Uploader({
         onChange={(e) => {
           const files = Array.from(e.target.files ?? []);
           if (files.length) void add(files);
+          e.target.value = "";
+        }}
+      />
+
+      <input
+        ref={refInputRef}
+        type="file"
+        accept="video/*"
+        className="sr-only"
+        tabIndex={-1}
+        aria-label="Scegli il video di riferimento"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void pickReference(f);
           e.target.value = "";
         }}
       />
@@ -358,6 +403,61 @@ export function Uploader({
               tua voce.
             </p>
           )}
+          <div className="grid gap-2 border-t pt-4">
+            <label htmlFor="edit_notes" className="text-sm font-medium">
+              Come vuoi il montaggio? <span className="font-normal text-muted-foreground">(facoltativo)</span>
+            </label>
+            <Textarea
+              id="edit_notes"
+              value={notes}
+              maxLength={1000}
+              rows={3}
+              disabled={busy}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Es. ritmo veloce, sottotitoli grandi in maiuscolo, niente musica, tieni la battuta finale"
+            />
+          </div>
+          <div className="grid gap-2">
+            <span className="text-sm font-medium">
+              Video di riferimento <span className="font-normal text-muted-foreground">(facoltativo)</span>
+            </span>
+            {reference ? (
+              <div className="flex items-center gap-3 rounded-xl border bg-background/40 p-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  {reference.storagePath ? (
+                    <CheckCircle2 className="size-5 text-success" aria-label="Caricato" />
+                  ) : (
+                    <Sparkles className="size-5 text-muted-foreground" aria-hidden />
+                  )}
+                </span>
+                <div className="grid min-w-0 flex-1">
+                  <span className="truncate text-sm font-medium">{reference.file.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatSize(reference.file.size)}
+                    {reference.meta.duration ? ` · ${formatDuration(reference.meta.duration)} min` : ""}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={busy}
+                  onClick={() => setReference(null)}
+                  aria-label="Togli il video di riferimento"
+                >
+                  <X aria-hidden />
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" disabled={busy} onClick={() => refInputRef.current?.click()}>
+                <Sparkles aria-hidden /> Allega un video da imitare
+              </Button>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Un reel che ti piace: ne prendiamo ritmo, sottotitoli e stile del montaggio. Transizioni
+              animate ed effetti grafici non si possono copiare.
+            </p>
+          </div>
+
           {speech.length === 0 && (
             <Alert variant="warning">
               <AlertTriangle aria-hidden />
@@ -394,8 +494,10 @@ export function Uploader({
                   <Loader2 className="size-4 animate-spin" aria-hidden />
                   {phase.step === "saving"
                     ? "Avvio il montaggio…"
-                    : clips.length > 1
-                      ? `Caricamento clip ${phase.index + 1} di ${clips.length}…`
+                    : phase.index >= clips.length
+                      ? "Caricamento del video di riferimento…"
+                      : totalFiles > 1
+                        ? `Caricamento clip ${phase.index + 1} di ${clips.length}…`
                       : "Caricamento in corso…"}
                 </span>
                 <span className="text-sm text-muted-foreground tabular-nums">{overall}%</span>

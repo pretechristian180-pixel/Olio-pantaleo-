@@ -28,6 +28,7 @@ export function segmentsFromWordRanges(
   words: Word[],
   ranges: { from: number; to: number }[],
   durationS: number,
+  maxPause = MAX_PAUSE,
 ): Segment[] {
   const segs: Segment[] = [];
   for (const r of ranges) {
@@ -41,7 +42,7 @@ export function segmentsFromWordRanges(
         continue;
       }
       const gap = w.start - words[i - 1]!.end;
-      if (gap > MAX_PAUSE) {
+      if (gap > maxPause) {
         segs.push(cur);
         cur = { start: w.start - PAD_BEFORE, end: w.end + PAD_AFTER };
       } else {

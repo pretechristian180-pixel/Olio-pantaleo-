@@ -10,3 +10,4 @@ export * from "./render.js";
 export * from "./concat.js";
 export * from "./audio.js";
 export * from "./transcribe.js";
+export { execCommand, ffmpegThreads, containerCpus } from "./exec.js";

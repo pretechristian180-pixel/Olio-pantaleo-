@@ -43,7 +43,7 @@ function spec(): EditSpec {
   return {
     version: 1,
     segments: silenceCut(words, 8),
-    subtitles: { enabled: true, style: "evidenziato", size: "medi", highlightWordIndices: [5], highlightColor: "#0A5CFF", font: "Inter", fixes: [] },
+    subtitles: { enabled: true, style: "evidenziato", size: "medi", highlightWordIndices: [5], highlightColor: "#0A5CFF", font: "Inter", fixes: [], position: "auto", uppercase: false },
     music: null,
     hookOverlay: "Prova del motore",
     outroLogo: false,

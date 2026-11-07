@@ -94,6 +94,12 @@ export default async function AdminReviewPage() {
                           {spec.music?.trackId ?? "nessuna"}
                         </p>
                       </div>
+                      {v.edit_notes && (
+                        <p className="rounded-lg border p-3">
+                          <span className="font-medium">Indicazioni del cliente:</span>{" "}
+                          {v.edit_notes}
+                        </p>
+                      )}
                       {spec._plan?.notes && (
                         <p className="rounded-lg bg-muted p-3">
                           <span className="font-medium">Note del montaggio:</span>{" "}

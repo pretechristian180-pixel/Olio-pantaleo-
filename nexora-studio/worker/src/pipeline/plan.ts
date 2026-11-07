@@ -32,9 +32,14 @@ export const EditPlanSchema = z.object({
     .describe("Errori di trascrizione da correggere nei sottotitoli (parole capite male), solo nelle parti tenute"),
   hook_overlay: z.string().nullable().describe("Testo breve a schermo nei primi 3 secondi, max 6 parole, o null"),
   music_mood: z.enum(["energica", "rilassata", "elegante", "nessuna"]),
-  subtitle_size: z.enum(["piccoli", "medi", "grandi"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
-  subtitle_style: z.enum(["pulito", "evidenziato", "karaoke"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
-  music_volume: z.enum(["bassa", "media", "alta"]).nullable().describe("Solo se la richiesta lo chiede, altrimenti null"),
+  subtitle_size: z.enum(["piccoli", "medi", "grandi"]).nullable().describe("Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  subtitle_style: z.enum(["pulito", "evidenziato", "karaoke"]).nullable().describe("Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  subtitle_position: z.enum(["alto", "centro", "basso"]).nullable().describe("Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  subtitle_uppercase: z.boolean().nullable().describe("Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  subtitles_enabled: z.boolean().nullable().describe("false solo se il cliente chiede esplicitamente niente sottotitoli, altrimenti null"),
+  punch_in: z.boolean().nullable().describe("Zoom alternato sui tagli: solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  pause_trim: z.enum(["stretto", "medio", "morbido"]).nullable().describe("Quanto accorciare le pause: stretto = ritmo serrato. Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
+  music_volume: z.enum(["bassa", "media", "alta"]).nullable().describe("Solo se indicazioni, riferimento o richiesta lo chiedono, altrimenti null"),
   broll: z
     .array(
       z.object({
@@ -71,7 +76,9 @@ Il tuo compito:
   - Se ci sono CLIP DI COPERTURA DEL CLIENTE, usale per prime (own_clip = il loro numero): ognuna al massimo una volta, nel punto in cui si parla di ciò che mostrano (se non c'è descrizione, dove si parla dell'attività o del prodotto in generale), per non più della loro durata. Cerca di usarle tutte: le ha girate apposta.
   - Le clip stock (own_clip = null, con query_en) solo per i punti rimasti, rispettando il numero massimo di clip stock indicato.
 - caption e hashtags: in italiano, coerenti con il brand e la città; niente promesse o dati non detti nel video.
-- subtitle_size, subtitle_style, music_volume: lasciali null, salvo che la richiesta di modifica del cliente li riguardi.
+- Priorità: 1) INDICAZIONI DEL CLIENTE per questo video e RICHIESTA DI MODIFICA, 2) STILE DI RIFERIMENTO (il video che il cliente ha indicato come esempio), 3) stile preferito del brand. Le indicazioni del cliente vanno seguite il più possibile; se chiedono qualcosa che il montaggio non sa fare (transizioni animate, effetti grafici, font particolari) avvicinati con ciò che è possibile e scrivilo nelle notes.
+- subtitle_size, subtitle_style, subtitle_position, subtitle_uppercase, subtitles_enabled, punch_in, pause_trim, music_volume: impostali quando le indicazioni del cliente, lo stile di riferimento o la richiesta di modifica li riguardano; altrimenti null (vale lo stile del brand).
+- Con uno stile di riferimento, imita anche ritmo e durata: con molti tagli al minuto tieni solo l'essenziale e pause strette; con uno stile calmo lascia respirare il discorso. Se il riferimento ha una scritta d'apertura, proponi hook_overlay; se non ce l'ha, null.
 
 Le pause lunghe nella trascrizione sono segnate con ‖. Gli indici sono tra parentesi quadre.
 Rispondi solo con il JSON richiesto.`;
@@ -89,6 +96,10 @@ export interface PlanContext {
   script: { title: string; hook: string; body: string } | null;
   words: Word[];
   coverClips?: CoverClip[];
+  /** Come il cliente vuole il montaggio di questo video (testo libero). */
+  clientNotes?: string | null;
+  /** Stile ricavato dai video di riferimento, già in forma di testo. */
+  styleReference?: string | null;
   previous?: { plan: EditPlan; feedback: string };
 }
 
@@ -111,9 +122,13 @@ export function editUserPrompt(ctx: PlanContext) {
       : "SCRIPT DI RIFERIMENTO\n- Nessuno: video libero.",
     `TRASCRIZIONE (PAROLE TOTALI: ${ctx.words.length})\n${transcriptForPrompt(ctx.words)}`,
   ];
+  if (ctx.styleReference) parts.splice(2, 0, ctx.styleReference);
+  if (ctx.clientNotes?.trim()) {
+    parts.splice(2, 0, `INDICAZIONI DEL CLIENTE PER QUESTO VIDEO (hanno la precedenza)\n${ctx.clientNotes.trim()}`);
+  }
   if (ctx.coverClips?.length) {
     parts.splice(
-      3,
+      parts.findIndex((p) => p.startsWith("TRASCRIZIONE")),
       0,
       `CLIP DI COPERTURA DEL CLIENTE (senza parlato, da mettere sopra la voce)\n${ctx.coverClips
         .map((c) => `- Clip ${c.n} (${c.durationS.toFixed(1)} s): ${c.description?.trim() || "nessuna descrizione"}`)
@@ -122,7 +137,7 @@ export function editUserPrompt(ctx: PlanContext) {
   }
   if (ctx.previous) {
     parts.push(
-      `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood, subtitle_fixes: ctx.previous.plan.subtitle_fixes ?? [] })}`,
+      `MONTAGGIO PRECEDENTE\n${JSON.stringify({ keep: ctx.previous.plan.keep, hook_overlay: ctx.previous.plan.hook_overlay, music_mood: ctx.previous.plan.music_mood, subtitle_fixes: ctx.previous.plan.subtitle_fixes ?? [], subtitle_size: ctx.previous.plan.subtitle_size, subtitle_style: ctx.previous.plan.subtitle_style, subtitle_position: ctx.previous.plan.subtitle_position, subtitle_uppercase: ctx.previous.plan.subtitle_uppercase, punch_in: ctx.previous.plan.punch_in, pause_trim: ctx.previous.plan.pause_trim })}`,
       `RICHIESTA DI MODIFICA DEL CLIENTE\n${ctx.previous.feedback}\n\nApplica la richiesta partendo dal montaggio precedente e cambia solo ciò che serve.`,
     );
   } else {
@@ -148,6 +163,18 @@ export async function planEdit(llm: LLMProvider, ctx: PlanContext): Promise<{ pl
 }
 
 const MUSIC_VOLUME = { bassa: 0.07, media: 0.11, alta: 0.16 } as const;
+/** Pausa massima tenuta dentro una frase (secondi). */
+const PAUSE_TRIM = { stretto: 0.28, medio: 0.45, morbido: 0.75 } as const;
+
+export type StyleDefaults = {
+  subtitlesEnabled: boolean;
+  subtitleSize: "piccoli" | "medi" | "grandi" | null;
+  subtitleStyle: "pulito" | "evidenziato" | "karaoke" | null;
+  subtitlePosition: "alto" | "centro" | "basso" | null;
+  subtitleUppercase: boolean | null;
+  punchIn: boolean;
+  maxPause: number | null;
+};
 
 /** Dalle decisioni del modello all'edit_spec deterministico (con controlli e ripieghi). */
 export function planToSpec(args: {
@@ -161,14 +188,19 @@ export function planToSpec(args: {
   hasLogo: boolean;
   previousSpec?: EditSpec | null;
   coverClips?: CoverClip[];
+  /** Valori ricavati dal video di riferimento (vincono le scelte esplicite dell'AI). */
+  styleDefaults?: StyleDefaults | null;
 }): EditSpec {
+  const sd = args.styleDefaults ?? null;
+  const prev = args.previousSpec ?? null;
   const { plan, words, source, editStyle } = args;
   const n = words.length;
   const ranges = plan.keep
     .map((r) => ({ from: Math.max(0, Math.min(n - 1, r.from_word)), to: Math.max(0, Math.min(n - 1, r.to_word)) }))
     .filter((r) => n > 0 && r.to >= r.from);
 
-  let segments = n > 0 && ranges.length ? segmentsFromWordRanges(words, ranges, source.durationS) : [];
+  const maxPause = plan.pause_trim ? PAUSE_TRIM[plan.pause_trim] : (sd?.maxPause ?? undefined);
+  let segments = n > 0 && ranges.length ? segmentsFromWordRanges(words, ranges, source.durationS, maxPause) : [];
   // Ripiego: se il modello ha tenuto troppo poco (o niente), solo taglio dei silenzi.
   if (segments.length === 0 || totalDuration(segments) < Math.min(5, source.durationS * 0.3)) {
     segments = silenceCut(words, source.durationS);
@@ -183,9 +215,11 @@ export function planToSpec(args: {
     version: 1,
     segments,
     subtitles: {
-      enabled: true,
-      style: plan.subtitle_style ?? args.previousSpec?.subtitles.style ?? editStyle.subtitles?.style ?? "evidenziato",
-      size: plan.subtitle_size ?? args.previousSpec?.subtitles.size ?? editStyle.subtitles?.size ?? "medi",
+      enabled: plan.subtitles_enabled ?? prev?.subtitles.enabled ?? true,
+      style: plan.subtitle_style ?? prev?.subtitles.style ?? sd?.subtitleStyle ?? editStyle.subtitles?.style ?? "evidenziato",
+      size: plan.subtitle_size ?? prev?.subtitles.size ?? sd?.subtitleSize ?? editStyle.subtitles?.size ?? "medi",
+      position: plan.subtitle_position ?? prev?.subtitles.position ?? sd?.subtitlePosition ?? "auto",
+      uppercase: plan.subtitle_uppercase ?? prev?.subtitles.uppercase ?? sd?.subtitleUppercase ?? false,
       highlightWordIndices: plan.highlight_words.filter((i) => keptIdx.size === 0 || keptIdx.has(i)).slice(0, 40),
       highlightColor: args.brandColor && /^#[0-9a-f]{6}$/i.test(args.brandColor) ? args.brandColor : "#0A5CFF",
       font: "Inter",
@@ -198,7 +232,7 @@ export function planToSpec(args: {
       : null,
     hookOverlay: plan.hook_overlay?.trim() ? plan.hook_overlay.trim().slice(0, 60) : null,
     outroLogo: (editStyle.logo_outro ?? true) && args.hasLogo,
-    punchIn: true,
+    punchIn: plan.punch_in ?? prev?.punchIn ?? sd?.punchIn ?? true,
     voiceCleanup: true,
     framing: defaultFraming(source),
     broll: placeBroll(plan, words, segments, maxBroll(editStyle), args.coverClips ?? []),

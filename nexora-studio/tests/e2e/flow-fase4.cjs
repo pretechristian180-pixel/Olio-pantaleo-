@@ -75,7 +75,7 @@ const shot = (p, n, full = false) => p.screenshot({ path: `${DIR}/${n}.png`, ful
 
   // Video: caricamento → revisione del team → approvazione
   await page.goto(`${APP}/video/carica`);
-  await page.setInputFiles('input[type="file"][accept="video/*"]', `${DIR}/girato-verticale.mov`);
+  await page.getByLabel("Scegli i video").setInputFiles(`${DIR}/girato-verticale.mov`);
   await page.getByRole("button", { name: "Carica e monta" }).click();
   await page.waitForURL(/\/video\/[0-9a-f-]{36}$/, { timeout: 120000 });
   const videoUrl = page.url();
