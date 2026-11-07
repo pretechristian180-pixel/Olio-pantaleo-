@@ -35,6 +35,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
           </p>
         )}
+        {tenant?.omaggio.scaduto && (
+          <p
+            role="alert"
+            className="bg-negative px-4 py-3 text-sm font-semibold text-white sm:px-6 lg:px-12"
+          >
+            Il periodo in omaggio è terminato.{" "}
+            <Link href="/admin/impostazioni" className="underline underline-offset-2">
+              Attiva l&apos;abbonamento
+            </Link>{" "}
+            per tenere aperta l&apos;academy.
+          </p>
+        )}
         {(tenant?.stato === "insoluto" || tenant?.stato === "sospeso") && (
           <p
             role="alert"

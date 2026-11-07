@@ -12,7 +12,17 @@ import { publicEnv } from "@/lib/env";
 import { tenantUrl } from "@/lib/tenant-host";
 import { formatDate } from "@/lib/format-date";
 import { formatPrice } from "@/lib/utils";
-import { enterTenantAdmin, extendTrial, setTenantPlan, setTenantStatus } from "../actions";
+import {
+  enterTenantAdmin,
+  extendTrial,
+  setTenantOffer,
+  setTenantPlan,
+  setTenantStatus,
+} from "../actions";
+import { OfferForm } from "@/components/platform/offer-form";
+import { Badge } from "@/components/ui/badge";
+import { effectiveFeatures } from "@/lib/features";
+import { getPlansWithFeatures } from "@/lib/data/platform";
 
 export const metadata: Metadata = { title: "Academy" };
 
@@ -27,7 +37,8 @@ export default async function PlatformTenantPage({ params }: { params: Promise<{
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const t = await getPlatformTenant(id);
   if (!t) notFound();
-  const team = await getTenantTeam(id);
+  const [team, plans] = await Promise.all([getTenantTeam(id), getPlansWithFeatures()]);
+  const plan = plans.find((p) => p.codice === t.piano_codice) ?? null;
   const nexora = t.slug === publicEnv.NEXT_PUBLIC_TENANT_SLUG;
   const indirizzo = t.dominio_personalizzato
     ? `https://${t.dominio_personalizzato}`
@@ -59,6 +70,18 @@ export default async function PlatformTenantPage({ params }: { params: Promise<{
         <CardBody className="grid gap-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-4">
           <Info label="Stato">
             <TenantStatusBadge stato={t.stato} />
+            {t.omaggio && (
+              <Badge tone="positive" className="ml-1">
+                Omaggio
+              </Badge>
+            )}
+            {t.omaggio && (
+              <span className="mt-1 block text-sm text-ink-muted">
+                {t.omaggio_fine_il
+                  ? `gratis fino al ${formatDate(t.omaggio_fine_il)}`
+                  : "gratis senza scadenza"}
+              </span>
+            )}
             {t.stato === "prova" && t.prova_fine_il && (
               <span className="mt-1 block text-sm text-ink-muted">
                 fino al {formatDate(t.prova_fine_il)}
@@ -78,6 +101,22 @@ export default async function PlatformTenantPage({ params }: { params: Promise<{
             </span>
           </Info>
           <Info label="Creata il">{formatDate(t.creato_il)}</Info>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody className="space-y-2 sm:p-8">
+          <CardTitle>Omaggio e funzioni incluse</CardTitle>
+          <p className="mb-4 text-sm text-ink-muted">
+            Regala l&apos;academy e decidi cosa include, anche oltre il piano {t.piano ?? ""}. Le
+            funzioni partono da quelle del piano: cambia solo quello che vuoi personalizzare.
+          </p>
+          <OfferForm
+            action={setTenantOffer.bind(null, t.id, t.piano_codice)}
+            omaggio={t.omaggio}
+            omaggioFine={t.omaggio_fine_il}
+            defaults={effectiveFeatures(plan, t.funzioni)}
+          />
         </CardBody>
       </Card>
 
