@@ -8,10 +8,15 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { Stat } from "@/components/ui/stat";
 import { CourseProgressCard } from "@/components/dashboard/course-progress-card";
 import { ResumeCard } from "@/components/dashboard/resume-card";
+import { PromoBox } from "@/components/student/promo-box";
+import { getCurrentTenant } from "@/lib/tenant";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const { cards, resume, numeri } = await getDashboard(user.id);
+  const [{ cards, resume, numeri }, tenant] = await Promise.all([
+    getDashboard(user.id),
+    getCurrentTenant(),
+  ]);
 
   return (
     <div className="flex flex-col gap-10">
@@ -23,6 +28,9 @@ export default async function DashboardPage() {
       </div>
 
       <ResumeCard lesson={resume} />
+
+      {/* Su telefono la barra laterale non c'è: il riquadro dell'academy compare qui. */}
+      {tenant && <PromoBox promo={tenant.promo} className="md:hidden" />}
 
       <section aria-label="I tuoi numeri" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat label="Corsi attivi" value={numeri.attivi} />

@@ -6,6 +6,7 @@ import { requireTenantAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentTenant } from "@/lib/tenant";
 import { legalSchema } from "@/lib/legal";
+import { promoSchema } from "@/lib/promo";
 
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Colore non valido: usa il formato #RRGGBB.");
 
@@ -83,6 +84,36 @@ export async function updateLegal(_prev: LegalState, formData: FormData): Promis
     .update({ dati_legali: data })
     .eq("id", tenant.id);
   if (error) return { ok: false, error: "Dati non salvati. Riprova." };
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export type PromoState = null | { ok: true } | { ok: false; error: string };
+
+/** Riquadro promozionale dell'area studenti (es. "Prenota la consulenza"). */
+export async function updatePromo(_prev: PromoState, formData: FormData): Promise<PromoState> {
+  await requireTenantAdmin();
+  const tenant = await getCurrentTenant();
+  if (!tenant) return { ok: false, error: "Academy non trovata." };
+  const linkGrezzo = String(formData.get("link") ?? "").trim();
+  const promo = promoSchema.parse({
+    attivo: formData.get("attivo") === "on",
+    sopratitolo: formData.get("sopratitolo"),
+    testo: formData.get("testo"),
+    pulsante: formData.get("pulsante"),
+    link: linkGrezzo,
+  });
+  if (linkGrezzo && !promo.link)
+    return {
+      ok: false,
+      error:
+        "Il link deve iniziare con https:// (oppure mailto: per un'email, tel: per un numero).",
+    };
+  if (promo.attivo && !promo.testo)
+    return { ok: false, error: "Scrivi il testo del riquadro, oppure spegnilo." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("tenants").update({ promo }).eq("id", tenant.id);
+  if (error) return { ok: false, error: "Non salvato. Riprova." };
   revalidatePath("/", "layout");
   return { ok: true };
 }

@@ -10,6 +10,7 @@ import { Card, CardBody, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { BrandForm } from "@/components/admin/brand-form";
 import { LegalForm } from "@/components/admin/legal-form";
+import { PromoForm } from "@/components/admin/promo-form";
 import { Alert } from "@/components/ui/alert";
 import { isLegalComplete } from "@/lib/legal";
 
@@ -83,6 +84,16 @@ export default async function SettingsPage({
           />
         </>
       )}
+      <Card>
+        <CardBody className="space-y-4 sm:p-8">
+          <CardTitle>Riquadro nell&apos;area studenti</CardTitle>
+          <p className="text-sm text-ink-muted">
+            Un invito che i tuoi studenti vedono sempre nel menu: ad esempio prenotare una
+            consulenza, una call o un servizio.
+          </p>
+          <PromoForm initial={tenant.promo} />
+        </CardBody>
+      </Card>
       <Card>
         <CardBody className="space-y-4 sm:p-8">
           <CardTitle>Dati legali</CardTitle>
