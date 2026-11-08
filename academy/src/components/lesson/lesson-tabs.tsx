@@ -76,7 +76,7 @@ export function LessonTabs({ items: all }: { items: TabItem[] }) {
               className={cn(
                 "-mb-px flex min-h-12 shrink-0 items-center border-b-2 text-[15px] font-semibold whitespace-nowrap",
                 selected
-                  ? "border-nexora-blue text-nexora-blue"
+                  ? "border-nexora-blue text-nexora-blue-bright"
                   : "border-transparent text-ink-muted hover:text-ink",
               )}
             >

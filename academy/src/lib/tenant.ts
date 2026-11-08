@@ -21,7 +21,7 @@ export type Tenant = {
   provaFineIl: string | null;
   /** Funzioni effettive: piano + eccezioni del super-admin. */
   funzioni: Features;
-  /** Academy regalata da Nexora (senza abbonamento), con eventuale scadenza. */
+  /** Academy regalata da Christian Prete Academy (senza abbonamento), con eventuale scadenza. */
   omaggio: { attivo: boolean; fineIl: string | null; scaduto: boolean };
   /** Riquadro promozionale nell'area studenti. */
   promo: Promo;
@@ -74,7 +74,11 @@ export async function requestHost() {
 }
 
 export const getHostMatch = cache(async (): Promise<HostMatch> => {
-  return resolveHost(await requestHost(), publicEnv.NEXT_PUBLIC_ROOT_DOMAIN);
+  return resolveHost(
+    await requestHost(),
+    publicEnv.NEXT_PUBLIC_ROOT_DOMAIN,
+    publicEnv.NEXT_PUBLIC_LEGACY_ROOT_DOMAINS,
+  );
 });
 
 /** L'academy della richiesta corrente (dal sottodominio o dal dominio personalizzato), o null. */
@@ -128,7 +132,7 @@ export async function isPlatformHost() {
   return (await getHostMatch()).kind === "root";
 }
 
-/** L'academy corrente è quella di Nexora (non di un cliente)? */
+/** L'academy corrente è quella di Christian Prete Academy (non di un cliente)? */
 export async function isNexoraTenant() {
   const t = await getCurrentTenant();
   return !t || t.slug === publicEnv.NEXT_PUBLIC_TENANT_SLUG;

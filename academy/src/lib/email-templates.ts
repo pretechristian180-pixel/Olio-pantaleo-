@@ -17,7 +17,7 @@ const HEX = /^#[0-9a-f]{6}$/i;
 
 /** Impaginazione comune: leggibile in ogni client di posta, niente immagini esterne. */
 function layout(brand: Brand, body: string, cta?: { label: string; url: string }) {
-  const color = HEX.test(brand.colore) ? brand.colore : "#0042ed";
+  const color = HEX.test(brand.colore) ? brand.colore : "#2b62e8";
   const button = cta
     ? `<p style="margin:28px 0"><a href="${escapeHtml(cta.url)}" style="background:${color};color:#ffffff;text-decoration:none;font-weight:600;padding:14px 24px;border-radius:6px;display:inline-block">${escapeHtml(cta.label)}</a></p>`
     : "";
@@ -72,21 +72,21 @@ export function saleNotification(o: {
 }
 
 export function academyWelcome(o: { nomeAcademy: string; url: string }): EmailContent {
-  const brand = { nome: "Nexora Academy", colore: "#0042ed" };
+  const brand = { nome: "Christian Prete Academy", colore: "#2b62e8" };
   return {
     subject: `La tua academy «${o.nomeAcademy}» è pronta`,
     html: layout(
       brand,
-      `<p>Benvenuto in Nexora Academy!</p>
+      `<p>Benvenuto in Christian Prete Academy!</p>
 <p>La tua academy <strong>${escapeHtml(o.nomeAcademy)}</strong> è online. Da qui parti con i tre passi che contano:</p>
 <ol style="padding-left:20px">
 <li>Imposta logo e colori in <em>Impostazioni</em>.</li>
 <li>Crea il primo corso e carica i video.</li>
-<li>Collega Stripe per incassare: i soldi arrivano a te, senza commissioni Nexora.</li>
+<li>Collega Stripe per incassare: i soldi arrivano a te, senza commissioni sulla piattaforma.</li>
 </ol>`,
       { label: "Apri il pannello", url: o.url },
     ),
-    text: `Benvenuto in Nexora Academy!\n\nLa tua academy «${o.nomeAcademy}» è online.\n1. Imposta logo e colori in Impostazioni.\n2. Crea il primo corso e carica i video.\n3. Collega Stripe per incassare, senza commissioni Nexora.\n\nPannello: ${o.url}`,
+    text: `Benvenuto in Christian Prete Academy!\n\nLa tua academy «${o.nomeAcademy}» è online.\n1. Imposta logo e colori in Impostazioni.\n2. Crea il primo corso e carica i video.\n3. Collega Stripe per incassare, senza commissioni sulla piattaforma.\n\nPannello: ${o.url}`,
   };
 }
 
@@ -109,24 +109,24 @@ export function answerNotification(o: {
   };
 }
 
-/** Invito al titolare di un'academy creata da Nexora: imposta la password ed entra. */
+/** Invito al titolare di un'academy creata da Christian Prete Academy: imposta la password ed entra. */
 export function academyInvite(o: {
   nomeAcademy: string;
   url: string;
   nuovoAccount: boolean;
 }): EmailContent {
-  const brand = { nome: "Nexora Academy", colore: "#0042ed" };
+  const brand = { nome: "Christian Prete Academy", colore: "#2b62e8" };
   const azione = o.nuovoAccount ? "Scegli la password ed entra" : "Entra nel pannello";
   return {
     subject: `La tua academy «${o.nomeAcademy}» è pronta`,
     html: layout(
       brand,
       `<p>Ciao,</p>
-<p>abbiamo creato per te l'academy <strong>${escapeHtml(o.nomeAcademy)}</strong> su Nexora Academy. Sei tu l'amministratore: da qui carichi i corsi, imposti il marchio e colleghi Stripe per incassare.</p>
+<p>abbiamo creato per te l'academy <strong>${escapeHtml(o.nomeAcademy)}</strong> su Christian Prete Academy. Sei tu l'amministratore: da qui carichi i corsi, imposti il marchio e colleghi Stripe per incassare.</p>
 ${o.nuovoAccount ? "<p>Il link qui sotto vale 24 ore: ti fa scegliere la password e ti porta nel pannello.</p>" : ""}`,
       { label: azione, url: o.url },
     ),
-    text: `Ciao,\n\nabbiamo creato per te l'academy «${o.nomeAcademy}» su Nexora Academy. Sei tu l'amministratore.\n\n${azione}: ${o.url}`,
+    text: `Ciao,\n\nabbiamo creato per te l'academy «${o.nomeAcademy}» su Christian Prete Academy. Sei tu l'amministratore.\n\n${azione}: ${o.url}`,
   };
 }
 

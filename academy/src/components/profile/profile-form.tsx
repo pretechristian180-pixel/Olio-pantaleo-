@@ -40,7 +40,7 @@ export function ProfileForm({
       <Checkbox
         name="marketing"
         defaultChecked={marketing}
-        label="Voglio ricevere via email consigli pratici e novità sui corsi Nexora"
+        label="Voglio ricevere via email consigli pratici e novità sui corsi di Christian Prete"
       />
       <div>
         <Button type="submit" disabled={pending}>

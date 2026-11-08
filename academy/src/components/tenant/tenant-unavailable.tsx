@@ -8,7 +8,7 @@ export function TenantUnavailable({ motivo }: { motivo: "non-trovata" | "sospesa
       id="contenuto"
       className="flex min-h-dvh flex-col items-center justify-center gap-5 bg-surface px-4 text-center"
     >
-      <p className="font-display text-2xl">NEXORA</p>
+      <p className="font-display text-2xl">CHRISTIAN PRETE</p>
       <h1 className="text-xl font-semibold">
         {motivo === "non-trovata"
           ? "Questa academy non esiste"

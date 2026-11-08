@@ -35,7 +35,7 @@ export default async function CourseEditorPage({ params }: { params: Promise<{ i
             {course.modules.length} moduli · {lezioni} lezioni ·{" "}
             <Link
               href={`/corsi/${course.slug}`}
-              className="inline-flex items-center gap-1 font-semibold text-nexora-blue"
+              className="inline-flex items-center gap-1 font-semibold text-nexora-blue-bright"
               target="_blank"
             >
               Vedi la pagina pubblica <ExternalLink aria-hidden className="size-3.5" />

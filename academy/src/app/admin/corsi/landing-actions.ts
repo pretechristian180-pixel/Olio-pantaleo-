@@ -55,7 +55,7 @@ export async function aiUsage(tipo: "landing" | "sezione") {
     .eq("tenant_id", tenant.id)
     .eq("tipo", tipo)
     .gte("creato_il", inizio.toISOString());
-  // Funzioni effettive dell'academy: piano + eccezioni decise da Nexora. IA spenta = limite 0.
+  // Funzioni effettive dell'academy: piano + eccezioni decise da Christian Prete Academy. IA spenta = limite 0.
   const f = tenant.funzioni;
   const limite = !f.landing_ia
     ? 0

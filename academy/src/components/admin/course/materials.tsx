@@ -67,7 +67,7 @@ export function Materials({
         <ul className="flex flex-col gap-2">
           {resources.map((r) => (
             <li key={r.id} className="flex items-center gap-3 rounded-md border border-line p-3">
-              <FileText aria-hidden className="size-5 shrink-0 text-nexora-blue" />
+              <FileText aria-hidden className="size-5 shrink-0 text-nexora-blue-bright" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold">{r.nome}</span>
               <span className="text-xs text-ink-muted">
                 {Math.max(1, Math.round(r.dimensione_bytes / 1024))} KB

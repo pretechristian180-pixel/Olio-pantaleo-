@@ -65,7 +65,7 @@ export function AdminMobileNav({
         {platform && (
           <Link
             href="/piattaforma"
-            className="ml-auto flex h-11 items-center gap-2 text-sm font-semibold text-nexora-blue"
+            className="ml-auto flex h-11 items-center gap-2 text-sm font-semibold text-nexora-blue-bright"
           >
             <Building2 aria-hidden className="size-4" /> Tutte le academy
           </Link>

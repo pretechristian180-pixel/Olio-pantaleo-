@@ -194,7 +194,7 @@ export default async function PlatformTenantPage({ params }: { params: Promise<{
                     <span className="block truncate font-semibold">{m.nome || m.email}</span>
                     <a
                       href={`mailto:${m.email}`}
-                      className="block truncate text-nexora-blue hover:underline"
+                      className="block truncate text-nexora-blue-bright hover:underline"
                     >
                       {m.email}
                     </a>
@@ -242,7 +242,7 @@ function Ext({ href, children }: { href: string; children: React.ReactNode }) {
         href={href}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex min-h-11 items-center gap-2 font-semibold text-nexora-blue hover:underline"
+        className="inline-flex min-h-11 items-center gap-2 font-semibold text-nexora-blue-bright hover:underline"
       >
         {children} <ExternalLink aria-hidden className="size-4" />
       </a>

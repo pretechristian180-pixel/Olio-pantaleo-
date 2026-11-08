@@ -12,7 +12,7 @@ export const buttonVariants = cva(
         secondary: "border border-line bg-surface text-ink hover:border-ink-muted",
         ghost: "text-ink hover:bg-surface-alt",
         dark: "bg-graphite-deep text-white hover:bg-graphite",
-        inverse: "bg-white text-ink hover:bg-blue-tint",
+        inverse: "bg-white text-graphite-deep hover:bg-[#dfe8ff]",
         "outline-inverse": "border border-white/30 text-white hover:bg-white/10",
         danger: "bg-negative text-white hover:bg-negative/90",
       },

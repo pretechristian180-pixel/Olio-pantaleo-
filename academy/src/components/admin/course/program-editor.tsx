@@ -232,7 +232,7 @@ function ModuleCard({
           </form>
         ) : (
           <div className="flex-1">
-            <p className="eyebrow text-[11px] text-nexora-blue">Modulo {numero}</p>
+            <p className="eyebrow text-[11px] text-nexora-blue-bright">Modulo {numero}</p>
             <h3 className="font-semibold">{mod.titolo}</h3>
           </div>
         )}

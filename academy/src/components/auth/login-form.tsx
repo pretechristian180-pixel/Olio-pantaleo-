@@ -108,7 +108,7 @@ export function LoginForm({ next, linkError }: { next: string; linkError?: boole
         <Checkbox name="ricordami" label="Ricordami" defaultChecked className="items-center" />
         <Link
           href="/password-dimenticata"
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-nexora-blue underline underline-offset-2 hover:text-nexora-blue-deep"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-nexora-blue-bright underline underline-offset-2 hover:text-nexora-blue-bright"
         >
           Password dimenticata?
         </Link>
@@ -137,12 +137,12 @@ export function LoginForm({ next, linkError }: { next: string; linkError?: boole
         Non hai ancora un account?{" "}
         <Link
           href={`/registrati?next=${encodeURIComponent(next)}`}
-          className="font-semibold text-nexora-blue underline underline-offset-2"
+          className="font-semibold text-nexora-blue-bright underline underline-offset-2"
         >
           Registrati
         </Link>{" "}
         o{" "}
-        <Link href="/corsi" className="font-semibold text-nexora-blue underline underline-offset-2">
+        <Link href="/corsi" className="font-semibold text-nexora-blue-bright underline underline-offset-2">
           guarda il catalogo
         </Link>
       </p>

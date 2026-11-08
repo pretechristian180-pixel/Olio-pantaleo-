@@ -12,7 +12,7 @@ export function Eyebrow({
     <Tag
       className={cn(
         "eyebrow",
-        tone === "blue" && "text-nexora-blue",
+        tone === "blue" && "text-nexora-blue-bright",
         tone === "muted" && "text-ink-muted",
         tone === "bright" && "text-nexora-blue-bright",
         className,

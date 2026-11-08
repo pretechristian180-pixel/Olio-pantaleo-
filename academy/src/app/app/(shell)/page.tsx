@@ -46,7 +46,7 @@ export default async function DashboardPage() {
           </h2>
           <Link
             href="/corsi"
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-nexora-blue hover:text-nexora-blue-deep"
+            className="inline-flex min-h-11 items-center text-sm font-semibold text-nexora-blue-bright hover:text-nexora-blue-bright"
           >
             Vedi tutto il catalogo
           </Link>

@@ -58,7 +58,7 @@ export default async function QuestionsPage({
                     {q.autore || "Studente"} · {formatDate(q.creato_il)} · {q.corso} ›{" "}
                     <Link
                       href={`/app/corsi/${q.corso_slug}/${q.lezione_slug}`}
-                      className="font-semibold text-nexora-blue hover:underline"
+                      className="font-semibold text-nexora-blue-bright hover:underline"
                     >
                       {q.lezione}
                     </Link>

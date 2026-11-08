@@ -15,7 +15,7 @@ export async function PublicFooter() {
         <Logo size="sm" />
         <div className="text-sm text-ink-muted">
           <p>
-            © {new Date().getFullYear()} {tenant?.nome ?? "Nexora Gruppo Digitale"}
+            © {new Date().getFullYear()} {tenant?.nome ?? "Christian Prete Agency"}
           </p>
           {tenant && legalLine(tenant.legal) && (
             <p className="mt-1 text-xs">{legalLine(tenant.legal)}</p>
@@ -48,7 +48,7 @@ export async function PublicFooter() {
           </Link>
           {poweredBy && (
             <a href={`https://${publicEnv.NEXT_PUBLIC_ROOT_DOMAIN}/prezzi`} className={link}>
-              Creato con Nexora Academy
+              Creato con Christian Prete Academy
             </a>
           )}
         </nav>

@@ -23,13 +23,13 @@ export function Stat({
         className,
       )}
     >
-      <p className={cn("text-sm font-medium", tint ? "text-nexora-blue-deep" : "text-ink-muted")}>
+      <p className={cn("text-sm font-medium", tint ? "text-nexora-blue-bright" : "text-ink-muted")}>
         {label}
       </p>
       <p
         className={cn(
           "mt-3 font-display text-4xl leading-none tabular-nums",
-          tint ? "text-nexora-blue" : "text-ink",
+          tint ? "text-nexora-blue-bright" : "text-ink",
         )}
       >
         {value}

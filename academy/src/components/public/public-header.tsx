@@ -11,7 +11,7 @@ export async function PublicHeader() {
     isNexoraTenant(),
   ]);
   return (
-    <header className="border-b border-white/10 bg-graphite-deep">
+    <header className="border-b border-white/10 bg-graphite-deep/90 backdrop-blur">
       <div className="mx-auto flex h-19 max-w-310 items-center gap-6 px-4 sm:px-6">
         <Logo tone="dark" layout="inline" />
         <nav aria-label="Principale" className="ml-auto flex items-center gap-1 sm:gap-2">

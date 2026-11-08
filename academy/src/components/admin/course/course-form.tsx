@@ -51,7 +51,7 @@ export function CourseForm({
       <div className="grid gap-5 sm:grid-cols-3">
         <Field
           id="prezzo"
-          label="Prezzo (€, IVA inclusa)"
+          label="Prezzo finale (€)"
           error={f.prezzo}
           hint="0 = corso gratuito."
         >

@@ -42,7 +42,7 @@ export function ForgotPasswordForm() {
         </Alert>
         <Link
           href="/accedi"
-          className="text-sm font-semibold text-nexora-blue underline underline-offset-2"
+          className="text-sm font-semibold text-nexora-blue-bright underline underline-offset-2"
         >
           Torna all&apos;accesso
         </Link>
@@ -68,7 +68,7 @@ export function ForgotPasswordForm() {
       </Button>
       <Link
         href="/accedi"
-        className="inline-flex min-h-11 items-center justify-center text-sm font-semibold text-nexora-blue underline underline-offset-2"
+        className="inline-flex min-h-11 items-center justify-center text-sm font-semibold text-nexora-blue-bright underline underline-offset-2"
       >
         Torna all&apos;accesso
       </Link>

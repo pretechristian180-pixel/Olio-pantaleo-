@@ -28,7 +28,7 @@ async function context() {
   return { user, tenant, origin, billing: billing! };
 }
 
-/** Attiva l'abbonamento Nexora: pagina di pagamento Stripe. */
+/** Attiva l'abbonamento Christian Prete Academy: pagina di pagamento Stripe. */
 export async function startSubscription(formData: FormData) {
   const { user, tenant, origin, billing } = await context();
   const piano = String(formData.get("piano") ?? tenant.piano?.codice ?? "start") as PlanCode;
@@ -99,13 +99,13 @@ export async function openBillingPortal() {
 /** Collega il conto Stripe del cliente (Connect), dove arrivano i pagamenti dei suoi studenti. */
 export async function connectStripe() {
   const { user, tenant, origin, billing } = await context();
-  // Nexora incassa sul conto della piattaforma: niente conto collegato.
+  // Christian Prete Academy incassa sul conto della piattaforma: niente conto collegato.
   if (await isNexoraTenant()) redirect("/admin/impostazioni");
   const s = stripe();
   let account = billing.stripe_account_id;
   if (!account) {
     // Accounts v2: il cliente è il venditore (configurazione "merchant"), usa la sua dashboard
-    // Stripe completa e paga lui le commissioni Stripe. Nexora non trattiene nulla.
+    // Stripe completa e paga lui le commissioni Stripe. Christian Prete Academy non trattiene nulla.
     const a = await s.v2.core.accounts.create(
       {
         display_name: tenant.nome,

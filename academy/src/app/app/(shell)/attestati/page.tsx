@@ -60,7 +60,7 @@ export default async function CertificatesPage() {
           {certs.map((c) => (
             <Card key={c.codice}>
               <CardBody className="space-y-4">
-                <Award aria-hidden className="size-8 text-nexora-blue" />
+                <Award aria-hidden className="size-8 text-nexora-blue-bright" />
                 <div>
                   <CardTitle>{c.corso}</CardTitle>
                   <p className="mt-1 text-sm text-ink-muted">

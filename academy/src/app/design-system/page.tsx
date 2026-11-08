@@ -56,17 +56,17 @@ export const metadata: Metadata = {
 };
 
 const colors = [
-  ["nexora-blue", "#0042ed", "bg-nexora-blue"],
-  ["nexora-blue-deep", "#0024a8", "bg-nexora-blue-deep"],
-  ["nexora-blue-bright", "#038bfd", "bg-nexora-blue-bright"],
-  ["graphite", "#353a3d", "bg-graphite"],
-  ["graphite-deep", "#1d2124", "bg-graphite-deep"],
-  ["blue-tint", "#e6edfd", "bg-blue-tint"],
-  ["surface-alt", "#f4f6f9", "bg-surface-alt"],
-  ["line", "#e3e6eb", "bg-line"],
-  ["ink-muted", "#5f646a", "bg-ink-muted"],
-  ["positive", "#1f8a4c", "bg-positive"],
-  ["negative", "#c62f2f", "bg-negative"],
+  ["nexora-blue", "#2b62e8", "bg-nexora-blue"],
+  ["nexora-blue-deep", "#1d3fb8", "bg-nexora-blue-deep"],
+  ["nexora-blue-bright", "#45d9ff", "bg-nexora-blue-bright"],
+  ["graphite", "#141d40", "bg-graphite"],
+  ["graphite-deep", "#0b1124", "bg-graphite-deep"],
+  ["blue-tint", "#16245a", "bg-blue-tint"],
+  ["surface-alt", "#05070f", "bg-surface-alt"],
+  ["line", "#1f2a4d", "bg-line"],
+  ["ink-muted", "#93a0c2", "bg-ink-muted"],
+  ["positive", "#4ade80", "bg-positive"],
+  ["negative", "#ff6b6b", "bg-negative"],
 ] as const;
 
 export default function DesignSystemPage() {
@@ -75,7 +75,7 @@ export default function DesignSystemPage() {
       <header className="space-y-4">
         <Logo size="lg" />
         <h1 className="text-3xl font-bold">Design system</h1>
-        <p className="text-ink-muted">Token e componenti base di Nexora Academy.</p>
+        <p className="text-ink-muted">Token e componenti base di Christian Prete Academy.</p>
       </header>
 
       <section className="space-y-4">
@@ -95,11 +95,11 @@ export default function DesignSystemPage() {
 
       <section className="space-y-4">
         <Eyebrow>Tipografia</Eyebrow>
-        <p className="font-display text-4xl">NEXORA 87%</p>
+        <p className="font-display text-4xl">CP ACADEMY 87%</p>
         <Eyebrow>Modulo 3 · Lezione 4</Eyebrow>
-        <h2 className="text-2xl font-bold">Titolo in Montserrat 700</h2>
+        <h2 className="text-2xl font-bold">Titolo in Instrument Sans 700</h2>
         <p className="max-w-prose text-ink-muted">
-          Testo in Montserrat 400. Diretto, concreto, al tu: ti diciamo cosa fare e perché.
+          Testo in Instrument Sans 400. Diretto, concreto, al tu: ti diciamo cosa fare e perché.
         </p>
       </section>
 
@@ -202,7 +202,7 @@ export default function DesignSystemPage() {
           <div className="flex flex-col gap-4">
             <InstructorCard
               nome="Christian Prete"
-              bio="Founder di Nexora Gruppo Digitale. Ogni giorno costruisce CRM, automazioni e sistemi per aziende italiane: nel corso ti mostra come li fa."
+              bio="Founder di Christian Prete Agency. Ogni giorno costruisce CRM, automazioni e sistemi per aziende italiane: nel corso ti mostra come li fa."
             />
             <BusinessBox />
           </div>

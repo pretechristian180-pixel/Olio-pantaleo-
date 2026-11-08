@@ -32,7 +32,7 @@ export default async function LessonEditorPage({ params }: Props) {
         <Link
           href={`/app/corsi/${lesson.course.slug}/${lesson.slug}`}
           target="_blank"
-          className="mt-1 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-nexora-blue"
+          className="mt-1 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-nexora-blue-bright"
         >
           Guardala come uno studente <ExternalLink aria-hidden className="size-3.5" />
         </Link>

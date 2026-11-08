@@ -6,7 +6,7 @@ import { isPlatformAdmin } from "@/lib/data/platform";
 import { AdminMobileNav, AdminSidebar } from "@/components/layout/admin-sidebar";
 
 export const metadata: Metadata = {
-  title: { default: "Amministrazione", template: "%s · Admin Nexora Academy" },
+  title: { default: "Amministrazione", template: "%s · Admin Christian Prete Academy" },
   robots: { index: false, follow: false },
 };
 
@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminMobileNav platform={platform} />
         {tenant?.stato === "prova" && giorni !== null && (
-          <p className="bg-blue-tint px-4 py-3 text-sm text-nexora-blue-deep sm:px-6 lg:px-12">
+          <p className="bg-blue-tint px-4 py-3 text-sm text-nexora-blue-bright sm:px-6 lg:px-12">
             Sei in prova gratuita: {giorni === 1 ? "manca 1 giorno" : `mancano ${giorni} giorni`}.
             Prepara i corsi con calma, l&apos;abbonamento si attiva quando sei pronto.{" "}
             <Link href="/admin/impostazioni" className="font-semibold underline underline-offset-2">

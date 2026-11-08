@@ -14,7 +14,7 @@ export default async function HomePage() {
   ]);
   return (
     <>
-      <section className="bg-graphite-deep text-white">
+      <section className="space-hero text-white">
         <div className="mx-auto max-w-310 px-4 py-20 sm:px-6 sm:py-28">
           {nexora ? (
             <>
@@ -25,7 +25,7 @@ export default async function HomePage() {
                 Meno improvvisazione. Più sistema.
               </h1>
               <p className="mt-6 max-w-xl text-lg text-white/80">
-                I corsi Nexora su CRM, automazioni, AI e marketing aziendale. Pratici, registrati da
+                I corsi di Christian Prete su CRM, automazioni, AI e marketing aziendale. Pratici, registrati da
                 chi questi sistemi li costruisce ogni giorno.
               </p>
             </>

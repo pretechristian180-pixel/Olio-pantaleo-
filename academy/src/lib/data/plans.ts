@@ -43,8 +43,8 @@ export function planFeatures(p: Plan) {
     "Il tuo logo e i tuoi colori",
     p.dominio_personalizzato
       ? "Il tuo dominio (es. academy.tuaazienda.it)"
-      : "Indirizzo tuonome.academy.nexoragruppodigitale.it",
-    ...(p.senza_marchio_nexora ? ["Senza la scritta «Creato con Nexora Academy»"] : []),
+      : "Indirizzo tuonome.academy.christianprete.it",
+    ...(p.senza_marchio_nexora ? ["Senza la scritta «Creato con Christian Prete Academy»"] : []),
     ...(p.abbonamenti_studenti
       ? ["Abbonamenti mensili per i tuoi studenti", "Accessi aziendali per i team"]
       : []),

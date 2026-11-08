@@ -19,7 +19,7 @@ export default async function PrivacyPage() {
     <LegalPage title="Informativa privacy" updated={TERMINI_VERSIONE}>
       <p>
         Questa informativa spiega come vengono trattati i tuoi dati quando usi{" "}
-        {nexora ? "Nexora Academy" : `l'academy di ${tenant.nome}`}, ai sensi dell&apos;art. 13 del
+        {nexora ? "Christian Prete Academy" : `l'academy di ${tenant.nome}`}, ai sensi dell&apos;art. 13 del
         Regolamento UE 2016/679 (GDPR).
       </p>
 
@@ -31,7 +31,7 @@ export default async function PrivacyPage() {
       </p>
       {!nexora && (
         <p>
-          La piattaforma è fornita da Nexora Academy, che tratta i dati per conto del titolare come
+          La piattaforma è fornita da Christian Prete Academy, che tratta i dati per conto del titolare come
           responsabile del trattamento (art. 28 GDPR).
         </p>
       )}
@@ -114,7 +114,7 @@ export default async function PrivacyPage() {
       <h2>Cookie</h2>
       <p>
         Usiamo solo cookie tecnici: trovi i dettagli nella pagina{" "}
-        <Link href="/cookie" className="text-nexora-blue underline">
+        <Link href="/cookie" className="text-nexora-blue-bright underline">
           Cookie
         </Link>
         .

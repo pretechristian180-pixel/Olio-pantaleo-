@@ -77,7 +77,7 @@ export default async function StudentsPage({
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/studenti/${s.user_id}`}
-                      className="font-semibold hover:text-nexora-blue"
+                      className="font-semibold hover:text-nexora-blue-bright"
                     >
                       {[s.nome, s.cognome].filter(Boolean).join(" ") || s.email}
                     </Link>

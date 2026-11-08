@@ -76,7 +76,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
     return (
       <>
         {landing.stato === "draft" && (
-          <p className="bg-blue-tint px-4 py-3 text-center text-sm font-semibold text-nexora-blue-deep">
+          <p className="bg-blue-tint px-4 py-3 text-center text-sm font-semibold text-nexora-blue-bright">
             Anteprima della landing in bozza: la vedi solo tu.
           </p>
         )}

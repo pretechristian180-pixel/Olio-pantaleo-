@@ -22,7 +22,7 @@ export function CourseProgram({ outline }: { outline: Outline }) {
           <details key={m.id} open={i === 0} className="group border-b border-line last:border-0">
             <summary className="flex min-h-19 cursor-pointer list-none items-center gap-4 px-6 py-4 group-open:bg-surface-alt [&::-webkit-details-marker]:hidden">
               <div className="flex-1">
-                <Eyebrow className="text-[11px] group-open:text-nexora-blue" tone="muted">
+                <Eyebrow className="text-[11px] group-open:text-nexora-blue-bright" tone="muted">
                   Modulo {m.numero}
                 </Eyebrow>
                 <h3 className="mt-1 font-semibold">{m.titolo}</h3>

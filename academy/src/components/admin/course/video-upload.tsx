@@ -134,7 +134,7 @@ export function VideoUpload({
         }}
         className={`flex flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 text-center ${over ? "border-nexora-blue bg-blue-tint" : "border-line"}`}
       >
-        <span className="flex size-13 items-center justify-center rounded-full bg-blue-tint text-nexora-blue">
+        <span className="flex size-13 items-center justify-center rounded-full bg-blue-tint text-nexora-blue-bright">
           <Upload aria-hidden className="size-6" />
         </span>
         <p className="font-semibold">

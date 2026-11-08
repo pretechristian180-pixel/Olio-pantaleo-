@@ -21,7 +21,7 @@ export function PlanCard({ plan, highlight = false }: { plan: Plan; highlight?: 
       {plan.descrizione && <p className="mt-2 text-sm text-ink-muted">{plan.descrizione}</p>}
       <p className="mt-6 flex items-baseline gap-2">
         <Price cents={plan.prezzo_mese_cents} className="text-4xl" />
-        <span className="text-sm text-ink-muted">/ mese + IVA</span>
+        <span className="text-sm text-ink-muted">/ mese</span>
       </p>
       {plan.prezzo_anno_cents && (
         <p className="mt-1 text-[13px] text-ink-muted">

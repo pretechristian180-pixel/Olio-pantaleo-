@@ -12,11 +12,11 @@ export type Brand = {
 };
 
 export const DEFAULT_BRAND: Brand = {
-  primary: "#0042ed",
-  primaryDeep: "#0024a8",
-  primaryBright: "#038bfd",
-  dark: "#1d2124",
-  logoText: "NEXORA",
+  primary: "#2b62e8",
+  primaryDeep: "#1d3fb8",
+  primaryBright: "#45d9ff",
+  dark: "#0b1124",
+  logoText: "CHRISTIAN PRETE",
   logoUrl: null,
   tagline: null,
 };

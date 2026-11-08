@@ -11,7 +11,7 @@ import {
   startSubscription,
 } from "@/app/admin/impostazioni/billing-actions";
 
-/** Abbonamento a Nexora Academy: piano, stato, attivazione e gestione. */
+/** Abbonamento a Christian Prete Academy: piano, stato, attivazione e gestione. */
 export function SubscriptionCard({
   tenant,
   plans,
@@ -48,7 +48,7 @@ export function SubscriptionCard({
         )}
         {tenant.omaggio.attivo && !tenant.omaggio.scaduto && !hasSubscription ? (
           <Alert tone="success">
-            La tua academy è in omaggio da Nexora
+            La tua academy è in omaggio da Christian Prete
             {tenant.omaggio.fineIl
               ? ` fino al ${new Date(tenant.omaggio.fineIl).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}`
               : ", senza scadenza"}
@@ -72,7 +72,7 @@ export function SubscriptionCard({
                 : tenant.stato === "prova"
                   ? "Attiva ora l'abbonamento: paghi solo dalla fine della prova gratuita."
                   : "Attiva l'abbonamento per tenere aperta la tua academy."}{" "}
-              Prezzi IVA esclusa, disdici quando vuoi.
+              Disdici quando vuoi.
             </p>
             <fieldset className="grid gap-3 sm:grid-cols-3">
               <legend className="sr-only">Piano</legend>
@@ -164,8 +164,8 @@ export function PaymentsCard({
         )}
         <p className="text-sm text-ink-muted">
           {attivi
-            ? "I tuoi studenti pagano direttamente sul tuo conto Stripe. Nexora non trattiene nessuna percentuale: paghi solo le commissioni di Stripe."
-            : "Collega il tuo conto Stripe per vendere i corsi. I soldi arrivano direttamente a te, senza commissioni Nexora. Servono pochi minuti: dati dell'azienda, documento e IBAN."}
+            ? "I tuoi studenti pagano direttamente sul tuo conto Stripe. Christian Prete Academy non trattiene nessuna percentuale: paghi solo le commissioni di Stripe."
+            : "Collega il tuo conto Stripe per vendere i corsi. I soldi arrivano direttamente a te, senza commissioni sulla piattaforma. Servono pochi minuti: dati dell'azienda, documento e IBAN."}
         </p>
         {!attivi && (
           <form action={connectStripe}>
@@ -179,7 +179,7 @@ export function PaymentsCard({
             href="https://dashboard.stripe.com"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex text-sm font-semibold text-nexora-blue hover:underline"
+            className="inline-flex text-sm font-semibold text-nexora-blue-bright hover:underline"
           >
             Apri la tua dashboard Stripe
           </a>

@@ -22,7 +22,7 @@ export function ResourcesList({ resources }: { resources: Resource[] }) {
             href={`/api/materiali/${r.id}`}
             className="flex items-center gap-4 rounded-lg border border-line bg-surface p-4 hover:border-nexora-blue"
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-blue-tint text-nexora-blue">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-blue-tint text-nexora-blue-bright">
               <FileText aria-hidden className="size-5" />
             </span>
             <span className="min-w-0 flex-1">

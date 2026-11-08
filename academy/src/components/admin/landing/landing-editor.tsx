@@ -177,7 +177,7 @@ export function LandingEditor({
             <Link
               href={`/corsi/${courseSlug}?anteprima=1`}
               target="_blank"
-              className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-nexora-blue"
+              className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-nexora-blue-bright"
             >
               Anteprima <ExternalLink aria-hidden className="size-3.5" />
             </Link>
@@ -277,7 +277,7 @@ export function LandingEditor({
                   ))}
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
-                  <Wand2 aria-hidden className="size-4 text-nexora-blue" />
+                  <Wand2 aria-hidden className="size-4 text-nexora-blue-bright" />
                   {REGEN.map((r) => (
                     <Button
                       key={r.mode}

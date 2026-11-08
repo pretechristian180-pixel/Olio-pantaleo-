@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/dpa" },
 };
 
-/** Nomina a responsabile del trattamento (art. 28 GDPR) tra Cliente e Nexora. */
+/** Nomina a responsabile del trattamento (art. 28 GDPR) tra Cliente e Christian Prete Academy. */
 export default async function DpaPage() {
   if (!(await isPlatformHost())) notFound();
   const l = (await getCurrentTenant())?.legal;
@@ -19,13 +19,13 @@ export default async function DpaPage() {
       <p>
         Questo accordo fa parte delle Condizioni del servizio. Il Cliente, titolare del trattamento
         dei dati dei propri studenti, nomina <V v={l.ragione_sociale} label="ragione sociale" />{" "}
-        (P.IVA <V v={l.piva} label="P.IVA" />, «Nexora») responsabile del trattamento per i soli
-        fini del servizio Nexora Academy.
+        (P.IVA <V v={l.piva} label="P.IVA" />, «Christian Prete Academy») responsabile del trattamento per i soli
+        fini del servizio Christian Prete Academy.
       </p>
 
       <h2>1. Oggetto e durata</h2>
       <p>
-        Nexora tratta i dati per fornire la piattaforma: account degli studenti, accesso ai corsi,
+        Christian Prete Academy tratta i dati per fornire la piattaforma: account degli studenti, accesso ai corsi,
         avanzamento, note, domande, attestati, pagamenti e invio delle email di servizio. Il
         trattamento dura quanto il contratto.
       </p>
@@ -40,7 +40,7 @@ export default async function DpaPage() {
         <li>Non sono previste categorie particolari di dati (art. 9 GDPR).</li>
       </ul>
 
-      <h2>3. Obblighi di Nexora</h2>
+      <h2>3. Obblighi di Christian Prete Academy</h2>
       <ul>
         <li>
           Tratta i dati solo su istruzione documentata del Cliente, cioè secondo queste condizioni e
@@ -73,7 +73,7 @@ export default async function DpaPage() {
 
       <h2>4. Sub-responsabili</h2>
       <p>
-        Il Cliente autorizza Nexora ad avvalersi dei fornitori qui sotto. Nexora comunica via email
+        Il Cliente autorizza Christian Prete Academy ad avvalersi dei fornitori qui sotto. Christian Prete Academy comunica via email
         eventuali nuovi fornitori con 30 giorni di anticipo; il Cliente può opporsi disdicendo il
         servizio. Per i trasferimenti fuori dall&apos;UE si applicano le clausole contrattuali
         standard della Commissione europea o il Data Privacy Framework.

@@ -5,7 +5,7 @@ import { CourseGrid } from "@/components/course/course-grid";
 
 export const metadata: Metadata = {
   title: "Catalogo corsi",
-  description: "Tutti i videocorsi Nexora Academy per imprenditori e PMI.",
+  description: "Tutti i videocorsi Christian Prete Academy per imprenditori e PMI.",
   alternates: { canonical: "/corsi" },
 };
 

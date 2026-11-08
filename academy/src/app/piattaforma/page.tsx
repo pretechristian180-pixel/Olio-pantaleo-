@@ -40,7 +40,7 @@ export default async function PlatformPage({
       <PageHeader
         eyebrow="Super-admin"
         title="Le academy dei clienti"
-        description="Tutte le aziende che usano Nexora Academy: piano, stato dell'abbonamento, pagamenti e numeri."
+        description="Tutte le aziende che usano Christian Prete Academy: piano, stato dell'abbonamento, pagamenti e numeri."
       />
       <NewTenant rootDomain={publicEnv.NEXT_PUBLIC_ROOT_DOMAIN} plans={plans} />
       <section
@@ -50,7 +50,7 @@ export default async function PlatformPage({
         <Stat
           label="Incasso mensile ricorrente"
           value={formatPrice(n.mrr_cents, "EUR")}
-          hint="abbonamenti attivi, IVA esclusa"
+          hint="abbonamenti attivi"
           tone="tint"
         />
         <Stat label="Academy attive" value={n.attive} hint={`${n.academy_totali} in totale`} />
@@ -73,7 +73,7 @@ export default async function PlatformPage({
         Studenti nelle academy dei clienti:{" "}
         <strong className="text-ink">{n.studenti_totali}</strong> · Vendite dei clienti questo mese:{" "}
         <strong className="text-ink">{formatPrice(n.vendite_mese_cents, "EUR")}</strong> (incassate
-        da loro, 0% a Nexora)
+        da loro, 0% alla piattaforma)
       </p>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -135,7 +135,7 @@ export default async function PlatformPage({
                     <td className="px-4 py-3">
                       <Link
                         href={`/piattaforma/${t.id}`}
-                        className="font-semibold hover:text-nexora-blue"
+                        className="font-semibold hover:text-nexora-blue-bright"
                       >
                         {t.nome}
                       </Link>

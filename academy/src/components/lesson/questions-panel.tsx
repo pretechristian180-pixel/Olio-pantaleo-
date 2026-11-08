@@ -74,7 +74,7 @@ export function QuestionsPanel({
 function Message({ row }: { row: ThreadRow }) {
   return (
     <article className={cn("rounded-lg p-4", row.is_docente ? "bg-blue-tint" : "bg-surface-alt")}>
-      <p className={cn("text-[15px] font-bold", row.is_docente && "text-nexora-blue-deep")}>
+      <p className={cn("text-[15px] font-bold", row.is_docente && "text-nexora-blue-bright")}>
         {row.autore} · {row.is_docente ? "Risposta" : quando(row.creato_il)}
         {row.is_mio && !row.is_docente && <span className="font-normal text-ink-muted"> (tu)</span>}
       </p>
@@ -90,7 +90,7 @@ function ReplyToggle({ questionId }: { questionId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="min-h-11 text-sm font-semibold text-nexora-blue hover:underline"
+        className="min-h-11 text-sm font-semibold text-nexora-blue-bright hover:underline"
       >
         Rispondi
       </button>

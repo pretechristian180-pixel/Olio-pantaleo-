@@ -7,10 +7,25 @@ export function normalizeHost(host: string | null | undefined) {
   return (host ?? "").trim().toLowerCase().replace(/:\d+$/, "").replace(/\.$/, "");
 }
 
-export function resolveHost(rawHost: string | null | undefined, rootDomain: string): HostMatch {
+/**
+ * Il dominio principale e quelli usati in passato (es. academy.nexoragruppodigitale.it):
+ * le academy dei clienti restano raggiungibili anche sul vecchio indirizzo.
+ */
+export function rootDomains(rootDomain: string, legacy?: string | null) {
+  const roots = [rootDomain, ...(legacy ?? "").split(",")].map(normalizeHost).filter(Boolean);
+  return [...new Set(roots)];
+}
+
+export function resolveHost(
+  rawHost: string | null | undefined,
+  rootDomain: string,
+  legacyRootDomains?: string | null,
+): HostMatch {
   const host = normalizeHost(rawHost);
-  const root = normalizeHost(rootDomain);
-  if (!host || host === root || host === `www.${root}`) return { kind: "root" };
+  const roots = rootDomains(rootDomain, legacyRootDomains);
+  if (roots.some((r) => host === r || host === `www.${r}`)) return { kind: "root" };
+  const root = roots.find((r) => host.endsWith(`.${r}`)) ?? roots[0] ?? "";
+  if (!host) return { kind: "root" };
   // Sviluppo: localhost, 127.0.0.1 e <cliente>.localhost
   if (host === "localhost" || host === "127.0.0.1") return { kind: "root" };
   if (host.endsWith(".localhost")) return subOrRoot(host.slice(0, -".localhost".length));
@@ -27,11 +42,16 @@ function subOrRoot(sub: string): HostMatch {
 }
 
 /** Dominio dei cookie di sessione: condiviso tra tutte le academy *.root, così chi crea un'academy resta collegato. */
-export function cookieDomainFor(rawHost: string | null | undefined, rootDomain: string) {
+export function cookieDomainFor(
+  rawHost: string | null | undefined,
+  rootDomain: string,
+  legacyRootDomains?: string | null,
+) {
   const host = normalizeHost(rawHost);
-  const root = normalizeHost(rootDomain);
-  if (host === root || host.endsWith(`.${root}`)) return `.${root}`;
-  return undefined;
+  const root = rootDomains(rootDomain, legacyRootDomains).find(
+    (r) => host === r || host.endsWith(`.${r}`),
+  );
+  return root ? `.${root}` : undefined;
 }
 
 export function tenantUrl(slug: string, rootDomain: string, path = "/") {

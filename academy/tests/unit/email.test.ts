@@ -31,7 +31,7 @@ describe("email", () => {
     expect(e.text).toContain("Ciao Anna,");
   });
 
-  it("colore del marchio non valido: si usa il blu Nexora", () => {
+  it("colore del marchio non valido: si usa il blu Christian Prete", () => {
     const e = saleNotification({
       brand: { nome: "X", colore: "red;}" },
       corso: "C",
@@ -39,7 +39,7 @@ describe("email", () => {
       studente: "Luca",
       url: "https://x.it/admin",
     });
-    expect(e.html).toContain("#0042ed");
+    expect(e.html).toContain("#2b62e8");
     expect(e.html).not.toContain("red;}");
   });
 

@@ -17,12 +17,12 @@ const styles: Record<Variant, { base: string; active: string; idle: string }> = 
   },
   light: {
     base: "flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
-    active: "bg-blue-tint font-semibold text-nexora-blue",
+    active: "bg-blue-tint font-semibold text-nexora-blue-bright",
     idle: "text-ink-muted hover:bg-surface-alt hover:text-ink",
   },
   tab: {
     base: "flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold",
-    active: "text-nexora-blue",
+    active: "text-nexora-blue-bright",
     idle: "text-ink-muted",
   },
 };

@@ -19,7 +19,7 @@ export async function AuthShell({ children }: { children: React.ReactNode }) {
                 Meno improvvisazione. Più sistema.
               </p>
               <p className="mt-6 hidden max-w-130 text-[17px] leading-7 text-ink-inverse-muted sm:block">
-                I corsi Nexora su CRM, automazioni, AI e marketing aziendale. Pratici, registrati da
+                I corsi di Christian Prete su CRM, automazioni, AI e marketing aziendale. Pratici, registrati da
                 chi questi sistemi li costruisce ogni giorno.
               </p>
             </>

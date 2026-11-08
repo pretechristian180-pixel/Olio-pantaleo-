@@ -18,7 +18,7 @@ export function PromoBox({ promo, className }: { promo: Promo; className?: strin
         <a
           href={promo.link}
           {...(esterno ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-          className="inline-flex min-h-11 items-center justify-center rounded-md bg-white px-4 text-center text-[13px] font-bold text-ink hover:bg-blue-tint"
+          className="inline-flex min-h-11 items-center justify-center rounded-md bg-white text-graphite-deep px-4 text-center text-[13px] font-bold hover:bg-[#dfe8ff]"
         >
           {promo.pulsante || "Scopri di più"}
         </a>

@@ -132,7 +132,7 @@ export function CreateAcademyForm({
                 className="sr-only"
               />
               <span className="font-semibold">{p.nome}</span>
-              <span className="text-[13px] text-ink-muted">{p.prezzo} / mese + IVA</span>
+              <span className="text-[13px] text-ink-muted">{p.prezzo} / mese</span>
             </label>
           ))}
         </div>
@@ -148,14 +148,14 @@ export function CreateAcademyForm({
               Accetto le{" "}
               <Link
                 href="/condizioni-servizio"
-                className="font-semibold text-nexora-blue underline underline-offset-2"
+                className="font-semibold text-nexora-blue-bright underline underline-offset-2"
               >
                 condizioni del servizio
               </Link>{" "}
               e l&apos;
               <Link
                 href="/dpa"
-                className="font-semibold text-nexora-blue underline underline-offset-2"
+                className="font-semibold text-nexora-blue-bright underline underline-offset-2"
               >
                 accordo sul trattamento dei dati
               </Link>

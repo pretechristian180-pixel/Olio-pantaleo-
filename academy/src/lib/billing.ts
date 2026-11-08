@@ -1,4 +1,4 @@
-/** Regole dei pagamenti, senza dipendenze: abbonamenti Nexora e vendita dei corsi. Testate. */
+/** Regole dei pagamenti, senza dipendenze: abbonamenti Christian Prete Academy e vendita dei corsi. Testate. */
 
 import type { TenantStatus } from "@/lib/tenant";
 

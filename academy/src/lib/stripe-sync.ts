@@ -19,7 +19,7 @@ function customerId(c: string | Stripe.Customer | Stripe.DeletedCustomer | null)
   return typeof c === "string" ? c : (c?.id ?? null);
 }
 
-/** Abbonamento Nexora di un'academy: stato, piano e id Stripe. */
+/** Abbonamento Christian Prete Academy di un'academy: stato, piano e id Stripe. */
 export async function syncTenantSubscription(sub: Stripe.Subscription) {
   const db = createAdminClient();
   const cust = customerId(sub.customer);

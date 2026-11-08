@@ -12,7 +12,7 @@ import {
 
 /**
  * Riceve un webhook Stripe ed elabora l'evento una sola volta.
- * "platform" = eventi del conto Nexora (abbonamenti, vendite dei corsi Nexora);
+ * "platform" = eventi del conto Christian Prete Academy (abbonamenti, vendite dei corsi di Christian Prete);
  * "connect" = eventi dei conti dei clienti (onboarding, vendite dei loro corsi).
  *
  * Autenticità: con il segreto di firma configurato verifichiamo la firma; senza, rileggiamo

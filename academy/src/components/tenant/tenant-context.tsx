@@ -8,16 +8,16 @@ export type TenantUi = {
   logoText: string;
   logoUrl: string | null;
   tagline: string | null;
-  /** Mostrare "Piattaforma Nexora Academy" nel footer. */
+  /** Mostrare "Piattaforma Christian Prete Academy" nel footer. */
   poweredBy: boolean;
-  /** È l'academy di Nexora (contenuti e offerte Nexora), non quella di un cliente. */
+  /** È l'academy di Christian Prete Academy (contenuti e offerte Christian Prete Academy), non quella di un cliente. */
   isNexora: boolean;
 };
 
 export const DEFAULT_TENANT_UI: TenantUi = {
-  nome: "Nexora Academy",
+  nome: "Christian Prete Academy",
   slug: "nexora",
-  logoText: "NEXORA",
+  logoText: "CHRISTIAN PRETE",
   logoUrl: null,
   tagline: null,
   poweredBy: false,

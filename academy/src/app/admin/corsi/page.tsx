@@ -76,7 +76,7 @@ export default async function AdminCoursesPage() {
                   <td className="px-5 py-4 text-right">
                     <Link
                       href={`/admin/corsi/${c.id}`}
-                      className="inline-flex min-h-11 items-center text-sm font-bold text-nexora-blue hover:text-nexora-blue-deep"
+                      className="inline-flex min-h-11 items-center text-sm font-bold text-nexora-blue-bright hover:text-nexora-blue-bright"
                     >
                       Modifica<span className="sr-only"> {c.titolo}</span>
                     </Link>

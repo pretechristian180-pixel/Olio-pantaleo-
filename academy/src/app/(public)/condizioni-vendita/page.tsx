@@ -32,7 +32,7 @@ export default async function SalesTermsPage() {
 
       <h2>2. Prezzo e pagamento</h2>
       <p>
-        Il prezzo indicato è comprensivo di IVA. Il pagamento avviene con carta o con gli altri
+        Il prezzo indicato è quello finale da pagare. Il pagamento avviene con carta o con gli altri
         metodi proposti da Stripe, al momento dell&apos;ordine. Ricevi la ricevuta via email.
       </p>
 
@@ -62,7 +62,7 @@ export default async function SalesTermsPage() {
       <h2>6. Dati personali</h2>
       <p>
         I tuoi dati sono trattati secondo l&apos;
-        <Link href="/privacy" className="text-nexora-blue underline">
+        <Link href="/privacy" className="text-nexora-blue-bright underline">
           informativa privacy
         </Link>
         .

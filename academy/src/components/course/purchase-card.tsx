@@ -48,7 +48,6 @@ export function PurchaseCard({
       <div className="flex flex-col gap-4 p-7">
         <p className="flex items-baseline gap-2.5">
           <Price cents={prezzoCents} currency={valuta} className="text-4xl" />
-          <span className="text-[13px] text-ink-muted">IVA inclusa</span>
         </p>
         {enrolled && courseHref ? (
           <Button asChild size="lg" block>

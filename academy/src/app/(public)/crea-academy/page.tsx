@@ -71,7 +71,7 @@ export default async function CreateAcademyPage({ searchParams }: Props) {
         Vuoi vedere i piani prima?{" "}
         <Link
           href="/prezzi"
-          className="font-semibold text-nexora-blue underline underline-offset-2"
+          className="font-semibold text-nexora-blue-bright underline underline-offset-2"
         >
           Confronta i prezzi
         </Link>

@@ -28,7 +28,7 @@ export const FEATURE_FIELDS: {
   { key: "max_studenti_attivi", label: "Studenti attivi al mese", tipo: "numero" },
   { key: "max_staff", label: "Persone del team", tipo: "numero" },
   { key: "dominio_personalizzato", label: "Dominio personalizzato", tipo: "si_no" },
-  { key: "senza_marchio_nexora", label: "Senza «Creato con Nexora Academy»", tipo: "si_no" },
+  { key: "senza_marchio_nexora", label: "Senza «Creato con Christian Prete Academy»", tipo: "si_no" },
   {
     key: "abbonamenti_studenti",
     label: "Abbonamenti e accessi aziendali per gli studenti",

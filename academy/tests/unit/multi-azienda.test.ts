@@ -93,3 +93,20 @@ describe("academyUrlFrom e slugify", () => {
     expect(slugify("Caffè & Più")).toBe("caffe-piu");
   });
 });
+
+describe("dominio vecchio e nuovo insieme", () => {
+  const NEW = "academy.christianprete.it";
+  const OLD = "academy.nexoragruppodigitale.it";
+  it("riconosce le academy su tutti e due i domini", () => {
+    expect(resolveHost(NEW, NEW, OLD)).toEqual({ kind: "root" });
+    expect(resolveHost(OLD, NEW, OLD)).toEqual({ kind: "root" });
+    expect(resolveHost(`metodo-freely.${NEW}`, NEW, OLD)).toEqual({ kind: "sub", slug: "metodo-freely" });
+    expect(resolveHost(`metodo-freely.${OLD}`, NEW, OLD)).toEqual({ kind: "sub", slug: "metodo-freely" });
+    expect(resolveHost("academy.cliente.it", NEW, OLD)).toEqual({ kind: "custom", domain: "academy.cliente.it" });
+  });
+  it("cookie sul dominio da cui arriva l'utente", () => {
+    expect(cookieDomainFor(`x.${NEW}`, NEW, OLD)).toBe(`.${NEW}`);
+    expect(cookieDomainFor(`x.${OLD}`, NEW, OLD)).toBe(`.${OLD}`);
+    expect(cookieDomainFor("academy.cliente.it", NEW, OLD)).toBeUndefined();
+  });
+});

@@ -79,7 +79,7 @@ function MoreLink({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-nexora-blue hover:underline"
+      className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-nexora-blue-bright hover:underline"
     >
       Vedi tutto <ArrowRight aria-hidden className="size-4" />
     </Link>

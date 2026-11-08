@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
-/* Design system NEXORA — token */
+/* Design system Christian Prete Academy — token (tema scuro "spazio") */
 @theme {
-  --color-nexora-blue: #0042ed;
-  --color-nexora-blue-deep: #0024a8;
-  --color-nexora-blue-bright: #038bfd;
-  --color-graphite: #353a3d;
-  --color-graphite-deep: #1d2124;
-  --color-blue-tint: #e6edfd;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f4f6f9;
-  --color-line: #e3e6eb;
-  --color-ink: #1d2124;
-  --color-ink-muted: #5f646a;
-  --color-ink-inverse-muted: #c9ced4;
-  --color-positive: #1f8a4c;
-  --color-positive-tint: #e3f3ea;
-  --color-positive-deep: #17683a;
-  --color-negative: #c62f2f;
+  --color-nexora-blue: #2b62e8;
+  --color-nexora-blue-deep: #1d3fb8;
+  --color-nexora-blue-bright: #45d9ff;
+  --color-graphite: #141d40;
+  --color-graphite-deep: #0b1124;
+  --color-blue-tint: #16245a;
+  --color-surface: #0d1430;
+  --color-surface-alt: #05070f;
+  --color-line: #1f2a4d;
+  --color-ink: #e9eef9;
+  --color-ink-muted: #93a0c2;
+  --color-ink-inverse-muted: #a9b4d0;
+  --color-positive: #4ade80;
+  --color-positive-tint: #0f2e22;
+  --color-positive-deep: #86efac;
+  --color-negative: #ff6b6b;
 
-  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-michroma), var(--font-montserrat), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-michroma), var(--font-instrument), ui-sans-serif, sans-serif;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -32,12 +32,15 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
   }
   body {
     @apply bg-surface-alt font-sans text-ink antialiased;
+    background-image: radial-gradient(ellipse at 80% -10%, rgb(61 123 255 / 0.14), transparent 50%);
+    background-attachment: fixed;
   }
   :focus-visible {
-    outline: 2px solid var(--color-nexora-blue);
+    outline: 2px solid var(--color-nexora-blue-bright);
     outline-offset: 2px;
   }
   ::selection {
@@ -52,6 +55,18 @@
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   line-height: 1.4;
+}
+
+@utility space-hero {
+  background-color: var(--color-graphite-deep);
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgb(233 238 249 / 0.7), transparent),
+    radial-gradient(1px 1px at 68% 14%, rgb(233 238 249 / 0.55), transparent),
+    radial-gradient(1.5px 1.5px at 84% 64%, rgb(69 217 255 / 0.8), transparent),
+    radial-gradient(1px 1px at 32% 78%, rgb(233 238 249 / 0.5), transparent),
+    radial-gradient(1px 1px at 52% 42%, rgb(233 238 249 / 0.4), transparent),
+    radial-gradient(ellipse at 85% 0%, rgb(61 123 255 / 0.35), transparent 55%),
+    radial-gradient(ellipse at 0% 100%, rgb(69 217 255 / 0.12), transparent 50%);
 }
 
 @utility pb-safe {

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Michroma, Montserrat } from "next/font/google";
+import { Instrument_Sans, Michroma } from "next/font/google";
 import { publicEnv, isSupabaseConfigured } from "@/lib/env";
 import { brandCss } from "@/lib/brand";
 import { getCurrentTenant, isTenantOpen } from "@/lib/tenant";
@@ -18,16 +18,16 @@ const michroma = Michroma({
   variable: "--font-michroma",
   display: "swap",
 });
-const montserrat = Montserrat({
+const instrument = Instrument_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-montserrat",
+  variable: "--font-instrument",
   display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await getCurrentTenant().catch(() => null);
-  const nome = tenant?.nome ?? "Nexora Academy";
+  const nome = tenant?.nome ?? "Christian Prete Academy";
   return {
     metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
     title: { default: nome, template: `%s · ${nome}` },
@@ -38,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: "#1d2124" };
+export const viewport: Viewport = { themeColor: "#05070f" };
 
 // Pagine che restano raggiungibili anche se l'academy è sospesa (per riattivarla).
 const SEMPRE_APERTE = [
@@ -73,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     : DEFAULT_TENANT_UI;
 
   return (
-    <html lang="it" className={`${michroma.variable} ${montserrat.variable}`}>
+    <html lang="it" className={`${michroma.variable} ${instrument.variable}`}>
       <head>{tenant && <style id="marchio-academy">{brandCss(tenant.brand)}</style>}</head>
       <body>
         <a

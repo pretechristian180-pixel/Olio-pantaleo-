@@ -17,7 +17,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         className,
       )}
     >
-      <span className="flex size-12 items-center justify-center rounded-md bg-blue-tint text-nexora-blue">
+      <span className="flex size-12 items-center justify-center rounded-md bg-blue-tint text-nexora-blue-bright">
         <Icon aria-hidden className="size-6" />
       </span>
       <h3 className="mt-4 text-base font-semibold">{title}</h3>

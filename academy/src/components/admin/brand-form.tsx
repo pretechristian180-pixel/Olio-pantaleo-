@@ -123,7 +123,7 @@ export function BrandForm({ initial }: { initial: Values }) {
         aria-label="Anteprima"
         className="self-start overflow-hidden rounded-lg border border-line"
       >
-        <div className="p-5" style={{ background: darkOk ? v.dark : "#1d2124" }}>
+        <div className="p-5" style={{ background: darkOk ? v.dark : "#0b1124" }}>
           <p className="font-display text-lg text-white">{v.logo_text.toUpperCase() || "LOGO"}</p>
           <p className="mt-6 text-sm text-white/80">{v.tagline || "La frase della tua home"}</p>
         </div>

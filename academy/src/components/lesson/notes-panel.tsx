@@ -134,7 +134,7 @@ export function NotesPanel({ lessonId, initial }: { lessonId: string; initial: N
               <button
                 type="button"
                 onClick={() => seek(n.secondo)}
-                className="min-h-11 shrink-0 rounded-sm px-2 text-sm font-bold text-nexora-blue tabular-nums hover:underline"
+                className="min-h-11 shrink-0 rounded-sm px-2 text-sm font-bold text-nexora-blue-bright tabular-nums hover:underline"
                 aria-label={`Vai al minuto ${formatTimestamp(n.secondo)}`}
               >
                 {formatTimestamp(n.secondo)}

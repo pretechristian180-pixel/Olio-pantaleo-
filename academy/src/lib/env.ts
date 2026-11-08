@@ -9,7 +9,9 @@ const publicSchema = z.object({
   /** Academy mostrata sul dominio principale, su localhost e sulle anteprime Vercel. */
   NEXT_PUBLIC_TENANT_SLUG: z.string().min(1).default("nexora"),
   /** Dominio sotto cui vivono le academy dei clienti: <cliente>.<dominio>. */
-  NEXT_PUBLIC_ROOT_DOMAIN: z.string().min(3).default("academy.nexoragruppodigitale.it"),
+  NEXT_PUBLIC_ROOT_DOMAIN: z.string().min(3).default("academy.christianprete.it"),
+  /** Domini usati in passato, separati da virgola: le academy restano raggiungibili anche lì. */
+  NEXT_PUBLIC_LEGACY_ROOT_DOMAINS: z.string().default("academy.nexoragruppodigitale.it"),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_BOOKING_URL: z.string().url().optional(),
@@ -20,6 +22,7 @@ export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined,
   NEXT_PUBLIC_TENANT_SLUG: process.env.NEXT_PUBLIC_TENANT_SLUG || undefined,
   NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN || undefined,
+  NEXT_PUBLIC_LEGACY_ROOT_DOMAINS: process.env.NEXT_PUBLIC_LEGACY_ROOT_DOMAINS ?? undefined,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || undefined,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || undefined,

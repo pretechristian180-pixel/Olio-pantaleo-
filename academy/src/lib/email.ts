@@ -18,7 +18,7 @@ export async function sendEmail(o: {
   const key = optionalServerEnv("RESEND_API_KEY");
   const from = optionalServerEnv("EMAIL_FROM");
   if (!key || !from) return false;
-  const name = (o.fromName ?? "Nexora Academy").replace(/[<>"\r\n]/g, "").slice(0, 60);
+  const name = (o.fromName ?? "Christian Prete Academy").replace(/[<>"\r\n]/g, "").slice(0, 60);
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",

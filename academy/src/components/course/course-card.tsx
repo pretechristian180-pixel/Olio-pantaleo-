@@ -34,7 +34,7 @@ export function CourseCard({ course, progress }: { course: Course; progress?: nu
             {pluralize(outline.lezioniGratuite, "lezione gratis", "lezioni gratis")}
           </Badge>
         )}
-        <h3 className="text-lg leading-snug font-semibold group-hover:text-nexora-blue">
+        <h3 className="text-lg leading-snug font-semibold group-hover:text-nexora-blue-bright">
           {course.titolo}
         </h3>
         {course.sottotitolo && (

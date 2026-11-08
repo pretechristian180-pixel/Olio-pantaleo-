@@ -31,7 +31,7 @@ export function CourseProgressCard({ course }: { course: CourseProgress }) {
         </Badge>
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <h3 className="text-base leading-snug font-bold group-hover:text-nexora-blue">
+        <h3 className="text-base leading-snug font-bold group-hover:text-nexora-blue-bright">
           {course.titolo}
         </h3>
         <p className="text-[13px] text-ink-muted">

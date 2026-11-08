@@ -79,7 +79,7 @@ function SectionView({
             <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {s.dati.items.map((r) => (
                 <li key={r.titolo} className="rounded-lg border border-line bg-surface p-6">
-                  <Check aria-hidden className="size-6 text-nexora-blue" />
+                  <Check aria-hidden className="size-6 text-nexora-blue-bright" />
                   <h3 className="mt-3 font-bold">{r.titolo}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-muted">{r.testo}</p>
                 </li>
@@ -129,7 +129,7 @@ function SectionView({
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
               {s.dati.items.map((b) => (
                 <li key={b.titolo} className="flex gap-4 rounded-lg bg-blue-tint p-6">
-                  <Gift aria-hidden className="size-6 shrink-0 text-nexora-blue" />
+                  <Gift aria-hidden className="size-6 shrink-0 text-nexora-blue-bright" />
                   <div>
                     <h3 className="font-bold">{b.titolo}</h3>
                     <p className="mt-1 text-sm leading-6">{b.testo}</p>

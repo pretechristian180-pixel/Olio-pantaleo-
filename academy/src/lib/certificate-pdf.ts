@@ -61,7 +61,7 @@ export async function buildCertificatePdf(d: CertificateData, verifyUrl: string)
   const pdf = await PDFDocument.create();
   pdf.setTitle(pdfSafe(`Attestato - ${d.corso}`));
   pdf.setAuthor(pdfSafe(d.academy));
-  pdf.setCreator("Nexora Academy");
+  pdf.setCreator("Christian Prete Academy");
   const page = pdf.addPage([841.89, 595.28]);
   const W = page.getWidth();
   const H = page.getHeight();

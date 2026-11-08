@@ -4,11 +4,11 @@ import { requirePlatformAdmin } from "@/lib/data/platform";
 import { Logo } from "@/components/ui/logo";
 
 export const metadata: Metadata = {
-  title: { default: "Piattaforma", template: "%s · Piattaforma Nexora Academy" },
+  title: { default: "Piattaforma", template: "%s · Piattaforma Christian Prete Academy" },
   robots: { index: false, follow: false },
 };
 
-/** Pannello del super-admin Nexora: tutte le academy dei clienti. */
+/** Pannello del super-admin Christian Prete Academy: tutte le academy dei clienti. */
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   const user = await requirePlatformAdmin();
   return (
@@ -27,7 +27,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
               href="/admin"
               className="flex h-11 items-center rounded-md px-3 text-ink-inverse-muted hover:bg-white/10 hover:text-white"
             >
-              Admin Nexora
+              Admin CP Academy
             </Link>
           </nav>
           <span className="hidden text-xs text-ink-inverse-muted md:inline">{user.email}</span>

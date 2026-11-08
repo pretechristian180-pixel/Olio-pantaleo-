@@ -10,8 +10,8 @@ import { getCurrentTenant, isNexoraTenant, isTenantOpen, requestHost } from "@/l
 
 /**
  * Acquisto di un corso: crea l'ordine e apre il pagamento Stripe.
- * I corsi Nexora si pagano sul conto della piattaforma, quelli dei clienti sul loro conto
- * collegato, senza commissioni per Nexora.
+ * I corsi di Christian Prete si pagano sul conto della piattaforma, quelli dei clienti sul loro conto
+ * collegato, senza commissioni per Christian Prete Academy.
  */
 export async function buyCourse(slug: string, formData: FormData) {
   const back = `/corsi/${encodeURIComponent(slug)}`;
@@ -94,7 +94,7 @@ export async function buyCourse(slug: string, formData: FormData) {
           price_data: {
             currency: course.valuta.toLowerCase(),
             unit_amount: course.prezzo_cents,
-            // I prezzi dei corsi sono mostrati IVA inclusa.
+            // Il prezzo mostrato è quello finale.
             tax_behavior: "inclusive",
             product_data: {
               name: course.titolo,

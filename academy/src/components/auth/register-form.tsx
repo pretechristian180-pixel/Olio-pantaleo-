@@ -96,7 +96,7 @@ export function RegisterForm({ next, tenantSlug }: { next: string; tenantSlug: s
               Ho letto l&apos;
               <Link
                 href="/privacy"
-                className="font-semibold text-nexora-blue underline underline-offset-2"
+                className="font-semibold text-nexora-blue-bright underline underline-offset-2"
               >
                 informativa privacy
               </Link>{" "}
@@ -107,7 +107,7 @@ export function RegisterForm({ next, tenantSlug }: { next: string; tenantSlug: s
         {errors.privacy && <p className="mt-1 text-[13px] text-negative">{errors.privacy}</p>}
         <Checkbox
           name="marketing"
-          label="Voglio ricevere via email consigli pratici e novità sui corsi Nexora (facoltativo)"
+          label="Voglio ricevere via email consigli pratici e novità sui corsi di Christian Prete (facoltativo)"
         />
       </div>
       <Button type="submit" size="lg" block disabled={pending}>
@@ -117,7 +117,7 @@ export function RegisterForm({ next, tenantSlug }: { next: string; tenantSlug: s
         Hai già un account?{" "}
         <Link
           href={`/accedi?next=${encodeURIComponent(next)}`}
-          className="font-semibold text-nexora-blue underline underline-offset-2"
+          className="font-semibold text-nexora-blue-bright underline underline-offset-2"
         >
           Accedi
         </Link>
