@@ -1,14 +1,14 @@
 {
-  "name": "Nexora Studio",
-  "short_name": "Nexora",
+  "name": "Christian Prete Studio",
+  "short_name": "CP Studio",
   "description": "I video della tua azienda, ogni settimana.",
   "start_url": "/inizio",
   "display": "standalone",
-  "background_color": "#05070d",
-  "theme_color": "#05070d",
+  "background_color": "#05070f",
+  "theme_color": "#05070f",
   "lang": "it",
   "icons": [
-    { "src": "/brand/nexora-icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/brand/nexora-icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/brand/cp-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/cp-icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

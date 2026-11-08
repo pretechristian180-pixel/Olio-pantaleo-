@@ -19,9 +19,9 @@ export default function TerminiPage() {
 
       <Section id="art-1" title="Art. 1 – Chi siamo e oggetto">
         <p>
-          1.1 Questi Termini regolano l&apos;uso di Nexora Studio (la «Piattaforma»), servizio
+          1.1 Questi Termini regolano l&apos;uso di Christian Prete Studio (la «Piattaforma»), servizio
           offerto da {COMPANY}, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, PEC{" "}
-          <a href={`mailto:${CONTACT_PEC}`}>{CONTACT_PEC}</a> («Nexora»).
+          <a href={`mailto:${CONTACT_PEC}`}>{CONTACT_PEC}</a> («Christian Prete Studio»).
         </p>
         <p>
           1.2 La Piattaforma permette al Cliente di ricevere proposte di script per video, caricare
@@ -87,13 +87,13 @@ export default function TerminiPage() {
           salvo disdetta.
         </p>
         <p>
-          5.3 Nexora può modificare i prezzi con un preavviso di almeno 30 giorni via email. La
+          5.3 Christian Prete Studio può modificare i prezzi con un preavviso di almeno 30 giorni via email. La
           modifica vale dal primo rinnovo successivo; il Cliente che non la accetta può disdire
           prima di quella data. Per i clienti con condizione «founding member» il prezzo resta
           bloccato finché l&apos;abbonamento resta attivo senza interruzioni.
         </p>
         <p>
-          5.4 Se un pagamento non va a buon fine, Nexora può sospendere la creazione di nuovi video
+          5.4 Se un pagamento non va a buon fine, Christian Prete Studio può sospendere la creazione di nuovi video
           dopo 2 giorni, senza cancellare i dati del Cliente.
         </p>
         <p>
@@ -109,11 +109,11 @@ export default function TerminiPage() {
           periodi parziali.
         </p>
         <p>
-          6.2 Nexora può recedere con un preavviso di 30 giorni, rimborsando la quota pagata e non
+          6.2 Christian Prete Studio può recedere con un preavviso di 30 giorni, rimborsando la quota pagata e non
           goduta.
         </p>
         <p>
-          6.3 Nexora può sospendere o chiudere l&apos;account senza preavviso in caso di grave
+          6.3 Christian Prete Studio può sospendere o chiudere l&apos;account senza preavviso in caso di grave
           violazione dell&apos;Art. 8 o di mancato pagamento protratto oltre 30 giorni.
         </p>
         <p>
@@ -151,7 +151,7 @@ export default function TerminiPage() {
           discriminatori, ingannevoli o che violino diritti di terzi; per creare contenuti che
           imitano persone reali senza il loro consenso; per pubblicità ingannevole; per contenuti
           sessualmente espliciti; per aggirare i limiti tecnici o i sistemi di sicurezza della
-          Piattaforma; per rivendere il Servizio senza un accordo scritto con Nexora.
+          Piattaforma; per rivendere il Servizio senza un accordo scritto con Christian Prete Studio.
         </p>
       </Section>
 
@@ -162,7 +162,7 @@ export default function TerminiPage() {
           e vanno verificati dal Cliente prima dell&apos;approvazione.
         </p>
         <p>
-          9.2 Nexora marca i contenuti audio e video generati con l&apos;AI in modo leggibile dalle
+          9.2 Christian Prete Studio marca i contenuti audio e video generati con l&apos;AI in modo leggibile dalle
           macchine, come previsto dall&apos;art. 50 del Regolamento (UE) 2024/1689 («AI Act»).
         </p>
         <p>
@@ -171,14 +171,14 @@ export default function TerminiPage() {
           contenuto pubblicato, secondo lo stesso art. 50.
         </p>
         <p>
-          9.4 Nexora non usa i contenuti del Cliente per addestrare modelli di intelligenza
+          9.4 Christian Prete Studio non usa i contenuti del Cliente per addestrare modelli di intelligenza
           artificiale, e sceglie fornitori di AI che non li usano per questo scopo.
         </p>
       </Section>
 
       <Section id="art-10" title="Art. 10 – Proprietà intellettuale">
         <p>
-          10.1 Il Cliente resta titolare dei contenuti che carica. Concede a Nexora una licenza non
+          10.1 Il Cliente resta titolare dei contenuti che carica. Concede a Christian Prete Studio una licenza non
           esclusiva, limitata alla durata del contratto, per elaborarli al solo fine di erogare il
           Servizio.
         </p>
@@ -189,11 +189,11 @@ export default function TerminiPage() {
           rispettivi fornitori; non possono essere estratti e usati separatamente.
         </p>
         <p>
-          10.3 La Piattaforma, il software, il marchio Nexora Studio e i modelli di montaggio
-          restano di proprietà di Nexora.
+          10.3 La Piattaforma, il software, il marchio Christian Prete Studio e i modelli di montaggio
+          restano di proprietà di Christian Prete Studio.
         </p>
         <p>
-          10.4 Salvo diniego scritto del Cliente, Nexora può citare il nome e il logo del Cliente
+          10.4 Salvo diniego scritto del Cliente, Christian Prete Studio può citare il nome e il logo del Cliente
           tra le aziende che usano la Piattaforma. L&apos;uso dei video del Cliente come esempi
           richiede il suo consenso specifico.
         </p>
@@ -202,19 +202,19 @@ export default function TerminiPage() {
       <Section id="art-11" title="Art. 11 – Servizi di terzi e social network">
         <p>
           11.1 La pubblicazione dipende dalle piattaforme social e dai fornitori tecnici collegati.
-          Nexora non risponde di modifiche, limitazioni, sospensioni o blocchi decisi da questi
+          Christian Prete Studio non risponde di modifiche, limitazioni, sospensioni o blocchi decisi da questi
           soggetti, compresa la sospensione degli account del Cliente.
         </p>
         <p>
-          11.2 Nexora non garantisce risultati in termini di visualizzazioni, follower, contatti o
+          11.2 Christian Prete Studio non garantisce risultati in termini di visualizzazioni, follower, contatti o
           vendite.
         </p>
       </Section>
 
       <Section id="art-12" title="Art. 12 – Disponibilità del Servizio">
         <p>
-          Nexora si impegna a mantenere la Piattaforma disponibile con continuità, ma possono
-          verificarsi interruzioni per manutenzione, aggiornamenti o cause non dipendenti da Nexora.
+          Christian Prete Studio si impegna a mantenere la Piattaforma disponibile con continuità, ma possono
+          verificarsi interruzioni per manutenzione, aggiornamenti o cause non dipendenti da Christian Prete Studio.
           Le manutenzioni programmate sono comunicate quando possibile con almeno 48 ore di
           anticipo. Se un post programmato non viene pubblicato per un errore, la Piattaforma avvisa
           il Cliente.
@@ -223,11 +223,11 @@ export default function TerminiPage() {
 
       <Section id="art-13" title="Art. 13 – Limitazione di responsabilità">
         <p>
-          13.1 Nei limiti consentiti dalla legge, la responsabilità complessiva di Nexora verso il
+          13.1 Nei limiti consentiti dalla legge, la responsabilità complessiva di Christian Prete Studio verso il
           Cliente non supera gli importi pagati dal Cliente nei 12 mesi precedenti l&apos;evento.
         </p>
         <p>
-          13.2 Nexora non risponde di danni indiretti, mancati guadagni, perdita di opportunità
+          13.2 Christian Prete Studio non risponde di danni indiretti, mancati guadagni, perdita di opportunità
           commerciali o di dati non scaricati dal Cliente.
         </p>
         <p>13.3 Queste limitazioni non valgono in caso di dolo o colpa grave (art. 1229 c.c.).</p>
@@ -235,7 +235,7 @@ export default function TerminiPage() {
 
       <Section id="art-14" title="Art. 14 – Manleva">
         <p>
-          Il Cliente tiene indenne Nexora da richieste di terzi derivanti dai contenuti caricati o
+          Il Cliente tiene indenne Christian Prete Studio da richieste di terzi derivanti dai contenuti caricati o
           pubblicati dal Cliente, dalla violazione dell&apos;Art. 7 o dell&apos;Art. 8, compresa la
           mancanza del consenso delle persone riprese.
         </p>
@@ -245,7 +245,7 @@ export default function TerminiPage() {
         <p>
           Il trattamento dei dati personali è descritto nell&apos;
           <Link href="/privacy">Informativa privacy</Link>. Per i dati personali contenuti nei video
-          del Cliente, Nexora agisce come responsabile del trattamento secondo l&apos;
+          del Cliente, Christian Prete Studio agisce come responsabile del trattamento secondo l&apos;
           <Link href="/trattamento-dati">Accordo sul trattamento dei dati</Link>, che fa parte di
           questi Termini.
         </p>
@@ -253,7 +253,7 @@ export default function TerminiPage() {
 
       <Section id="art-16" title="Art. 16 – Modifiche ai Termini">
         <p>
-          Nexora può modificare questi Termini con un preavviso di almeno 30 giorni via email. Se il
+          Christian Prete Studio può modificare questi Termini con un preavviso di almeno 30 giorni via email. Se il
           Cliente non accetta le modifiche, può disdire prima che entrino in vigore. Le modifiche
           imposte dalla legge si applicano dalla data prevista dalla legge.
         </p>

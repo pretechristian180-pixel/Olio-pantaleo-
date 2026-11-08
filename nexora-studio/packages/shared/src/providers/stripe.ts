@@ -50,7 +50,7 @@ export class StripeBillingProvider implements BillingProvider {
     secretKey: string,
     private webhookSecret: string,
   ) {
-    this.stripe = new Stripe(secretKey, { appInfo: { name: "Nexora Studio" }, maxNetworkRetries: 2 });
+    this.stripe = new Stripe(secretKey, { appInfo: { name: "Christian Prete Studio" }, maxNetworkRetries: 2 });
   }
 
   async createCheckout(r: CheckoutRequest) {

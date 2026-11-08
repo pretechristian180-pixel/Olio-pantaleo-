@@ -16,7 +16,7 @@ const ADMIN_LINKS = [
   ["/admin/social", "Social"],
 ] as const;
 
-/** Area del team Nexora: solo profili con is_admin. */
+/** Area del team CP Studio: solo profili con is_admin. */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getSessionContext();
   if (!ctx) redirect("/accedi?next=/admin");

@@ -79,7 +79,9 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
     versions.find((v) => v.version === video.current_version && v.status === "ready") ?? null;
   const stage = working && video.status !== "internal_review" ? await editingStage(video.id) : null;
   const stageIndex = stage ? STAGES.findIndex((s) => s.key === stage) : -1;
-  const clientFeedback = feedback.filter((f) => !f.message.startsWith("[Team Nexora]"));
+  const clientFeedback = feedback.filter(
+    (f) => !f.message.startsWith("[Team CP Studio]") && !f.message.startsWith("[Team Nexora]"),
+  );
 
   // Modifiche oltre le incluse (art. 4.4) e girato conservato 90 giorni (art. 6.4)
   const rawLocked = video.raw?.purged_at
@@ -227,7 +229,7 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
                       <span className="flex size-6 items-center justify-center rounded-full border border-nx-blue-500 text-primary-text">
                         <Loader2 className="size-3.5 animate-spin" aria-hidden />
                       </span>
-                      Ultimo controllo del team Nexora
+                      Ultimo controllo del team CP Studio
                     </li>
                   )}
                 </ol>
@@ -434,7 +436,7 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
           {ctx.profile?.is_admin && ["review", "internal_review", "error"].includes(video.status) && !rawLocked && (
             <Card className="border-dashed">
               <CardHeader>
-                <CardTitle className="text-base">Team Nexora</CardTitle>
+                <CardTitle className="text-base">Team CP Studio</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3 text-sm">
                 <p className="text-muted-foreground">

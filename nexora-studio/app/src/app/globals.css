@@ -3,9 +3,9 @@
 
 /*
  * ═══════════════════════════════════════════════════════════════════════════
- * Nexora Studio — design token
- * Ricavati dal logo Nexora: blu elettrico (con riflesso ciano), argento
- * metallico, nero profondo. Tema scuro di base (.dark su <html>), chiaro su :root.
+ * Christian Prete Studio — design token
+ * Identità Christian Prete: blu elettrico con riflesso ciano, nero spazio.
+ * Tema scuro di base (.dark su <html>), chiaro su :root.
  *
  * Regola: i componenti usano solo questi token, mai colori scritti a mano.
  * Contrasti verificati AA (4.5:1) per testo normale su sfondi e superfici.
@@ -16,25 +16,26 @@
 
 :root {
   /* Palette di brand (uguale nei due temi) */
-  --nx-blue-300: #6ea4ff;
-  --nx-blue-400: #3d84ff;
-  --nx-blue-500: #0a5cff; /* blu del logo */
-  --nx-blue-600: #0047e0;
-  --nx-blue-700: #0028d0; /* ombra profonda del logo */
-  --nx-cyan-400: #1aa8ff; /* riflesso del logo */
+  --nx-blue-300: #6f9bff;
+  --nx-blue-400: #3d7bff;
+  --nx-blue-500: #2b62e8; /* blu Christian Prete */
+  --nx-blue-600: #2453c9;
+  --nx-blue-700: #1d3fb8; /* blu profondo */
+  --nx-cyan-400: #45d9ff; /* ciano */
   --nx-silver-100: #f4f5f7;
   --nx-silver-300: #c9cbd1;
   --nx-silver-500: #8a8c93;
-  --nx-ink-950: #05070d;
-  --nx-ink-900: #0a0e17;
-  --nx-ink-850: #0f1420;
-  --nx-ink-800: #151b2a;
-  --nx-ink-700: #1f2638;
+  --nx-ink-950: #05070f;
+  --nx-ink-900: #0b1124;
+  --nx-ink-850: #0d1430;
+  --nx-ink-800: #141d40;
+  --nx-ink-700: #1f2a4d;
 
+  /* Sfondo dei pulsanti: parte dal blu chiaro (non dal ciano) così il testo bianco resta leggibile */
   --gradient-brand: linear-gradient(
     135deg,
-    var(--nx-cyan-400) 0%,
-    var(--nx-blue-500) 35%,
+    var(--nx-blue-400) 0%,
+    var(--nx-blue-500) 40%,
     var(--nx-blue-700) 100%
   );
   --gradient-silver: linear-gradient(
@@ -55,7 +56,7 @@
   --popover-foreground: #0a0d14;
   --primary: var(--nx-blue-500);
   --primary-foreground: #ffffff;
-  --primary-text: #0047d6; /* link ed etichette in blu su sfondo chiaro */
+  --primary-text: #1f4fd1; /* link ed etichette in blu su sfondo chiaro */
   --secondary: #eceef2;
   --secondary-foreground: #0a0d14;
   --muted: #eceef2;
@@ -72,7 +73,7 @@
   --border: #e1e4ea;
   --input: #d5d9e1;
   --ring: var(--nx-blue-500);
-  --shadow-glow: 0 0 0 1px rgb(10 92 255 / 0.12), 0 8px 24px -8px rgb(10 92 255 / 0.35);
+  --shadow-glow: 0 0 0 1px rgb(43 98 232 / 0.12), 0 8px 24px -8px rgb(43 98 232 / 0.35);
   --surface-glass: rgb(255 255 255 / 0.75);
   /* Argento leggibile su sfondo chiaro: grafite → acciaio */
   --gradient-silver-text: linear-gradient(160deg, #1d2129 0%, #4a4f5a 55%, #7a7f8a 100%);
@@ -92,7 +93,7 @@
   --secondary-foreground: #eef0f4;
   --muted: var(--nx-ink-800);
   --muted-foreground: #9aa1b2;
-  --accent: #0d1b3d;
+  --accent: #16245a;
   --accent-foreground: #dbe7ff;
   --destructive: #f04438;
   --destructive-foreground: #ffffff;
@@ -100,19 +101,19 @@
   --success-soft: #0b2a1c;
   --warning: #fdb022;
   --warning-soft: #2e2009;
-  --info-soft: #0d1b3d;
+  --info-soft: #16245a;
   --border: rgb(255 255 255 / 0.09);
   --input: rgb(255 255 255 / 0.14);
   --ring: var(--nx-blue-400);
-  --shadow-glow: 0 0 0 1px rgb(26 168 255 / 0.25), 0 0 32px -6px rgb(10 92 255 / 0.55);
-  --surface-glass: rgb(10 14 23 / 0.72);
+  --shadow-glow: 0 0 0 1px rgb(69 217 255 / 0.25), 0 0 32px -6px rgb(61 123 255 / 0.55);
+  --surface-glass: rgb(11 17 36 / 0.72);
   --gradient-silver-text: var(--gradient-silver);
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, sans-serif;
-  --font-wordmark: var(--font-michroma), var(--font-sora), sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument), ui-sans-serif, sans-serif;
+  --font-wordmark: var(--font-michroma), var(--font-instrument), sans-serif;
 
   --radius-sm: calc(var(--radius) - 6px);
   --radius-md: calc(var(--radius) - 4px);

@@ -20,11 +20,11 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: { absolute: "Nexora Studio — Video per i social della tua azienda, ogni settimana" },
+  title: { absolute: "Christian Prete Studio — Video per i social della tua azienda, ogni settimana" },
   description:
     "Ricevi ogni settimana gli script, giri con il telefono e ricevi il video montato con l'AI: sottotitoli, tagli e musica. Lo approvi e lo pubblichiamo sui tuoi social. Prova gratis 3 video.",
   openGraph: {
-    title: "Nexora Studio — Tu giri. Al resto pensiamo noi.",
+    title: "Christian Prete Studio — Tu giri. Al resto pensiamo noi.",
     description:
       "Script settimanali, montaggio con l'AI e pubblicazione sui tuoi social. Prova gratis 3 video, senza carta.",
     locale: "it_IT",
@@ -412,10 +412,10 @@ export default async function Home(props: PageProps<"/">) {
             <p className="text-muted-foreground">
               Altro da chiedere? Scrivi a{" "}
               <a
-                href="mailto:info@nexoragruppodigitale.it"
+                href="mailto:info@christianprete.it"
                 className="text-primary-text underline underline-offset-4"
               >
-                info@nexoragruppodigitale.it
+                info@christianprete.it
               </a>
               .
             </p>
@@ -458,7 +458,7 @@ export default async function Home(props: PageProps<"/">) {
       <footer className="relative border-t">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
           <p>
-            © {new Date().getFullYear()} Nexora Gruppo Digitale · CPECOMGROUP di Prete Christian ·
+            © {new Date().getFullYear()} Christian Prete Agency · CPECOMGROUP di Prete Christian ·
             P.IVA IT03436340735
           </p>
           <nav aria-label="Note legali" className="flex gap-4">

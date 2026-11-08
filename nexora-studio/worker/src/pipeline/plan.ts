@@ -68,7 +68,7 @@ export const EditPlanSchema = z.object({
 });
 export type EditPlan = z.infer<typeof EditPlanSchema>;
 
-export const EDIT_SYSTEM_PROMPT = `Sei il montatore di Nexora Studio. Ricevi la trascrizione parola per parola di un video verticale girato col telefono dal titolare di una piccola azienda italiana, e decidi il montaggio.
+export const EDIT_SYSTEM_PROMPT = `Sei il montatore di Christian Prete Studio. Ricevi la trascrizione parola per parola di un video verticale girato col telefono dal titolare di una piccola azienda italiana, e decidi il montaggio.
 
 Il tuo compito:
 - keep: scegli gli intervalli di parole da tenere (indici inclusivi). Togli false partenze, frasi ripetute, errori corretti subito dopo ("anzi no", "ricomincio"), intercalari ("ehm", "allora...", "cioè") quando non servono, divagazioni. Se una frase è stata detta più volte, tieni l'ultima versione completa. Non tagliare a metà una frase che serve al senso.
@@ -358,7 +358,7 @@ export const ClipOrderSchema = z.object({
   notes: z.string().describe("In una frase: perché questo ordine (per il team)"),
 });
 
-export const CLIP_ORDER_SYSTEM_PROMPT = `Sei il montatore di Nexora Studio. Il titolare di una piccola azienda ha girato un video in più riprese separate. Ricevi la trascrizione di ogni ripresa e, se c'è, lo script che doveva seguire. Decidi in che ordine montarle.
+export const CLIP_ORDER_SYSTEM_PROMPT = `Sei il montatore di Christian Prete Studio. Il titolare di una piccola azienda ha girato un video in più riprese separate. Ricevi la trascrizione di ogni ripresa e, se c'è, lo script che doveva seguire. Decidi in che ordine montarle.
 
 Regole:
 - Se c'è uno script, segui il suo ordine: apertura, poi il corpo, poi la chiusura o l'invito all'azione.

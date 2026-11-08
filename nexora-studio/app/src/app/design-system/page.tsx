@@ -30,12 +30,12 @@ export const metadata: Metadata = {
 };
 
 const brand = [
-  { name: "Blu Nexora", token: "--nx-blue-500", hex: "#0A5CFF" },
-  { name: "Riflesso ciano", token: "--nx-cyan-400", hex: "#1AA8FF" },
-  { name: "Blu profondo", token: "--nx-blue-700", hex: "#0028D0" },
-  { name: "Blu chiaro", token: "--nx-blue-300", hex: "#6EA4FF" },
+  { name: "Blu Christian Prete", token: "--nx-blue-500", hex: "#2B62E8" },
+  { name: "Riflesso ciano", token: "--nx-cyan-400", hex: "#45D9FF" },
+  { name: "Blu profondo", token: "--nx-blue-700", hex: "#1D3FB8" },
+  { name: "Blu chiaro", token: "--nx-blue-300", hex: "#6F9BFF" },
   { name: "Argento", token: "--nx-silver-300", hex: "#C9CBD1" },
-  { name: "Inchiostro", token: "--nx-ink-950", hex: "#05070D" },
+  { name: "Inchiostro", token: "--nx-ink-950", hex: "#05070F" },
 ];
 
 const semantic = [
@@ -63,7 +63,7 @@ export default function DesignSystemPage() {
     <PageContainer className="max-w-5xl gap-12">
       <PageHeader
         title="Design system"
-        description="La base grafica di Nexora Studio: logo, colori, tipografia e componenti. Riferimento interno."
+        description="La base grafica di Christian Prete Studio: logo, colori, tipografia e componenti. Riferimento interno."
         actions={<ThemeToggle />}
       />
 
@@ -114,7 +114,7 @@ export default function DesignSystemPage() {
       <Section title="Tipografia">
         <div className="grid gap-4 rounded-xl border bg-card p-5">
           <p className="text-xs text-muted-foreground">
-            Titoli: Sora · Testo: Inter · Scritta NEXORA: Michroma
+            Titoli e testo: Instrument Sans · Scritta CHRISTIAN PRETE: Michroma
           </p>
           <p className="font-display text-4xl font-semibold">Tu giri, al resto pensiamo noi.</p>
           <p className="font-display text-2xl font-semibold">I video della settimana</p>

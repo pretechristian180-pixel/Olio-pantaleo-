@@ -165,7 +165,7 @@ export function LogoAndColors({
                 variant="outline"
                 size="sm"
                 className="h-[3.25rem]"
-                onClick={() => setColors((cs) => [...cs, "#0a5cff"])}
+                onClick={() => setColors((cs) => [...cs, "#2b62e8"])}
               >
                 <Plus aria-hidden /> Aggiungi
               </Button>

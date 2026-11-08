@@ -121,7 +121,7 @@ export async function handleJob(job: Job, deps: HandlerDeps) {
   }
 }
 
-/** Avviso al team Nexora quando un job fallisce definitivamente. */
+/** Avviso al team CP Studio quando un job fallisce definitivamente. */
 export async function alertAdmins(job: Job, error: string, deps: HandlerDeps) {
   log("error", "job fallito definitivamente", { job: job.id, type: job.type, workspace: job.workspace_id, error });
   if (!deps.config.adminAlertEmail) return;
@@ -133,7 +133,7 @@ export async function alertAdmins(job: Job, error: string, deps: HandlerDeps) {
   });
   await getEmailProvider().send({
     to: deps.config.adminAlertEmail,
-    subject: `[Nexora Studio] Job fallito: ${job.type}`,
+    subject: `[Christian Prete Studio] Job fallito: ${job.type}`,
     html,
     text,
   });

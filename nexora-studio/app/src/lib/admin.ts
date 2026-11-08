@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionContext } from "@/lib/workspace";
 
-/** Pagine e azioni del team Nexora: solo profili con is_admin. */
+/** Pagine e azioni del team CP Studio: solo profili con is_admin. */
 export async function requireAdmin(next = "/admin") {
   const ctx = await getSessionContext();
   if (!ctx) redirect(`/accedi?next=${encodeURIComponent(next)}`);
@@ -16,7 +16,7 @@ export async function requireAdmin(next = "/admin") {
 /** Per le Server Action: errore se non è del team. */
 export async function assertAdmin() {
   const ctx = await getSessionContext();
-  if (!ctx?.profile?.is_admin) throw new Error("Solo il team Nexora.");
+  if (!ctx?.profile?.is_admin) throw new Error("Solo il team CP Studio.");
   return ctx;
 }
 

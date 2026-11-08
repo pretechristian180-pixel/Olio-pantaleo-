@@ -116,7 +116,7 @@ export async function refreshSocialAction(fd: FormData) {
   revalidatePath("/social");
 }
 
-/** Il link per collegare i social è scaduto o manca: avvisa il team Nexora. */
+/** Il link per collegare i social è scaduto o manca: avvisa il team CP Studio. */
 export async function requestConnectLinkAction(fd: FormData): Promise<void> {
   const workspaceId = String(fd.get("workspace_id"));
   const { membership } = await assertMember(workspaceId);
@@ -130,7 +130,7 @@ export async function requestConnectLinkAction(fd: FormData): Promise<void> {
     });
     await getEmailProvider().send({
       to,
-      subject: `[Nexora Studio] Link social per ${membership.workspace.name}`,
+      subject: `[Christian Prete Studio] Link social per ${membership.workspace.name}`,
       html,
       text,
     });
@@ -138,10 +138,10 @@ export async function requestConnectLinkAction(fd: FormData): Promise<void> {
   revalidatePath("/social");
 }
 
-/** Team Nexora: collega l'azienda al suo brand Metricool e salva il link di collegamento. */
+/** Team CP Studio: collega l'azienda al suo brand Metricool e salva il link di collegamento. */
 export async function adminSetMetricool(fd: FormData) {
   const ctx = await getSessionContext();
-  if (!ctx?.profile?.is_admin) throw new Error("Solo il team Nexora.");
+  if (!ctx?.profile?.is_admin) throw new Error("Solo il team CP Studio.");
   const workspaceId = String(fd.get("workspace_id"));
   const blogId = String(fd.get("blog_id") ?? "").trim() || null;
   const link = String(fd.get("connect_url") ?? "").trim() || null;

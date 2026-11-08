@@ -1,6 +1,6 @@
-# Nexora Studio
+# Christian Prete Studio (ex Nexora Studio)
 
-Piattaforma SaaS di Nexora Gruppo Digitale. Ogni settimana le aziende ricevono gli script dei video
+Piattaforma SaaS di Christian Prete Agency. Ogni settimana le aziende ricevono gli script dei video
 da girare, caricano il girato (anche in più clip: riprese parlate, che l'AI mette in ordine, e
 clip di copertura) e ricevono i video montati con l'AI. Li approvano e la piattaforma li
 programma sui loro social.
@@ -130,7 +130,7 @@ Le email di conferma si leggono su Mailpit: http://127.0.0.1:54324
   Da configurare nella fase di deploy.
 - **Worker → Railway**: build dal `worker/Dockerfile` con contesto `nexora-studio/`
   (`railway.json` nella radice di `nexora-studio/`: impostare la root directory del servizio Railway su `nexora-studio`).
-- Dominio previsto: `studio.nexoragruppodigitale.it`.
+- Dominio previsto: `studio.christianprete.it` (prima `studio.nexoragruppodigitale.it`).
 
 ## Design
 

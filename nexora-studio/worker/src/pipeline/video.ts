@@ -709,7 +709,7 @@ async function notifyInternalReview(deps: HandlerDeps, videoId: string, companyN
     ctaLabel: "Apri la revisione",
     ctaUrl: `${deps.config.appUrl}/admin/revisione`,
   });
-  await getEmailProvider().send({ to: deps.config.adminAlertEmail, subject: `[Nexora Studio] Video da controllare: ${companyName}`, html, text });
+  await getEmailProvider().send({ to: deps.config.adminAlertEmail, subject: `[Christian Prete Studio] Video da controllare: ${companyName}`, html, text });
 }
 
 /** Fallimento definitivo di un job video: stato errore e video restituito alla quota. */

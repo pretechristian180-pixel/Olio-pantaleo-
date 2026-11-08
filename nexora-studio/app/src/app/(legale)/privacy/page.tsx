@@ -30,9 +30,9 @@ export default function PrivacyPage() {
 
       <Section id="ambito" title="2. A chi si applica">
         <p>
-          Questa informativa riguarda chi visita il sito di Nexora Studio, chi si registra alla
+          Questa informativa riguarda chi visita il sito di Christian Prete Studio, chi si registra alla
           Piattaforma e i referenti delle aziende clienti. Per i dati delle persone che compaiono
-          nei video caricati dai clienti, Nexora agisce come responsabile del trattamento per conto
+          nei video caricati dai clienti, Christian Prete Studio agisce come responsabile del trattamento per conto
           del cliente: il titolare è l&apos;azienda cliente, che deve informare quelle persone.
         </p>
       </Section>
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
 
       <Section id="destinatari" title="5. Destinatari">
         <p>
-          I dati sono trattati da personale autorizzato di Nexora e da fornitori che agiscono come
+          I dati sono trattati da personale autorizzato di Christian Prete Studio e da fornitori che agiscono come
           responsabili del trattamento:
         </p>
         <LegalTable
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
 
       <Section id="sicurezza" title="7. Sicurezza">
         <p>
-          Nexora adotta misure tecniche e organizzative adeguate: cifratura dei dati in transito e a
+          Christian Prete Studio adotta misure tecniche e organizzative adeguate: cifratura dei dati in transito e a
           riposo, accessi limitati per ruolo, separazione dei dati tra clienti, link ai file con
           scadenza, backup periodici.
         </p>

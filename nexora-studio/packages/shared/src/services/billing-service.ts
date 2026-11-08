@@ -161,7 +161,7 @@ async function handle(db: AdminDb, provider: BillingProvider, event: BillingEven
       });
       const email = getEmailProvider();
       for (const to of await ownerEmails(db, ws.id)) {
-        await email.send({ to, subject: "Pagamento non riuscito — Nexora Studio", ...mail }).catch(() => undefined);
+        await email.send({ to, subject: "Pagamento non riuscito — Christian Prete Studio", ...mail }).catch(() => undefined);
       }
       return;
     }

@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="relative flex flex-1 flex-col">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-aurora" aria-hidden />
       <header className="relative mx-auto flex h-16 w-full max-w-md items-center px-5">
-        <Link href="/" aria-label="Nexora Studio, torna alla pagina iniziale">
+        <Link href="/" aria-label="Christian Prete Studio, torna alla pagina iniziale">
           <NexoraLogo />
         </Link>
       </header>

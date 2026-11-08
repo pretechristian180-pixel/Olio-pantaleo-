@@ -81,7 +81,7 @@ export class DemoTranscriber implements TranscriptionProvider {
 
   async transcribe(input: TranscriptionInput) {
     const tagged = await demoTextFromFile(input.filePath);
-    const base = (tagged ?? input.hintText ?? "Ciao, questo è un video di prova montato in automatico da Nexora Studio.")
+    const base = (tagged ?? input.hintText ?? "Ciao, questo è un video di prova montato in automatico da Christian Prete Studio.")
       .replace(/\s+/g, " ")
       .trim()
       .split(" ");

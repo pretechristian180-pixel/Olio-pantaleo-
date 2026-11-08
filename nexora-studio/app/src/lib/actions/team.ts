@@ -53,7 +53,7 @@ export async function inviteMember(_prev: InviteState, fd: FormData): Promise<In
   const inviter = displayName(ctx);
   const companyName = membership.workspace.name;
   const { html, text } = brandedEmail({
-    title: `${inviter} ti ha invitato su Nexora Studio`,
+    title: `${inviter} ti ha invitato su Christian Prete Studio`,
     intro: `Entra nel team di ${companyName}: potrai caricare i video, approvarli e vedere il calendario dei post.`,
     ctaLabel: "Accetta l'invito",
     ctaUrl: link,
@@ -159,7 +159,7 @@ export async function acceptInvitation(fd: FormData) {
 }
 
 /**
- * Azienda preparata dal team Nexora: quando il cliente accetta l'invito da titolare, i membri
+ * Azienda preparata dal team CP Studio: quando il cliente accetta l'invito da titolare, i membri
  * del team che ne erano titolari restano come collaboratori (non ricevono più email di
  * fatturazione e non gestiscono il piano). Il cliente può rimuoverli dalla pagina Team.
  */

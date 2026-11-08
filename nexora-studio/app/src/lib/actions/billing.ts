@@ -156,10 +156,10 @@ export async function createBrandAction(_prev: FormState, fd: FormData): Promise
   redirect("/onboarding");
 }
 
-/** Team Nexora: segna o toglie il prezzo bloccato da founding member. */
+/** Team CP Studio: segna o toglie il prezzo bloccato da founding member. */
 export async function adminToggleFoundingAction(fd: FormData) {
   const ctx = await getSessionContext();
-  if (!ctx?.profile?.is_admin) throw new Error("Solo il team Nexora.");
+  if (!ctx?.profile?.is_admin) throw new Error("Solo il team CP Studio.");
   const id = String(fd.get("workspace_id"));
   const admin = createAdminClient();
   const { data } = await admin.from("workspaces").select("founding_member").eq("id", id).single();

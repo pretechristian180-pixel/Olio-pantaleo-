@@ -32,7 +32,7 @@ export default function TrattamentoDatiPage() {
     <article className="grid gap-8">
       <LegalHeader
         title="Accordo sul trattamento dei dati (DPA)"
-        subtitle="Ai sensi dell'art. 28 del GDPR. Parte integrante dei Termini e condizioni di Nexora Studio."
+        subtitle="Ai sensi dell'art. 28 del GDPR. Parte integrante dei Termini e condizioni di Christian Prete Studio."
       />
 
       <Section id="parti" title="1. Parti e ruoli">

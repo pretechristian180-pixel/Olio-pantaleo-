@@ -40,7 +40,7 @@ export interface StyleProfile {
   visual: VisualStyle;
 }
 
-export const STYLE_SYSTEM_PROMPT = `Sei il montatore di Nexora Studio. Ti mostro alcuni fotogrammi presi a intervalli regolari da un video social verticale che un cliente ha scelto come riferimento di stile, insieme ad alcune misure. Descrivi lo stile di montaggio in modo che si possa riprodurre: sottotitoli (presenza, zona dello schermo, dimensione, maiuscole, evidenziazione), scritte d'apertura, titoli, zoom, immagini di copertura, inquadratura, energia.
+export const STYLE_SYSTEM_PROMPT = `Sei il montatore di Christian Prete Studio. Ti mostro alcuni fotogrammi presi a intervalli regolari da un video social verticale che un cliente ha scelto come riferimento di stile, insieme ad alcune misure. Descrivi lo stile di montaggio in modo che si possa riprodurre: sottotitoli (presenza, zona dello schermo, dimensione, maiuscole, evidenziazione), scritte d'apertura, titoli, zoom, immagini di copertura, inquadratura, energia.
 Descrivi solo ciò che vedi; se un aspetto non si capisce dai fotogrammi, usa null. Non descrivere il contenuto o la persona, solo lo stile.
 Rispondi solo con il JSON richiesto.`;
 

@@ -25,7 +25,7 @@ import { isActive, primaryNav, settingsNav, uploadHref, type NavItem } from "./n
 export interface ShellUser {
   name: string;
   email: string;
-  /** Team Nexora: mostra il collegamento all'area admin. */
+  /** Team CP Studio: mostra il collegamento all'area admin. */
   isAdmin?: boolean;
 }
 
@@ -132,7 +132,7 @@ function AccountMenu({
             <DropdownMenuItem asChild>
               <Link href="/admin">
                 <ShieldCheck aria-hidden />
-                Area team Nexora
+                Area team
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -185,7 +185,7 @@ export function AppShell({
       {/* Barra laterale desktop */}
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r bg-card/40 lg:flex">
         <div className="flex h-16 items-center px-5">
-          <Link href="/inizio" aria-label="Nexora Studio, vai alla Home">
+          <Link href="/inizio" aria-label="Christian Prete Studio, vai alla Home">
             <NexoraLogo />
           </Link>
         </div>
@@ -217,7 +217,7 @@ export function AppShell({
           {user.isAdmin && (
             <div className="grid gap-0.5">
               <p className="px-3 pb-1.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-                Team Nexora
+                Team CP Studio
               </p>
               <SidebarLink
                 item={{ href: "/admin", label: "Area team", icon: ShieldCheck }}
@@ -239,7 +239,7 @@ export function AppShell({
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-glass px-4 backdrop-blur-xl lg:hidden">
           <Link
             href="/inizio"
-            aria-label="Nexora Studio, vai alla Home"
+            aria-label="Christian Prete Studio, vai alla Home"
             className="flex items-center gap-2"
           >
             <NexoraMark className="h-6" title={null} />

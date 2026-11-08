@@ -121,7 +121,7 @@ export default async function AziendePage() {
                       ) : w.pending ? (
                         <Badge variant="info">Invito inviato a {w.pending.email}</Badge>
                       ) : (
-                        <Badge variant="secondary">Titolare: team Nexora</Badge>
+                        <Badge variant="secondary">Titolare: team CP Studio</Badge>
                       )}
                       <Badge variant="secondary">
                         {w.plan_id ? `Piano ${w.plan_id}` : "Prova"}

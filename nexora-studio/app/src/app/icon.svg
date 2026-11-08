@@ -1,14 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254">
-  <defs>
-    <linearGradient id="b" x1="262" y1="327" x2="700" y2="900" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1aa8ff"/><stop offset=".25" stop-color="#0063fc"/><stop offset="1" stop-color="#0028d0"/>
-    </linearGradient>
-    <linearGradient id="s" x1="988" y1="305" x2="700" y2="890" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b9b9bc"/><stop offset="1" stop-color="#7c7d82"/>
-    </linearGradient>
-  </defs>
-  <rect width="1254" height="1254" fill="#05070d"/>
-  <path fill="url(#b)" d="M262 345q0-18 18-18h180q18 0 32 13L815 650 600 640 420 485q-8-7-18-7h-12v437L268 793q-6-6-6-15z"/>
-  <path fill="url(#s)" d="M600 640q90-12 170 8l92 92V430q0-10 8-18l118-107v545q0 40-40 40h-110q-18 0-32-13z"/>
-  <circle cx="627" cy="627" r="567" fill="none" stroke="#0a6cff" stroke-width="18"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="26" fill="#05070f"/><g transform="translate(10 10) scale(0.83)"><defs><linearGradient id="g" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#45d9ff"/><stop offset="0.55" stop-color="#3d7bff"/><stop offset="1" stop-color="#1d3fb8"/></linearGradient></defs><path d="M74 14 H40 L16 38 V82 L40 106 H74 V88 H48 L34 74 V46 L48 32 H74 Z" fill="url(#g)"/><path d="M74 23 H86 L96 13" fill="none" stroke="#e9eef9" stroke-width="5" stroke-linejoin="round"/><circle cx="100" cy="10" r="6" fill="none" stroke="#e9eef9" stroke-width="4"/><path d="M74 97 H86 L96 107" fill="none" stroke="#e9eef9" stroke-width="5" stroke-linejoin="round"/><circle cx="100" cy="110" r="6" fill="none" stroke="#e9eef9" stroke-width="4"/><path d="M50 60 H92" fill="none" stroke="#e9eef9" stroke-width="5"/><circle cx="99" cy="60" r="7" fill="#45d9ff"/></g></svg>

@@ -45,11 +45,11 @@ export const WATERMARK_W = 190;
 
 /** Metadati scritti in ogni video esportato. */
 export const AI_METADATA: [string, string][] = [
-  ["comment", "Video montato con intelligenza artificiale da Nexora Studio (AI-edited content)."],
-  ["description", "AI-edited video: cuts, subtitles, music and stock footage selected by an AI system (Nexora Studio)."],
-  ["encoder_info", "Nexora Studio"],
+  ["comment", "Video montato con intelligenza artificiale da Christian Prete Studio (AI-edited content)."],
+  ["description", "AI-edited video: cuts, subtitles, music and stock footage selected by an AI system (Christian Prete Studio)."],
+  ["encoder_info", "Christian Prete Studio"],
   ["ai_generated", "edited"],
-  ["ai_system", "Nexora Studio"],
+  ["ai_system", "Christian Prete Studio"],
 ];
 
 export function buildRenderArgs(input: RenderInput, assFile: string) {

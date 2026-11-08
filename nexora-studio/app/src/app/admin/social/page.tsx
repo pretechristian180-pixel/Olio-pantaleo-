@@ -17,7 +17,7 @@ const dateFmt = new Intl.DateTimeFormat("it-IT", {
 });
 
 /**
- * Team Nexora: per ogni azienda il brand Metricool (blogId) e il link per collegare i social
+ * Team CP Studio: per ogni azienda il brand Metricool (blogId) e il link per collegare i social
  * (Metricool → brand → Connessioni → Condividi → Crea link, valido 71 ore).
  */
 export default async function AdminSocialPage() {

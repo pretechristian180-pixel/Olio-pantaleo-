@@ -61,7 +61,7 @@ export default async function TeamPage() {
 
   return (
     <PageContainer className="max-w-4xl">
-      <PageHeader title="Team" description={`Le persone di ${ws.name} che usano Nexora Studio.`} />
+      <PageHeader title="Team" description={`Le persone di ${ws.name} che usano Christian Prete Studio.`} />
 
       <Card>
         <CardHeader>

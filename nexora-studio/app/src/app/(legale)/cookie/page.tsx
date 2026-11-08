@@ -20,7 +20,7 @@ export default function CookiePage() {
         </p>
       </Section>
 
-      <Section id="cookie-usati" title="2. Cookie usati da Nexora Studio">
+      <Section id="cookie-usati" title="2. Cookie usati da Christian Prete Studio">
         <LegalTable
           head={["Tipo", "A cosa servono", "Consenso", "Durata"]}
           rows={[
@@ -51,7 +51,7 @@ export default function CookiePage() {
           ]}
         />
         <p>
-          <strong>Elenco aggiornato dei singoli cookie.</strong> Oggi Nexora Studio usa solo
+          <strong>Elenco aggiornato dei singoli cookie.</strong> Oggi Christian Prete Studio usa solo
           strumenti tecnici necessari:
         </p>
         <LegalTable
@@ -59,25 +59,25 @@ export default function CookiePage() {
           rows={[
             [
               "sb-…-auth-token",
-              "Nexora Studio (Supabase)",
+              "Christian Prete Studio (Supabase)",
               "Mantiene l'accesso all'account (cookie)",
               "Fino all'uscita, al massimo 12 mesi",
             ],
             [
               "nx_ws",
-              "Nexora Studio",
+              "Christian Prete Studio",
               "Ricorda l'azienda o il brand su cui stai lavorando (cookie)",
               "12 mesi",
             ],
             [
               "nexora-theme",
-              "Nexora Studio",
+              "Christian Prete Studio",
               "Ricorda il tema chiaro o scuro (local storage)",
               "Finché non lo cancelli",
             ],
             [
               "tus::…",
-              "Nexora Studio",
+              "Christian Prete Studio",
               "Permette di riprendere un caricamento interrotto (local storage)",
               "Fino alla fine del caricamento",
             ],
@@ -115,7 +115,7 @@ export default function CookiePage() {
       <Section id="terze-parti" title="4. Cookie di terze parti">
         <p>
           I cookie di terze parti sono gestiti dai rispettivi fornitori secondo le loro informative.
-          Oggi le pagine di Nexora Studio non contengono cookie di terze parti. Il pagamento avviene
+          Oggi le pagine di Christian Prete Studio non contengono cookie di terze parti. Il pagamento avviene
           sulle pagine di Stripe, che applica la propria{" "}
           <a
             href="https://stripe.com/it/legal/cookies-policy"

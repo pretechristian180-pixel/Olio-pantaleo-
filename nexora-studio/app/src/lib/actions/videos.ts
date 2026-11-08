@@ -318,11 +318,11 @@ export async function updateCaption(_prev: FormState, fd: FormData): Promise<For
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Team Nexora (admin)
+// Team CP Studio (admin)
 // ─────────────────────────────────────────────────────────────────────────
 async function assertAdmin() {
   const ctx = await getSessionContext();
-  if (!ctx?.profile?.is_admin) throw new Error("Solo il team Nexora.");
+  if (!ctx?.profile?.is_admin) throw new Error("Solo il team CP Studio.");
   return ctx;
 }
 
@@ -392,7 +392,7 @@ export async function adminRequestRework(_prev: FormState, fd: FormData): Promis
       video_id: video.id,
       version: video.current_version,
       user_id: ctx.user.id,
-      message: `[Team Nexora] ${message}`,
+      message: `[Team CP Studio] ${message}`,
     })
     .select("id")
     .single();

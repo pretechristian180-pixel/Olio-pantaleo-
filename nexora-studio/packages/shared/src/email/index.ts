@@ -55,7 +55,7 @@ class MailpitProvider implements EmailProvider {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        From: { Email: "studio@nexoragruppodigitale.it", Name: "Nexora Studio" },
+        From: { Email: "studio@christianprete.it", Name: "Christian Prete Studio" },
         To: to,
         Subject: message.subject,
         HTML: message.html,
@@ -71,7 +71,7 @@ export function getEmailProvider(env: Record<string, string | undefined> = proce
     return new MailpitProvider(env.MAILPIT_URL ?? "http://127.0.0.1:54324");
   }
   const key = env.RESEND_API_KEY;
-  const from = env.EMAIL_FROM ?? "Nexora Studio <studio@nexoragruppodigitale.it>";
+  const from = env.EMAIL_FROM ?? "Christian Prete Studio <studio@christianprete.it>";
   return key ? new ResendProvider(key, from) : new DisabledProvider();
 }
 
@@ -110,9 +110,9 @@ ${extraHtml ? `<tr><td style="padding-bottom:24px">${extraHtml}</td></tr>` : ""}
 <tr><td style="padding-bottom:24px"><a href="${escapeHtml(ctaUrl)}" style="display:inline-block;background:#0a5cff;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:14px 22px;border-radius:10px">${escapeHtml(ctaLabel)}</a></td></tr>
 ${outro ? `<tr><td style="font-size:13px;line-height:1.6;color:#9aa1b2">${escapeHtml(outro)}</td></tr>` : ""}
 </table>
-<p style="font-size:12px;color:#6b7280;margin-top:16px">Nexora Gruppo Digitale</p>
+<p style="font-size:12px;color:#6b7280;margin-top:16px">Christian Prete Agency</p>
 </td></tr></table></body></html>`;
-  const text = [title, intro, extraText, `${ctaLabel}: ${ctaUrl}`, outro, "Nexora Gruppo Digitale"]
+  const text = [title, intro, extraText, `${ctaLabel}: ${ctaUrl}`, outro, "Christian Prete Agency"]
     .filter(Boolean)
     .join("\n\n");
   return { html, text };

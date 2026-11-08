@@ -1,5 +1,5 @@
 /**
- * Worker di Nexora Studio: preleva i job dalla coda su Postgres e li esegue.
+ * Worker di Christian Prete Studio: preleva i job dalla coda su Postgres e li esegue.
  * Fase 2: generazione degli script settimanali ed email del lunedì.
  * Fase 3: trascrizione, edit_spec e render FFmpeg.
  */

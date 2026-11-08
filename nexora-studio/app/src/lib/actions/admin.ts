@@ -109,7 +109,7 @@ export async function cancelJobAction(jobId: string): Promise<AdminActionResult>
       .from("jobs")
       .update({
         status: "failed",
-        last_error: "Annullato dal team Nexora",
+        last_error: "Annullato dal team CP Studio",
         finished_at: new Date().toISOString(),
       })
       .eq("id", jobId)
@@ -257,7 +257,7 @@ export async function adminInviteOwnerAction(
   try {
     await assertAdmin();
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Solo il team Nexora." };
+    return { error: e instanceof Error ? e.message : "Solo il team CP Studio." };
   }
   fd.set("role", "owner");
   const res = await inviteMember(null, fd);
