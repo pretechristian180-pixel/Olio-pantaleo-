@@ -21,8 +21,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CaptionForm, ChangeRequest } from "@/components/videos/review-actions";
+import { RebuildForm } from "@/components/videos/rebuild-form";
 import { scheduleVideoAction, unscheduleVideoAction } from "@/lib/actions/calendar";
-import { adminRebuildVideoAction } from "@/lib/actions/admin";
 import { approveVideo } from "@/lib/actions/videos";
 import { PLATFORM_LABELS } from "@/lib/calendar";
 import { createClient } from "@/lib/supabase/server";
@@ -443,12 +443,7 @@ export default async function VideoDetailPage(props: PageProps<"/video/[id]">) {
                   Rimonta da capo con il motore attuale: nuova trascrizione, nuovo ordine delle riprese e
                   nuovo montaggio. Le versioni attuali vengono tolte; non consuma video del piano.
                 </p>
-                <form action={adminRebuildVideoAction}>
-                  <input type="hidden" name="video_id" value={video.id} />
-                  <SubmitButton variant="outline" size="sm" pendingLabel="Rimonto…">
-                    Rimonta da capo
-                  </SubmitButton>
-                </form>
+                <RebuildForm videoId={video.id} />
               </CardContent>
             </Card>
           )}

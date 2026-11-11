@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import type { FormState } from "@/components/forms/form-message";
 import { inviteMember, type InviteState } from "@/lib/actions/team";
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -272,8 +273,13 @@ const REBUILD_FROM = new Set(["review", "internal_review", "error"]);
  * Rimonta da capo (solo team): nuova trascrizione, nuovo ordine delle riprese e nuovo montaggio
  * con il motore attuale. Le versioni precedenti vengono tolte; non consuma video del piano.
  */
-export async function adminRebuildVideoAction(fd: FormData) {
-  const ctx = await assertAdmin();
+export async function adminRebuildVideoAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  let ctx;
+  try {
+    ctx = await assertAdmin();
+  } catch {
+    return { error: "Solo il team Nexora può rimontare da capo." };
+  }
   const videoId = String(fd.get("video_id") ?? "");
   const db = createAdminClient();
   const { data: video } = await db
@@ -281,7 +287,9 @@ export async function adminRebuildVideoAction(fd: FormData) {
     .select("id, workspace_id, status, raw_upload_id")
     .eq("id", videoId)
     .maybeSingle();
-  if (!video || !REBUILD_FROM.has(video.status)) return;
+  if (!video) return { error: "Video non trovato." };
+  if (!REBUILD_FROM.has(video.status))
+    return { error: "Si può rimontare da capo solo un video in revisione o in errore, non dopo l'approvazione." };
 
   const { data: clips } = await db
     .from("video_clips")
@@ -290,7 +298,8 @@ export async function adminRebuildVideoAction(fd: FormData) {
     .order("position");
   const rawIds = [video.raw_upload_id, ...(clips ?? []).map((c) => c.raw_upload_id)];
   const { data: raws } = await db.from("raw_uploads").select("id, purged_at").in("id", rawIds);
-  if ((raws ?? []).some((r) => r.purged_at)) return; // girato già cancellato (90 giorni)
+  if ((raws ?? []).some((r) => r.purged_at))
+    return { error: "Il girato originale è stato cancellato (90 giorni): non si può rimontare." };
 
   const speech = (clips ?? []).filter((c) => c.kind === "speech");
   if (speech.length > 1) {
@@ -306,13 +315,18 @@ export async function adminRebuildVideoAction(fd: FormData) {
     .eq("id", video.id);
 
   const round = Date.now();
-  await db.rpc("enqueue_job", {
+  const { error: queueError } = await db.rpc("enqueue_job", {
     p_type: "transcribe",
     p_workspace_id: video.workspace_id,
     p_payload: { video_id: video.id, rebuild: round },
     p_dedupe_key: `transcribe:${video.id}:r${round}`,
   });
+  if (queueError) {
+    console.error(JSON.stringify({ msg: "rimonta da capo: job non accodato", video: video.id, error: queueError.message }));
+    return { error: "Non sono riuscito ad avviare il montaggio. Riprova tra poco." };
+  }
   await audit(ctx.user.id, video.workspace_id, "video.rebuild", { video_id: video.id });
   revalidatePath(`/video/${video.id}`);
   revalidatePath("/admin/revisione");
+  return { success: "Rimontaggio avviato: in qualche minuto trovi la nuova versione." };
 }
