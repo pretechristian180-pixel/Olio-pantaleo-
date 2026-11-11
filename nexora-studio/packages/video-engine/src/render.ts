@@ -22,6 +22,11 @@ export interface RenderInput {
   outputPath: string;
   musicPath?: string | null;
   logoPath?: string | null;
+  /**
+   * Logo già ridimensionato per il logo fisso (lo prepara renderVideo): ripetere a ogni
+   * fotogramma un PNG grande rallenta il render di minuti.
+   */
+  watermarkPath?: string | null;
   /** Clip b-roll già scaricate, nello stesso ordine di spec.broll. */
   brollPaths?: (string | null)[];
   /** Colore di sfondo della chiusura con il logo. */
@@ -71,7 +76,9 @@ export function buildRenderArgs(input: RenderInput, assFile: string) {
   if (logoIdx !== null) args.push("-i", input.logoPath!);
   // Logo fisso: la stessa immagine come ingresso a parte, ripetuta per la durata della parte parlata.
   const wmIdx = withWatermark ? idx++ : null;
-  if (wmIdx !== null) args.push("-loop", "1", "-framerate", String(FPS), "-t", f3(mainDur), "-i", input.logoPath!);
+  if (wmIdx !== null) {
+    args.push("-loop", "1", "-framerate", String(FPS), "-t", f3(mainDur), "-i", input.watermarkPath ?? input.logoPath!);
+  }
   const brollIdx: (number | null)[] = (input.brollPaths ?? []).map((p) => {
     if (!p) return null;
     args.push("-i", p);
@@ -210,7 +217,16 @@ export async function renderVideo(input: RenderInput) {
   const ass = buildAss({ words, spec, facesAt, hookUntil });
   await writeFile(join(input.workDir, "subs.ass"), ass, "utf8");
 
-  const { args, durationS } = buildRenderArgs(input, "subs.ass");
+  // Logo fisso: ridimensionato una volta sola, poi ripetuto (piccolo) per tutta la durata.
+  let watermarkPath: string | null = null;
+  if (spec.logoWatermark !== "nessuno" && input.logoPath) {
+    watermarkPath = join(input.workDir, "watermark.png");
+    await execCommand("ffmpeg", ["-y", "-v", "error", "-i", input.logoPath, "-vf", `scale=${WATERMARK_W}:-1`, "-frames:v", "1", watermarkPath], {
+      timeoutMs: 60_000,
+    });
+  }
+
+  const { args, durationS } = buildRenderArgs({ ...input, watermarkPath }, "subs.ass");
   const started = Date.now();
   await execCommand("ffmpeg", args, { cwd: input.workDir, timeoutMs: 30 * 60_000 });
   return { durationS, renderMs: Date.now() - started };

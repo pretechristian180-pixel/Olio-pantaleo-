@@ -2,6 +2,10 @@
 
 ## Effetti: parola chiave in grande e logo fisso (2026-11-07)
 
+### Corretto
+- Logo fisso: il logo viene ridimensionato una volta sola prima del render. Ripetere a ogni fotogramma un PNG grande (es. 3000×3000) raddoppiava i tempi: in prova, 20 s di video sono passati da 25,5 a 11,6 s.
+- Rimonta da capo: l'esito è sempre visibile (conferma o motivo del blocco) e, se il job non parte, l'errore viene registrato.
+
 ### Aggiunto
 - **Parola chiave in grande** (`subtitles.keywordEmphasis`): sotto il sottotitolo compare la parola chiave del blocco, in maiuscolo, quasi il doppio più grande, con alone luminoso tipo neon e piccola animazione d'ingresso. Se sotto non c'è spazio va sopra. L'alone usa il colore più luminoso del brand (`keywordColor`), così si vede anche sugli sfondi scuri.
 - **Logo fisso** (`logoWatermark`): il logo del brand in alto (centro, sinistra o destra) per tutta la parte parlata, sopra il b-roll e sotto le scritte. Sparisce nella chiusura, dove resta il logo grande. Compare solo se il brand ha un logo.
